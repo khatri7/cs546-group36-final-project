@@ -2,9 +2,8 @@
 	"name": "restaurant-app",
 	"version": "1.0.0",
 	"description": "",
-	"main": "app.js",
+	"main": "server.js",
 	"scripts": {
-		"start": "node app.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"authors": [
@@ -24,5 +23,8 @@
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"prettier": "^2.7.1"
+	},
+	"dependencies": {
+		"express": "^4.18.2"
 	}
 }
