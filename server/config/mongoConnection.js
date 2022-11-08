@@ -1,17 +1,17 @@
 const { MongoClient } = require('mongodb');
 
-let _connection = undefined;
-let _db = undefined;
+let connection;
+let db;
 
 module.exports = {
 	dbConnection: async () => {
-		if (!_connection) {
-			_connection = await MongoClient.connect(process.env.MONGO_URL);
-			_db = await _connection.db(process.env.MONGO_DATABASE);
+		if (!connection) {
+			connection = await MongoClient.connect(process.env.MONGO_URL);
+			db = await connection.db(process.env.MONGO_DATABASE);
 		}
-		return _db;
+		return db;
 	},
 	closeConnection: () => {
-		_connection.close();
+		connection.close();
 	},
 };
