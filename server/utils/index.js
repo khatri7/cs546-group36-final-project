@@ -1,0 +1,156 @@
+const { ObjectId } = require('mongodb');
+
+const error = {
+	NOT_FOUND: {
+		status: 404,
+		message: 'Not Found',
+	},
+	BAD_REQUEST: {
+		status: 400,
+		message: 'Invalid Request Parameter',
+	},
+	INTERNAL_SERVER_ERROR: {
+		status: 500,
+		message: 'Internal Server Error',
+	},
+};
+Object.freeze(error);
+
+const createErrorObj = (err, message) => {
+	if (!err || !err.status || !err.message) return error.INTERNAL_SERVER_ERROR;
+	return {
+		...err,
+		message: message || err.message,
+	};
+};
+
+const badRequestErr = (message) => createErrorObj(error.BAD_REQUEST, message);
+const notFoundErr = (message) => createErrorObj(error.NOT_FOUND, message);
+const internalServerErr = (message) =>
+	createErrorObj(error.INTERNAL_SERVER_ERROR, message);
+
+const sendErrResp = (res, { status, message }) =>
+	res
+		.status(status || error.INTERNAL_SERVER_ERROR)
+		.json(message ? { message } : '');
+
+/**
+ *
+ * @param {string} char
+ * @returns {boolean} if the character provided is a lower case letter
+ */
+const isLetterChar = (char) => char >= 'a' && char <= 'z';
+
+/**
+ *
+ * @param {string} char
+ * @returns {boolean} if the character provided is a number
+ */
+const isNumberChar = (char) => char >= '0' && char <= '9';
+
+/**
+ *
+ * @param {string} str
+ * @param {string} varName
+ * @param {("min" | "max" | "equal")} compareOp
+ * @param {number} compareVal
+ * @returns str after trimming if it is a valid string input
+ */
+const isValidStr = (strParam, varName, compareOp, compareVal) => {
+	if (!strParam) throw badRequestErr(`You need to provide a ${varName}`);
+	if (typeof strParam !== 'string')
+		throw badRequestErr(`${varName} should be of type string`);
+	const str = strParam.trim();
+	if (str.length === 0)
+		throw badRequestErr(
+			`Empty string/string with spaces is not a valid ${varName}`
+		);
+	if (compareOp && compareVal) {
+		switch (compareOp) {
+			case 'min':
+				if (str.length < compareVal)
+					throw badRequestErr(
+						`${varName} should be at least ${compareVal} in length`
+					);
+				break;
+			case 'max':
+				if (str.length > compareVal)
+					throw badRequestErr(
+						`${varName} should be at max ${compareVal} in length`
+					);
+				break;
+			case 'equal':
+				if (str.length !== compareVal)
+					throw badRequestErr(`${varName} should be ${compareVal} in length`);
+				break;
+			default:
+				break;
+		}
+	}
+	return str;
+};
+
+/**
+ *
+ * @param {Array} arr
+ * @param {string} arrName
+ * @param {("min" | "max" | "equal")} compareOp
+ * @param {number} compareVal
+ */
+const isValidArray = (arr, arrName, compareOp, compareVal) => {
+	if (!arr) throw badRequestErr(`You need to provide ${arrName}`);
+	if (typeof arr !== 'object' || !Array.isArray(arr))
+		throw badRequestErr(`${arrName} should be of type array`);
+	if (compareOp && compareVal) {
+		switch (compareOp) {
+			case 'min':
+				if (arr.length < compareVal)
+					throw badRequestErr(
+						`${arrName} length should be at least ${compareVal}`
+					);
+				break;
+			case 'max':
+				if (arr.length > compareVal)
+					throw badRequestErr(`${arrName} length cannot be more ${compareVal}`);
+				break;
+			case 'equal':
+				if (arr.length !== compareVal)
+					throw badRequestErr(`${arrName} length should be ${compareVal}`);
+				break;
+			default:
+				break;
+		}
+	}
+};
+
+/**
+ *
+ * @param {object} obj
+ * @returns {boolean} true if the object provided is a valid object
+ */
+const isValidObj = (obj) =>
+	obj !== null && typeof obj === 'object' && !Array.isArray(obj);
+
+/**
+ *
+ * @param {string} id
+ * @returns {ObjectId} the object id if it is valid otherwise throws an error
+ */
+const isValidObjectId = (idParam) => {
+	const id = isValidStr(idParam, 'Id');
+	if (!ObjectId.isValid(id)) throw badRequestErr('Invalid Object Id');
+	return ObjectId(id);
+};
+
+module.exports = {
+	notFoundErr,
+	badRequestErr,
+	internalServerErr,
+	sendErrResp,
+	isLetterChar,
+	isNumberChar,
+	isValidStr,
+	isValidArray,
+	isValidObj,
+	isValidObjectId,
+};
