@@ -5,9 +5,8 @@ env:
 extends:
   - airbnb-base
   - plugin:prettier/recommended
-  - plugin:node/recommended
-overrides: []
 parserOptions:
-  ecmaVersion: latest
+  ecmaVersion: 12
+rules: {}
 plugins:
   - prettier
