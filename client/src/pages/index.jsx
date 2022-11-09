@@ -12,6 +12,7 @@ function Home() {
 		<div>
 			<nav>
 				<NavLink to="login">Login</NavLink>
+				<NavLink to="Signup">Signup</NavLink>
 			</nav>
 			<Button
 				type="button"
