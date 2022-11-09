@@ -25,101 +25,97 @@ const schema = Yup.object().shape({
 
 function SignupForm() {
 	return (
-		<>
-			{' '}
-			{/* Wrapping form inside formik tag and passing our schema to validationSchema prop */}
-			<Formik
-				validationSchema={schema}
-				initialValues={{
-					firstName: '',
-					lastName: '',
-					bio: '',
-					email: '',
-					password: '',
-				}}
-				onSubmit={async (values) => {
-					alert(JSON.stringify(values));
-				}}
-			>
-				{({ values, errors, touched, handleChange, handleBlur }) => (
-					<Form>
-						<span>Sign Up!!</span>
-						<Field
-							name="firstname"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.firstName}
-							placeholder="Enter firstname"
-							className="form-control inp_text"
-							id="firstname"
-						/>
-						<p className="error">
-							{errors.firstName && touched.firstName && errors.firstname}
-						</p>
-						<Field
-							name="lastname"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.lastname}
-							placeholder="Enter lastname"
-							className="form-control inp_text"
-							id="lastname"
-						/>
-						<p className="error">
-							{errors.lastname && touched.lastname && errors.lastname}
-						</p>
-						<Field
-							name="username"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.username}
-							placeholder="Enter username"
-							className="form-control inp_text"
-							id="username"
-						/>
-						<p className="error">
-							{errors.username && touched.username && errors.username}
-						</p>
-						<Field
-							name="bio"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.bio}
-							placeholder="Enter bio"
-							className="form-control inp_text"
-							id="bio"
-						/>
-						<p className="error">{errors.bio && touched.bio && errors.bio}</p>
-						<Field
-							name="email"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.email}
-							placeholder="Enter email id:"
-							className="form-control inp_text"
-							id="email"
-						/>
-						<p className="error">
-							{errors.email && touched.email && errors.email}
-						</p>
-						<Field
-							name="password"
-							type="password"
-							onChange={handleChange}
-							onBlur={handleBlur}
-							value={values.password}
-							placeholder="Enter password"
-							className="form-control inp_text"
-							id="password"
-						/>
-						<p className="error">
-							{errors.password && touched.password && errors.password}
-						</p>
-						<button type="submit">Signup</button>
-					</Form>
-				)}
-			</Formik>
-		</>
+		<Formik
+			validationSchema={schema}
+			initialValues={{
+				firstName: '',
+				lastName: '',
+				bio: '',
+				email: '',
+				password: '',
+			}}
+			onSubmit={async (values) => {
+				alert(JSON.stringify(values));
+			}}
+		>
+			{({ values, errors, touched, handleChange, handleBlur }) => (
+				<Form>
+					<span>Sign Up!!</span>
+					<Field
+						name="firstname"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.firstName}
+						placeholder="Enter firstname"
+						className="form-control inp_text"
+						id="firstname"
+					/>
+					<p className="error">
+						{errors.firstName && touched.firstName && errors.firstname}
+					</p>
+					<Field
+						name="lastname"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.lastname}
+						placeholder="Enter lastname"
+						className="form-control inp_text"
+						id="lastname"
+					/>
+					<p className="error">
+						{errors.lastname && touched.lastname && errors.lastname}
+					</p>
+					<Field
+						name="username"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.username}
+						placeholder="Enter username"
+						className="form-control inp_text"
+						id="username"
+					/>
+					<p className="error">
+						{errors.username && touched.username && errors.username}
+					</p>
+					<Field
+						name="bio"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.bio}
+						placeholder="Enter bio"
+						className="form-control inp_text"
+						id="bio"
+					/>
+					<p className="error">{errors.bio && touched.bio && errors.bio}</p>
+					<Field
+						name="email"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.email}
+						placeholder="Enter email id:"
+						className="form-control inp_text"
+						id="email"
+					/>
+					<p className="error">
+						{errors.email && touched.email && errors.email}
+					</p>
+					<Field
+						name="password"
+						type="password"
+						onChange={handleChange}
+						onBlur={handleBlur}
+						value={values.password}
+						placeholder="Enter password"
+						className="form-control inp_text"
+						id="password"
+					/>
+					<p className="error">
+						{errors.password && touched.password && errors.password}
+					</p>
+					<button type="submit">Signup</button>
+				</Form>
+			)}
+		</Formik>
 	);
 }
 
