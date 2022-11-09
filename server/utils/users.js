@@ -77,7 +77,7 @@ const isValidDob = (dateParam) => {
 /**
  *
  * @param {string} usernameParam
- * @returns {string} username after trimming if it is a valid user otherwise throws an error
+ * @returns {string} username after trimming and converting to lowercase if it is a valid user otherwise throws an error
  */
 const isValidUsername = (usernameParam) => {
 	const username = isValidStr(usernameParam);
@@ -89,7 +89,7 @@ const isValidUsername = (usernameParam) => {
 				'Invalid username: Should only contain letters or numbers'
 			);
 	});
-	return username;
+	return username.toLowerCase();
 };
 
 /**
@@ -142,10 +142,17 @@ const isValidUserObj = async (userObjParam) => {
 		lastName: isValidName(userObjParam.lastName, 'First Name', false),
 		username: isValidUsername(userObjParam.username),
 		dob: isValidDob(userObjParam.dob),
-		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : '',
+		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
 		location: isValidStr(userObjParam.location),
 		email: isValidEmail(userObjParam.email),
 		password: await isValidPassword(),
+		education: [],
+		employment: [],
+		skills: [],
+		socials: {
+			github: null,
+			linkedin: null,
+		},
 	};
 };
 

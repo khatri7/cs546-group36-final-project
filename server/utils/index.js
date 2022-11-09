@@ -39,7 +39,8 @@ const sendErrResp = (res, { status, message }) =>
  * @param {string} char
  * @returns {boolean} if the character provided is a lower case letter
  */
-const isLetterChar = (char) => char >= 'a' && char <= 'z';
+const isLetterChar = (char) =>
+	char.toLowerCase() >= 'a' && char.toLowerCase() <= 'z';
 
 /**
  *

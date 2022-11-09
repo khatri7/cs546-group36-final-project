@@ -1,5 +1,10 @@
 const { users } = require('../config/mongoCollections');
-const { notFoundErr, isValidObjectId, internalServerErr } = require('../utils');
+const {
+	notFoundErr,
+	isValidObjectId,
+	internalServerErr,
+	badRequestErr,
+} = require('../utils');
 const { isValidUsername, isValidUserObj } = require('../utils/users');
 
 const getUserByUsername = async (usernameParam) => {
@@ -18,8 +23,22 @@ const getUserById = async (idParam) => {
 	return user;
 };
 
+const checkUsernameAvailable = async (usernameParam) => {
+	const username = isValidUsername(usernameParam);
+	let user = null;
+	try {
+		user = await getUserByUsername(username);
+	} catch (e) {
+		if (e.status === 404) return true;
+	}
+	if (user && user.username.toLowerCase() === username.toLowerCase())
+		throw badRequestErr('The username provided has already been taken');
+	return true;
+};
+
 const createUser = async (userObjParam) => {
 	const userObj = await isValidUserObj(userObjParam);
+	await checkUsernameAvailable(userObj.username);
 	const usersCollection = await users();
 	const result = await usersCollection.insertOne(userObj);
 	if (!result?.acknowledged || !result?.insertedId)
