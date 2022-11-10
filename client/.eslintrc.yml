@@ -9,8 +9,9 @@ extends:
 settings:
   import/resolver:
     node:
-      paths:
+      moduleDirectory:
         - src/
+        - node_modules
       extensions:
         - .js
         - .jsx
