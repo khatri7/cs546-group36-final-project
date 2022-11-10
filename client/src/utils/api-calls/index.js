@@ -65,4 +65,4 @@ export const requestTypes = {
 
 Object.freeze(requestTypes);
 
-export const createUser = (user) => POST('/users', user);
+export const createUser = async (user) => POST('/users', user);
