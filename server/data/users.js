@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { users } = require('../config/mongoCollections');
 const {
 	notFoundErr,
@@ -5,7 +6,12 @@ const {
 	internalServerErr,
 	badRequestErr,
 } = require('../utils');
-const { isValidUsername, isValidUserObj } = require('../utils/users');
+const {
+	isValidUsername,
+	isValidUserObj,
+	comparePassword,
+	isValidUserLoginObj,
+} = require('../utils/users');
 
 const getUserByUsername = async (usernameParam) => {
 	const username = isValidUsername(usernameParam);
@@ -47,7 +53,24 @@ const createUser = async (userObjParam) => {
 	return createdUser;
 };
 
+const authenticateUser = async (userLoginObjParam) => {
+	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
+	try {
+		const user = await getUserByUsername(userLoginObj.username);
+		const doPasswordsMatch = await comparePassword(
+			userLoginObj.password,
+			user.password
+		);
+		if (!doPasswordsMatch) throw badRequestErr('Invalid username or password');
+		const token = jwt.sign(user, process.env.JWT_SECRET);
+		return { token };
+	} catch (e) {
+		throw badRequestErr('Invalid username or Password');
+	}
+};
+
 module.exports = {
 	getUserByUsername,
 	createUser,
+	authenticateUser,
 };
