@@ -62,7 +62,7 @@ const authenticateUser = async (userLoginObjParam) => {
 			user.password
 		);
 		if (!doPasswordsMatch) throw badRequestErr('Invalid username or password');
-		const token = jwt.sign(user, process.env.JWT_SECRET);
+		const token = jwt.sign({ user }, process.env.JWT_SECRET);
 		return { token };
 	} catch (e) {
 		throw badRequestErr('Invalid username or Password');
