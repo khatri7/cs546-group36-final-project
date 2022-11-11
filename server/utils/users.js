@@ -119,6 +119,21 @@ const hashPassword = async (password) => {
 
 /**
  *
+ * @param {string} password plain text password to compare
+ * @param {string} hash hash of the password from DB
+ * @returns {boolean} result of the comparision or throws an error
+ */
+const comparePassword = async (password, hash) => {
+	try {
+		const isSame = await bcrypt.compare(password, hash);
+		return isSame;
+	} catch (e) {
+		throw internalServerErr('Error checking password. Please try again');
+	}
+};
+
+/**
+ *
  * @param {string} password
  * @returns {string} hash of the password if it is a valid password otherwise throws an error
  */
@@ -156,7 +171,17 @@ const isValidUserObj = async (userObjParam) => {
 	};
 };
 
+const isValidUserLoginObj = (userLoginObjParam) => {
+	isValidObj(userLoginObjParam);
+	return {
+		username: isValidUsername(userLoginObjParam.username),
+		password: isValidStr(userLoginObjParam.password, 'Password', 'min', 8),
+	};
+};
+
 module.exports = {
 	isValidUsername,
 	isValidUserObj,
+	comparePassword,
+	isValidUserLoginObj,
 };
