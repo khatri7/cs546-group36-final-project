@@ -18,8 +18,13 @@ router.route('/login').post(async (req, res) => {
 router.route('/signup').post(async (req, res) => {
 	try {
 		const userObj = await isValidUserObj(req.body);
-		const user = await createUser(userObj);
-		res.status(201).json({ user });
+		const { _id, username } = await createUser(userObj);
+		res.status(201).json({
+			user: {
+				_id,
+				username,
+			},
+		});
 	} catch (e) {
 		sendErrResp(res, e);
 	}
