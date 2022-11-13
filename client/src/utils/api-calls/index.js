@@ -4,6 +4,12 @@ const axios = Axios.create({
 	baseURL: process.env.REACT_APP_SERVER_URL,
 });
 
+export const handleError = (error) => {
+	if (error.response && error.response.message) return error.response.message;
+	if (error.message) return error.message;
+	return error;
+};
+
 /**
  *
  * @param {string} endpoint to which the API request is to be made
@@ -23,7 +29,9 @@ export const GET = async (endpoint, params = {}) => {
  * @returns
  */
 export const POST = async (endpoint, body = {}, params = {}) => {
-	const { data } = await axios.post(endpoint, { params, data: body });
+	const { data } = await axios.post(endpoint, body, {
+		params,
+	});
 	return data;
 };
 
@@ -35,7 +43,9 @@ export const POST = async (endpoint, body = {}, params = {}) => {
  * @returns
  */
 export const PUT = async (endpoint, body = {}, params = {}) => {
-	const { data } = await axios.put(endpoint, { params, data: body });
+	const { data } = await axios.put(endpoint, body, {
+		params,
+	});
 	return data;
 };
 
@@ -46,8 +56,10 @@ export const PUT = async (endpoint, body = {}, params = {}) => {
  * @param {object} params query parameters
  * @returns
  */
-export const DELETE = async (endpoint, body = {}, params = {}) => {
-	const { data } = await axios.delete(endpoint, { params, data: body });
+export const DELETE = async (endpoint, params = {}) => {
+	const { data } = await axios.delete(endpoint, {
+		params,
+	});
 	return data;
 };
 
@@ -65,4 +77,6 @@ export const requestTypes = {
 
 Object.freeze(requestTypes);
 
-export const createUser = async (user) => POST('/users', user);
+export const createUser = async (user) => POST('/auth/signup', user);
+
+export const login = async (userLoginObj) => POST('/auth/login', userLoginObj);

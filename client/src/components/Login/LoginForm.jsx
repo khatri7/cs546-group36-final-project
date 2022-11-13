@@ -1,61 +1,147 @@
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import React from 'react';
+import React, { useState } from 'react';
+import {
+	Button,
+	TextField,
+	Box,
+	Typography,
+	CircularProgress,
+	InputAdornment,
+	IconButton,
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { handleError, login } from 'utils/api-calls';
+import { useDispatch } from 'react-redux';
+import { errorAlert } from 'store/alert';
 
 // Creating schema
 const schema = Yup.object().shape({
-	email: Yup.string()
-		.required('Email is a required field')
-		.email('Invalid email format'),
+	username: Yup.string()
+		.required('Username is required')
+		.matches('^[a-zA-Z][a-zA-Z0-9]*$', 'Invalid username')
+		.min(3, 'Username must be at least 3 characters'),
 	password: Yup.string()
-		.required('Password is a required field')
+		.required('Password is required')
 		.min(8, 'Password must be at least 8 characters'),
 });
 
 function LoginForm() {
+	const [showPassword, setShowPassword] = useState(false);
+	const handleClickShowPassword = () => {
+		setShowPassword(!showPassword);
+	};
+
+	const dispatch = useDispatch();
+
+	const handleMouseDownPassword = (event) => {
+		event.preventDefault();
+	};
 	return (
-		<>
-			{/* Wrapping form inside formik tag and passing our schema to validationSchema prop */}
-			<Formik
-				validationSchema={schema}
-				initialValues={{ email: '', password: '' }}
-				onSubmit={(values) => {
-					alert(JSON.stringify(values));
-				}}
-			>
-				{({ values, errors, touched, handleChange, handleBlur }) => (
-					<Form>
-						<span>Login</span>
-						<Field
-							type="email"
-							name="email"
+		<Formik
+			validationSchema={schema}
+			initialValues={{ username: '', password: '' }}
+			onSubmit={async (values, { setSubmitting }) => {
+				try {
+					setSubmitting(true);
+					await login(values);
+					setSubmitting(false);
+				} catch (e) {
+					let error = 'Unexpected error occurred';
+					if (typeof handleError(e) === 'string') error = handleError(e);
+					dispatch(errorAlert(error));
+				}
+			}}
+		>
+			{({
+				values,
+				errors,
+				touched,
+				handleChange,
+				handleBlur,
+				isSubmitting,
+			}) => (
+				<Form>
+					<Box
+						sx={{
+							height: '100vh',
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<Typography variant="h3" sx={{ mb: 2, textTransform: 'uppercase' }}>
+							Login
+						</Typography>
+						<TextField
+							variant="outlined"
+							label="Username"
+							name="username"
+							value={values.username}
 							onChange={handleChange}
 							onBlur={handleBlur}
-							value={values.email}
-							placeholder="Enter email id / username"
-							className="form-control inp_text"
-							id="email"
+							error={touched.username && Boolean(errors.username)}
+							helperText={touched.username && errors.username}
+							sx={{
+								minWidth: 500,
+								mb: 2,
+							}}
+							required
 						/>
-						<p className="error">
-							{errors.email && touched.email && errors.email}
-						</p>
-						<Field
-							type="password"
+						<TextField
+							variant="outlined"
+							label="Password"
 							name="password"
+							type={showPassword ? 'text' : 'password'}
+							value={values.password}
 							onChange={handleChange}
 							onBlur={handleBlur}
-							value={values.password}
-							placeholder="Enter password"
-							className="form-control"
+							error={touched.password && Boolean(errors.password)}
+							helperText={touched.password && errors.password}
+							sx={{
+								minWidth: 500,
+								mb: 2,
+							}}
+							InputProps={{
+								endAdornment: (
+									<InputAdornment position="end">
+										<IconButton
+											aria-label="toggle password visibility"
+											onClick={handleClickShowPassword}
+											onMouseDown={handleMouseDownPassword}
+											edge="end"
+										>
+											{showPassword ? <VisibilityOff /> : <Visibility />}
+										</IconButton>
+									</InputAdornment>
+								),
+							}}
+							required
 						/>
-						<p className="error">
-							{errors.password && touched.password && errors.password}
-						</p>
-						<button type="submit">Login</button>
-					</Form>
-				)}
-			</Formik>
-		</>
+						<Button
+							variant="contained"
+							type="submit"
+							sx={{
+								height: '3rem',
+								width: '10rem',
+							}}
+							disabled={
+								!!(
+									isSubmitting ||
+									!values.username ||
+									!values.password ||
+									errors.username ||
+									errors.password
+								)
+							}
+						>
+							{isSubmitting ? <CircularProgress size={24} /> : 'Login'}
+						</Button>
+					</Box>
+				</Form>
+			)}
+		</Formik>
 	);
 }
 

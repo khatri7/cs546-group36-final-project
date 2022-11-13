@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GET } from 'utils/api-calls';
+import { GET, handleError } from 'utils/api-calls';
 
 /**
  * Use this hook only to Fetch data using simple GET requests
@@ -13,13 +13,15 @@ function useQuery(endpoint) {
 	useEffect(() => {
 		const makeReq = async () => {
 			try {
-				const resData = await GET(endpoint);
-				setData(resData);
+				const res = await GET(endpoint);
+				setData(res.data);
 				setLoading(false);
 				setError(false);
 			} catch (e) {
+				setData(null);
 				setLoading(false);
-				setError(e.response?.data?.message);
+				if (typeof handleError(e) === 'string') setError(handleError(e));
+				else setError('Unkown error occured');
 			}
 		};
 		makeReq();
