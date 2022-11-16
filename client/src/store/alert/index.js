@@ -30,6 +30,8 @@ export const alertSlice = createSlice({
 		},
 		dismissAlert: (state) => {
 			state.open = false;
+			state.type = 'info';
+			state.message = '';
 		},
 	},
 });
