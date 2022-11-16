@@ -45,11 +45,12 @@ function LoginForm() {
 				try {
 					setSubmitting(true);
 					await login(values);
-					setSubmitting(false);
 				} catch (e) {
 					let error = 'Unexpected error occurred';
 					if (typeof handleError(e) === 'string') error = handleError(e);
 					dispatch(errorAlert(error));
+				} finally {
+					setSubmitting(false);
 				}
 			}}
 		>
