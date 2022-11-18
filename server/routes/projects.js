@@ -7,43 +7,34 @@ const {
 	isValidObj,
 	isValidStr,
 } = require('../utils');
-const { isValidProjectName } = require('../utils/projects');
+const { isValidProjectName, isValidGithub } = require('../utils/projects');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 
 router.route('/project').post(authenticateToken, async (req, res) => {
+	// add a deployment link
 	const { user } = req;
-	const {
-		name,
-		description,
-		github,
-		media,
-		technologies,
-		owner,
-		comments,
-		likes,
-	} = req.body;
+	let { name, description, github, media, technologies, deploymentLink } =
+		req.body;
 	try {
-		// name,description,github,media,technologies,owner,comments,likes
-		// make the validations sent as parameters accurate later
 		name = isValidProjectName(name);
-		description = isValidStr(description);
-		github = isValidStr(github);
-		media = isValidArray(media);
-		technologies = isValidArray(technologies);
-		owner = isValidObj(owner);
-		comments = isValidArray(comments);
-		likes = isValidArray(likes);
+		description = req.body.description
+			? isValidStr(req.body.description, 'project description')
+			: null;
+		github = req.body.github ? isValidGithub(req.body.github) : null;
+		media = isValidArray(media, 'media', 'min', 1);
+		technologies = isValidArray(technologies, 'technologies', 'min', 1);
+		deploymentLink = req.body.deploymentLink
+			? isValidStr(req.body.deploymentLink, 'project deployment link')
+			: null;
 
 		const projectObject = {
-			name: name,
+			name,
 			description: description,
 			github: github,
-			media: media,
-			technologies: technologies,
-			owner: owner,
-			comments: comments,
-			likes: likes,
+			media,
+			technologies,
+			deploymentLink: deploymentLink,
 		};
 		const project = await projectsData.createProject(projectObject, user);
 		res.json({ project });
