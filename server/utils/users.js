@@ -80,7 +80,7 @@ const isValidDob = (dateParam) => {
  * @returns {string} username after trimming and converting to lowercase if it is a valid user otherwise throws an error
  */
 const isValidUsername = (usernameParam) => {
-	const username = isValidStr(usernameParam);
+	const username = isValidStr(usernameParam, 'Username', 'min', 3);
 	if (!isLetterChar(username.charAt(0)))
 		throw badRequestErr('Invalid username: Should start with a letter');
 	username.split('').forEach((char) => {
@@ -135,12 +135,13 @@ const comparePassword = async (password, hash) => {
 /**
  *
  * @param {string} password
- * @returns {string} hash of the password if it is a valid password otherwise throws an error
+ * @returns {string} password if it is a valid password otherwise throws an error
  */
-const isValidPassword = async (passwordParam) => {
+const isValidPassword = (passwordParam) => {
+	if (passwordParam.split('').includes(' '))
+		throw badRequestErr('Passwords cannot contain spaces');
 	const password = isValidStr(passwordParam, 'Password', 'min', 8);
-	const passwordHash = await hashPassword(password);
-	return passwordHash;
+	return password;
 };
 
 // TODO - validate location and bio
@@ -150,17 +151,17 @@ const isValidPassword = async (passwordParam) => {
  * @param {object} userObj
  * @returns {object} user object after validating each field
  */
-const isValidUserObj = async (userObjParam) => {
+const isValidUserObj = (userObjParam) => {
 	isValidObj(userObjParam);
 	return {
 		firstName: isValidName(userObjParam.firstName, 'First Name', false),
-		lastName: isValidName(userObjParam.lastName, 'First Name', false),
+		lastName: isValidName(userObjParam.lastName, 'Last Name', false),
 		username: isValidUsername(userObjParam.username),
 		dob: isValidDob(userObjParam.dob),
 		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
 		location: isValidStr(userObjParam.location),
 		email: isValidEmail(userObjParam.email),
-		password: await isValidPassword(),
+		password: isValidPassword(userObjParam.password),
 		education: [],
 		employment: [],
 		skills: [],
@@ -175,13 +176,15 @@ const isValidUserLoginObj = (userLoginObjParam) => {
 	isValidObj(userLoginObjParam);
 	return {
 		username: isValidUsername(userLoginObjParam.username),
-		password: isValidStr(userLoginObjParam.password, 'Password', 'min', 8),
+		password: isValidPassword(userLoginObjParam.password),
 	};
 };
 
 module.exports = {
 	isValidUsername,
+	isValidEmail,
 	isValidUserObj,
+	hashPassword,
 	comparePassword,
 	isValidUserLoginObj,
 };
