@@ -26,7 +26,6 @@ const isValidProjectObject = (projectObject) => {
 			? isValidStr(projectObject.description, 'project description')
 			: null,
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
-		// TODO - github url validation
 		media: isValidArray(projectObject.media, 'media', 'min', 1),
 		technologies: isValidArray(
 			projectObject.technologies,

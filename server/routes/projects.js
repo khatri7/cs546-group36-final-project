@@ -12,7 +12,6 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 
 router.route('/').post(authenticateToken, async (req, res) => {
-	// add a deployment link
 	const { user } = req;
 	let { name, description, github, media, technologies, deploymentLink } =
 		req.body;

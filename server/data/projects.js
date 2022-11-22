@@ -45,20 +45,6 @@ const createProject = async (projectObj, user) => {
 	);
 	return createdProject;
 };
-const deleteProject = async (projectName, user) => {
-	// validations for projectname and user
-	const projectsCollection = await projects();
-
-	// if the user is not authenticated ie if owner_id !== user_id throw error
-	// JWT token userid will be different from the ownerid of mongodb discuss
-
-	const deletedProjectInfo = await projectsCollection.deleteOne({
-		name: projectName,
-	});
-	return deletedProjectInfo;
-};
-
 module.exports = {
 	createProject,
-	deleteProject,
 };
