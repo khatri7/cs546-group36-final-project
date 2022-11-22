@@ -140,6 +140,7 @@ const isValidArray = (arr, arrName, compareOp, compareVal) => {
 				break;
 		}
 	}
+	return arr;
 };
 
 /**

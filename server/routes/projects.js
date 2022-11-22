@@ -11,7 +11,7 @@ const { isValidProjectName, isValidGithub } = require('../utils/projects');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 
-router.route('/project').post(authenticateToken, async (req, res) => {
+router.route('/').post(authenticateToken, async (req, res) => {
 	// add a deployment link
 	const { user } = req;
 	let { name, description, github, media, technologies, deploymentLink } =
@@ -30,11 +30,11 @@ router.route('/project').post(authenticateToken, async (req, res) => {
 
 		const projectObject = {
 			name,
-			description: description,
-			github: github,
+			description,
+			github,
 			media,
 			technologies,
-			deploymentLink: deploymentLink,
+			deploymentLink,
 		};
 		const project = await projectsData.createProject(projectObject, user);
 		res.json({ project });
