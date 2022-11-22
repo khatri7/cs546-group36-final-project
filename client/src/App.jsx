@@ -9,12 +9,12 @@ import Routes from './routes';
 
 function App() {
 	return (
-		<div>
+		<>
 			<Router>
 				<Routes />
 			</Router>
 			<Alert />
-		</div>
+		</>
 	);
 }
 

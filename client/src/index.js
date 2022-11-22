@@ -1,3 +1,4 @@
+import { Container } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -11,7 +12,9 @@ root.render(
 	// eslint-disable-next-line react/jsx-filename-extension
 	<React.StrictMode>
 		<Provider store={store}>
-			<App />
+			<Container>
+				<App />
+			</Container>
 		</Provider>
 	</React.StrictMode>
 );

@@ -1,11 +1,12 @@
+import { Box } from '@mui/material';
 import SignupForm from 'components/Signup/SignupForm';
 import React from 'react';
 
 function Signup() {
 	return (
-		<div>
+		<Box>
 			<SignupForm />
-		</div>
+		</Box>
 	);
 }
 
