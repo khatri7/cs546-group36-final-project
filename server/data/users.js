@@ -11,6 +11,8 @@ const {
 	isValidUserObj,
 	comparePassword,
 	isValidUserLoginObj,
+	isValidEmail,
+	hashPassword,
 } = require('../utils/users');
 
 const getUserByUsername = async (usernameParam) => {
@@ -18,6 +20,14 @@ const getUserByUsername = async (usernameParam) => {
 	const usersCollection = await users();
 	const user = await usersCollection.findOne({ username });
 	if (!user) throw notFoundErr('No user found for the provided username');
+	return user;
+};
+
+const getUserByEmail = async (emailParam) => {
+	const email = isValidEmail(emailParam);
+	const usersCollection = await users();
+	const user = await usersCollection.findOne({ email });
+	if (!user) throw notFoundErr('No user found for the provided email');
 	return user;
 };
 
@@ -42,11 +52,29 @@ const checkUsernameAvailable = async (usernameParam) => {
 	return true;
 };
 
+const checkEmailTaken = async (emailParam) => {
+	const email = isValidEmail(emailParam);
+	let user = null;
+	try {
+		user = await getUserByEmail(email);
+	} catch (e) {
+		if (e.status === 404) return true;
+	}
+	if (user && user.email.toLowerCase() === email.toLowerCase())
+		throw badRequestErr('An account with the provided email already exists');
+	return true;
+};
+
 const createUser = async (userObjParam) => {
-	const userObj = await isValidUserObj(userObjParam);
-	await checkUsernameAvailable(userObj.username);
+	await checkUsernameAvailable(userObjParam.username);
+	await checkEmailTaken(userObjParam.email);
+	const userObj = isValidUserObj(userObjParam);
+	const password = await hashPassword(userObj.password);
 	const usersCollection = await users();
-	const result = await usersCollection.insertOne(userObj);
+	const result = await usersCollection.insertOne({
+		...userObj,
+		password,
+	});
 	if (!result?.acknowledged || !result?.insertedId)
 		throw internalServerErr('Could not create user. Please try again');
 	const createdUser = await getUserById(result.insertedId.toString());
@@ -56,20 +84,31 @@ const createUser = async (userObjParam) => {
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
 	try {
-		const user = await getUserByUsername(userLoginObj.username);
+		const { _id, username, password } = await getUserByUsername(
+			userLoginObj.username
+		);
 		const doPasswordsMatch = await comparePassword(
 			userLoginObj.password,
-			user.password
+			password
 		);
 		if (!doPasswordsMatch) throw badRequestErr('Invalid username or password');
-		const token = jwt.sign({ user }, process.env.JWT_SECRET);
-		return { token };
+		const token = jwt.sign(
+			{
+				user: {
+					_id,
+					username,
+				},
+			},
+			process.env.JWT_SECRET
+		);
+		return token;
 	} catch (e) {
 		throw badRequestErr('Invalid username or Password');
 	}
 };
 
 module.exports = {
+	getUserById,
 	getUserByUsername,
 	createUser,
 	authenticateUser,

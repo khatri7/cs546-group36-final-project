@@ -14,6 +14,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { handleError, login } from 'utils/api-calls';
 import { useDispatch } from 'react-redux';
 import { errorAlert } from 'store/alert';
+import { Link } from 'react-router-dom';
 
 // Creating schema
 const schema = Yup.object().shape({
@@ -38,110 +39,127 @@ function LoginForm() {
 		event.preventDefault();
 	};
 	return (
-		<Formik
-			validationSchema={schema}
-			initialValues={{ username: '', password: '' }}
-			onSubmit={async (values, { setSubmitting }) => {
-				try {
-					setSubmitting(true);
-					await login(values);
-					setSubmitting(false);
-				} catch (e) {
-					let error = 'Unexpected error occurred';
-					if (typeof handleError(e) === 'string') error = handleError(e);
-					dispatch(errorAlert(error));
-				}
+		<Box
+			sx={{
+				minHeight: '60vh',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				gap: 4,
 			}}
 		>
-			{({
-				values,
-				errors,
-				touched,
-				handleChange,
-				handleBlur,
-				isSubmitting,
-			}) => (
-				<Form>
-					<Box
-						sx={{
-							height: '100vh',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Typography variant="h3" sx={{ mb: 2, textTransform: 'uppercase' }}>
-							Login
-						</Typography>
-						<TextField
-							variant="outlined"
-							label="Username"
-							name="username"
-							value={values.username}
-							onChange={handleChange}
-							onBlur={handleBlur}
-							error={touched.username && Boolean(errors.username)}
-							helperText={touched.username && errors.username}
+			<Formik
+				validationSchema={schema}
+				initialValues={{ username: '', password: '' }}
+				onSubmit={async (values, { setSubmitting }) => {
+					try {
+						setSubmitting(true);
+						await login(values);
+					} catch (e) {
+						let error = 'Unexpected error occurred';
+						if (typeof handleError(e) === 'string') error = handleError(e);
+						dispatch(errorAlert(error));
+					} finally {
+						setSubmitting(false);
+					}
+				}}
+			>
+				{({
+					values,
+					errors,
+					touched,
+					handleChange,
+					handleBlur,
+					isSubmitting,
+				}) => (
+					<Form>
+						<Box
 							sx={{
-								minWidth: 500,
-								mb: 2,
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								justifyContent: 'center',
 							}}
-							required
-						/>
-						<TextField
-							variant="outlined"
-							label="Password"
-							name="password"
-							type={showPassword ? 'text' : 'password'}
-							value={values.password}
-							onChange={handleChange}
-							onBlur={handleBlur}
-							error={touched.password && Boolean(errors.password)}
-							helperText={touched.password && errors.password}
-							sx={{
-								minWidth: 500,
-								mb: 2,
-							}}
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton
-											aria-label="toggle password visibility"
-											onClick={handleClickShowPassword}
-											onMouseDown={handleMouseDownPassword}
-											edge="end"
-										>
-											{showPassword ? <VisibilityOff /> : <Visibility />}
-										</IconButton>
-									</InputAdornment>
-								),
-							}}
-							required
-						/>
-						<Button
-							variant="contained"
-							type="submit"
-							sx={{
-								height: '3rem',
-								width: '10rem',
-							}}
-							disabled={
-								!!(
-									isSubmitting ||
-									!values.username ||
-									!values.password ||
-									errors.username ||
-									errors.password
-								)
-							}
 						>
-							{isSubmitting ? <CircularProgress size={24} /> : 'Login'}
-						</Button>
-					</Box>
-				</Form>
-			)}
-		</Formik>
+							<Typography
+								variant="h3"
+								sx={{ mb: 2, textTransform: 'uppercase' }}
+							>
+								Login
+							</Typography>
+							<TextField
+								variant="outlined"
+								label="Username"
+								name="username"
+								value={values.username}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								error={touched.username && Boolean(errors.username)}
+								helperText={touched.username && errors.username}
+								sx={{
+									minWidth: 500,
+									mb: 2,
+								}}
+								required
+							/>
+							<TextField
+								variant="outlined"
+								label="Password"
+								name="password"
+								type={showPassword ? 'text' : 'password'}
+								value={values.password}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								error={touched.password && Boolean(errors.password)}
+								helperText={touched.password && errors.password}
+								sx={{
+									minWidth: 500,
+									mb: 2,
+								}}
+								InputProps={{
+									endAdornment: (
+										<InputAdornment position="end">
+											<IconButton
+												aria-label="toggle password visibility"
+												onClick={handleClickShowPassword}
+												onMouseDown={handleMouseDownPassword}
+												edge="end"
+											>
+												{showPassword ? <VisibilityOff /> : <Visibility />}
+											</IconButton>
+										</InputAdornment>
+									),
+								}}
+								required
+							/>
+							<Button
+								variant="contained"
+								type="submit"
+								sx={{
+									height: '3rem',
+									width: '10rem',
+								}}
+								disabled={
+									!!(
+										isSubmitting ||
+										!values.username ||
+										!values.password ||
+										errors.username ||
+										errors.password
+									)
+								}
+							>
+								{isSubmitting ? <CircularProgress size={24} /> : 'Login'}
+							</Button>
+						</Box>
+					</Form>
+				)}
+			</Formik>
+			<Typography>
+				New here? <Link to="/signup">Sign Up</Link>
+			</Typography>
+		</Box>
 	);
 }
 

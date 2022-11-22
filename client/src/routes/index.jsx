@@ -3,6 +3,7 @@ import { Routes as RRDRoutes, Route } from 'react-router-dom';
 import Home from 'pages';
 import Login from 'pages/Login';
 import Signup from 'pages/Signup';
+import User from 'pages/User';
 
 function Routes() {
 	return (
@@ -10,6 +11,9 @@ function Routes() {
 			<Route path="/" element={<Home />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/signup" element={<Signup />} />
+			<Route path="/users">
+				<Route path=":username" element={<User />} />
+			</Route>
 		</RRDRoutes>
 	);
 }
