@@ -14,7 +14,7 @@ function useQuery(endpoint) {
 		const makeReq = async () => {
 			try {
 				const res = await GET(endpoint);
-				setData(res.data);
+				setData(res);
 				setLoading(false);
 				setError(false);
 			} catch (e) {
