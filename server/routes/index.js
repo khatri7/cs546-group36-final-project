@@ -1,4 +1,5 @@
 const usersRoutes = require('./users');
+const projectsRoutes = require('./projects');
 const authRoutes = require('./auth');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -15,6 +16,7 @@ const constructorMethod = (app) => {
 	});
 
 	app.use('/users', usersRoutes);
+	app.use('/projects', projectsRoutes);
 
 	app.use('/auth', authRoutes);
 
