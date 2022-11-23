@@ -1,15 +1,10 @@
-const { ObjectId } = require('bson');
 const express = require('express');
 const projectsData = require('../data/projects');
-const {
-	sendErrResp,
-	isValidArray,
-	isValidObj,
-	isValidStr,
-} = require('../utils');
+const { sendErrResp, isValidArray, isValidStr } = require('../utils');
 const { isValidProjectName, isValidGithub } = require('../utils/projects');
-const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
+
+const router = express.Router();
 
 router.route('/').post(authenticateToken, async (req, res) => {
 	const { user } = req;

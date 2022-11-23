@@ -1,21 +1,25 @@
 // Projects Validations
-const { badRequestErr } = require('../utils/index');
+const { badRequestErr } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
-const isValidProjectName = (projectName) => {
-	projectName = isValidStr(projectName, 'project name', 'min', 3);
+
+const isValidProjectName = (projectNameParam) => {
+	const projectName = isValidStr(projectNameParam, 'project name', 'min', 3);
 	return projectName;
 };
-const isValidGithub = (inputLink) => {
-	inputLink = inputLink.isValidStr(inputLink);
-	githubUrlValidation(inputLink);
-	return inputLink;
-};
+
 // taken from https://github.com/jonschlinkert/is-git-url.git check it out for more info
 const githubUrlValidation = (inputLink) => {
-	var regex =
+	const regex =
+		// eslint-disable-next-line no-useless-escape
 		/(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-	let output = regex.test(str);
+	const output = regex.test(inputLink);
 	if (output === false) throw badRequestErr('Github URL invalid');
+};
+
+const isValidGithub = (inputLinkParam) => {
+	const inputLink = isValidStr(inputLinkParam);
+	githubUrlValidation(inputLink);
+	return inputLink;
 };
 
 const isValidProjectObject = (projectObject) => {

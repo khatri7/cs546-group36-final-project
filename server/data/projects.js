@@ -1,34 +1,36 @@
 const { projects } = require('../config/mongoCollections');
-const jwt = require('jsonwebtoken');
-const getUserData = require('./users');
-const { ObjectId } = require('bson');
-const { internalServerErr } = require('../utils');
-const { badRequestErr } = require('../utils/index');
+const { internalServerErr, isValidObjectId, notFoundErr } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const { isValidProjectObject } = require('../utils/projects');
 
-const createProject = async (projectObj, user) => {
+const getProjectById = async (idParam) => {
+	const id = isValidObjectId(idParam);
+	const usersCollection = await projects();
+	const user = await usersCollection.findOne({ _id: id });
+	if (!user) throw notFoundErr('No user found for the provided id');
+	return user;
+};
+
+const createProject = async (projectObjParam, user) => {
 	const userInfo = user;
-	if (!ObjectId.isValid(userInfo['_id']))
-		throw badRequestErr('Invalid user id');
-	let username = isValidUsername(userInfo['username']);
+	// eslint-disable-next-line no-underscore-dangle
+	isValidObjectId(userInfo._id);
+	isValidUsername(userInfo.username);
 	const projectCollection = await projects();
-	projectObj = isValidProjectObject(projectObj);
+	const projectObj = isValidProjectObject(projectObjParam);
 	const { name, description, github, media, technologies, deploymentLink } =
 		projectObj;
 	const date = new Date();
 	const createProjectObject = {
-		name: name,
-		description: description,
-		github: github,
+		name,
+		description,
+		github,
 		media,
-		deploymentLink: deploymentLink,
+		deploymentLink,
 		createdAt: date,
 		technologies,
-		owner: {
-			_id: userInfo._id,
-			username: userInfo.username,
-		},
+		owner: userInfo,
+		savedBy: [],
 		comments: [],
 		likes: [],
 	};
@@ -41,10 +43,11 @@ const createProject = async (projectObj, user) => {
 	)
 		throw internalServerErr('Could not create project. Please try again');
 	const createdProject = await getProjectById(
-		createdProject.insertedId.toString()
+		createProjectAcknowledgement.insertedId.toString()
 	);
 	return createdProject;
 };
 module.exports = {
+	getProjectById,
 	createProject,
 };
