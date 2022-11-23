@@ -14,8 +14,8 @@ const getProjectById = async (idParam) => {
 const createProject = async (projectObjParam, user) => {
 	const userInfo = user;
 	// eslint-disable-next-line no-underscore-dangle
-	isValidObjectId(userInfo._id);
-	isValidUsername(userInfo.username);
+	userInfo._id = isValidObjectId(userInfo._id);
+	userInfo.username = isValidUsername(userInfo.username);
 	const projectCollection = await projects();
 	const projectObj = isValidProjectObject(projectObjParam);
 	const { name, description, github, media, technologies, deploymentLink } =
