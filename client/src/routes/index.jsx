@@ -4,6 +4,7 @@ import Home from 'pages';
 import Login from 'pages/Login';
 import Signup from 'pages/Signup';
 import User from 'pages/User';
+import Projects from 'pages/Projects';
 
 function Routes() {
 	return (
@@ -14,6 +15,7 @@ function Routes() {
 			<Route path="/users">
 				<Route path=":username" element={<User />} />
 			</Route>
+			<Route path="/projects" element={<Projects />} />
 		</RRDRoutes>
 	);
 }

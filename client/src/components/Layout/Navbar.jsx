@@ -13,9 +13,22 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const pages = ['Projects', 'Ideas', 'Hire Talent'];
+const pages = [
+	{
+		title: 'Projects',
+		route: '/projects',
+	},
+	{
+		title: 'Ideas',
+		route: '/ideas',
+	},
+	{
+		title: 'Hire Talent',
+		route: '/hire',
+	},
+];
 const settings = ['Profile', 'Logout'];
 
 function Navbar() {
@@ -25,6 +38,7 @@ function Navbar() {
 	const user = useSelector((state) => state.user);
 
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const isLoggedIn = React.useMemo(() => {
 		return user !== null;
@@ -56,7 +70,6 @@ function Navbar() {
 			<Container>
 				<Toolbar disableGutters>
 					{/* Desktop Icon */}
-
 					<Typography
 						variant="h6"
 						noWrap
@@ -107,8 +120,8 @@ function Navbar() {
 							}}
 						>
 							{pages.map((page) => (
-								<MenuItem key={page} onClick={handleCloseNavMenu}>
-									<Typography textAlign="center">{page}</Typography>
+								<MenuItem key={page.title} onClick={handleCloseNavMenu}>
+									<Typography textAlign="center">{page.title}</Typography>
 								</MenuItem>
 							))}
 						</Menu>
@@ -134,6 +147,7 @@ function Navbar() {
 					<Box
 						sx={{
 							flexGrow: 1,
+							minHeight: 64,
 							display: { xs: 'none', md: 'flex' },
 							justifyContent: 'center',
 							gap: 4,
@@ -141,11 +155,25 @@ function Navbar() {
 					>
 						{pages.map((page) => (
 							<Button
-								key={page}
-								onClick={handleCloseNavMenu}
-								sx={{ my: 2, display: 'block' }}
+								key={page.title}
+								onClick={() => {
+									navigate(page.route);
+								}}
+								sx={{
+									py: 2,
+									display: 'block',
+									borderRadius: 0,
+									color: 'black',
+									'&:disabled': {
+										borderTop: (theme) =>
+											`3px solid ${theme.palette.primary.main}`,
+										color: (theme) => theme.palette.primary.main,
+										pt: '13px',
+									},
+								}}
+								disabled={Boolean(location.pathname === page.route)}
 							>
-								{page}
+								{page.title}
 							</Button>
 						))}
 					</Box>
