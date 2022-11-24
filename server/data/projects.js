@@ -10,6 +10,7 @@ const {
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
 } = require('../utils/projects');
+const { getUserByUsername } = require('./users');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -43,9 +44,20 @@ const getAllProjects = async (
 	return allProjects;
 };
 
+const getProjectsByOwnerUsername = async (usernameParam) => {
+	const username = isValidUsername(usernameParam);
+	await getUserByUsername(username);
+	const projectsCollection = await projects();
+	const userProjects = await projectsCollection
+		.find({
+			'owner.username': username,
+		})
+		.toArray();
+	return userProjects;
+};
+
 const createProject = async (projectObjParam, user) => {
 	const userInfo = user;
-	// eslint-disable-next-line no-underscore-dangle
 	userInfo._id = isValidObjectId(userInfo._id);
 	userInfo.username = isValidUsername(userInfo.username);
 	const projectCollection = await projects();
@@ -84,4 +96,5 @@ module.exports = {
 	getProjectById,
 	getAllProjects,
 	createProject,
+	getProjectsByOwnerUsername,
 };
