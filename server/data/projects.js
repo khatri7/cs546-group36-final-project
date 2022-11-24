@@ -1,7 +1,15 @@
 const { projects } = require('../config/mongoCollections');
-const { internalServerErr, isValidObjectId, notFoundErr } = require('../utils');
+const {
+	internalServerErr,
+	isValidObjectId,
+	notFoundErr,
+	isValidStr,
+} = require('../utils');
 const { isValidUsername } = require('../utils/users');
-const { isValidProjectObject } = require('../utils/projects');
+const {
+	isValidProjectObject,
+	isValidQueryParamTechnologies,
+} = require('../utils/projects');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -9,6 +17,30 @@ const getProjectById = async (idParam) => {
 	const project = await projectsCollection.findOne({ _id: id });
 	if (!project) throw notFoundErr('No project found for the provided id');
 	return project;
+};
+
+const getAllProjects = async (
+	options = {
+		name: '',
+		technologies: '',
+	}
+) => {
+	const { name, technologies } = options;
+	const projectsCollection = await projects();
+	const query = {};
+	if (
+		name &&
+		name.trim().length > 0 &&
+		isValidStr(name, 'project name query param', 'min', 1)
+	)
+		query.name = { $regex: name.trim(), $options: 'i' };
+	if (technologies && technologies.trim().length > 0) {
+		const technologiesArr =
+			isValidQueryParamTechnologies(technologies).split(',');
+		query.technologies = { $all: technologiesArr };
+	}
+	const allProjects = await projectsCollection.find(query).toArray();
+	return allProjects;
 };
 
 const createProject = async (projectObjParam, user) => {
@@ -47,7 +79,9 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+
 module.exports = {
 	getProjectById,
+	getAllProjects,
 	createProject,
 };

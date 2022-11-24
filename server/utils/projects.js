@@ -1,4 +1,5 @@
 // Projects Validations
+const topics = require('./data/technologies');
 const { badRequestErr } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
@@ -22,6 +23,36 @@ const isValidGithub = (inputLinkParam) => {
 	return inputLink;
 };
 
+const isValidQueryParamTechnologies = (technologiesParam) => {
+	isValidStr(technologiesParam, 'technologies query param');
+	return technologiesParam
+		.trim()
+		.split(',')
+		.map((topic) => topic.toLowerCase().trim())
+		.filter((topic) => topic !== '')
+		.join(',');
+};
+
+const isValidTechnologies = (technologiesParam) => {
+	const technologies = isValidArray(
+		technologiesParam,
+		'technologies',
+		'min',
+		1
+	);
+	technologies.map((tech, index) => {
+		if (
+			!isValidStr(tech, `Technology at index ${index}`) ||
+			!topics.includes(tech.trim().toLowerCase())
+		)
+			throw badRequestErr(
+				`Invalid technology at index ${index}. Please check /projects/technologies to see valid technologies`
+			);
+		return tech.trim().toLowerCase();
+	});
+	return technologies;
+};
+
 const isValidProjectObject = (projectObject) => {
 	isValidObj(projectObject);
 	return {
@@ -31,16 +62,12 @@ const isValidProjectObject = (projectObject) => {
 			: null,
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
 		media: isValidArray(projectObject.media, 'media', 'min', 1),
-		technologies: isValidArray(
-			projectObject.technologies,
-			'technologies',
-			'min',
-			1
-		),
+		technologies: isValidTechnologies(projectObject.technologies),
 	};
 };
 module.exports = {
 	isValidProjectName,
 	isValidProjectObject,
 	isValidGithub,
+	isValidQueryParamTechnologies,
 };
