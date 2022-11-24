@@ -1,6 +1,11 @@
 const express = require('express');
 const projectsData = require('../data/projects');
-const { sendErrResp, isValidArray, isValidStr } = require('../utils');
+const {
+	sendErrResp,
+	isValidArray,
+	isValidStr,
+	isValidObjectId,
+} = require('../utils');
 const { isValidProjectName, isValidGithub } = require('../utils/projects');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -31,6 +36,16 @@ router.route('/').post(authenticateToken, async (req, res) => {
 			deploymentLink,
 		};
 		const project = await projectsData.createProject(projectObject, user);
+		res.json({ project });
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+
+router.route('/:projectId').get(async (req, res) => {
+	try {
+		const projectId = isValidObjectId(req.params.projectId);
+		const project = await projectsData.getProjectById(projectId);
 		res.json({ project });
 	} catch (e) {
 		sendErrResp(res, e);
