@@ -8,6 +8,8 @@ const {
 } = require('../utils');
 const { isValidProjectName, isValidGithub } = require('../utils/projects');
 const { authenticateToken } = require('../middleware/auth');
+const { commentsData } = require('../data');
+const { isValidUsername } = require('../utils/users');
 
 const router = express.Router();
 
@@ -51,5 +53,31 @@ router.route('/:projectId').get(async (req, res) => {
 		sendErrResp(res, e);
 	}
 });
+
+router
+	.route('/:projectId/comments')
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		let { comment } = req.body;
+		try {
+			comment = isValidStr(req.body.comment, 'Comment');
+			projectId = isValidObjectId(req.params.projectId);
+			projectId = projectId.toString();
+
+			const commentObject = {
+				comment,
+				projectId,
+			};
+			const projectComment = await commentsData.createComment(
+				commentObject,
+				user
+			);
+			res.json({ projectComment });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
 
 module.exports = router;

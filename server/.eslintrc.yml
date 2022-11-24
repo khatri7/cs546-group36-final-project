@@ -10,3 +10,4 @@ parserOptions:
 rules: {}
 plugins:
   - prettier
+prettier/prettier: ['error', { 'endOfLine': 'auto' }]
