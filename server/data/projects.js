@@ -5,10 +5,10 @@ const { isValidProjectObject } = require('../utils/projects');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
-	const usersCollection = await projects();
-	const user = await usersCollection.findOne({ _id: id });
-	if (!user) throw notFoundErr('No user found for the provided id');
-	return user;
+	const projectsCollection = await projects();
+	const project = await projectsCollection.findOne({ _id: id });
+	if (!project) throw notFoundErr('No project found for the provided id');
+	return project;
 };
 
 const createProject = async (projectObjParam, user) => {
