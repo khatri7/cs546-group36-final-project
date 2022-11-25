@@ -30,7 +30,7 @@ const createComment = async (commentParam, user) => {
 		throw internalServerErr('Could not upload the comment. Please try again');
 	return commentObject;
 };
-
+// fields 2 new chenges
 module.exports = {
 	createComment,
 };
