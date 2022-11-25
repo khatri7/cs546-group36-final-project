@@ -34,3 +34,7 @@ const createComment = async (commentParam, user) => {
 module.exports = {
 	createComment,
 };
+
+// fields
+// value 1
+// value 2
