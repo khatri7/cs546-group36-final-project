@@ -159,7 +159,7 @@ const isValidObj = (obj) =>
 const isValidObjectId = (idParam) => {
 	const id = isValidStr(idParam, 'Id');
 	if (!ObjectId.isValid(id)) throw badRequestErr('Invalid Object Id');
-	return ObjectId(id);
+	return id;
 };
 
 module.exports = {

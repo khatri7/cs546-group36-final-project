@@ -11,11 +11,12 @@ const {
 	isValidQueryParamTechnologies,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
+const { ObjectId } = require('mongodb');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
 	const projectsCollection = await projects();
-	const project = await projectsCollection.findOne({ _id: id });
+	const project = await projectsCollection.findOne({ _id: ObjectId(id) });
 	if (!project) throw notFoundErr('No project found for the provided id');
 	return project;
 };
