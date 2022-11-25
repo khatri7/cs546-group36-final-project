@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { getUserById } = require('../data/users');
-const { sendErrResp, unauthorizedErr } = require('../utils');
+const { sendErrResp, unauthorizedErr, isValidObjectId } = require('../utils');
+const { isValidUsername } = require('../utils/users');
 
 const authenticateToken = async (req, res, next) => {
 	try {
@@ -9,7 +10,8 @@ const authenticateToken = async (req, res, next) => {
 		if (!token) throw unauthorizedErr('No JWT found');
 		try {
 			const { user } = jwt.verify(token, process.env.JWT_SECRET);
-			// eslint-disable-next-line no-underscore-dangle
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
 			const dbUser = await getUserById(user._id);
 			if (dbUser.username !== user.username) throw new Error();
 			req.user = user;
