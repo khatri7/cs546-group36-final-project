@@ -73,6 +73,7 @@ const createProject = async (projectObjParam, user) => {
 		media,
 		deploymentLink,
 		createdAt: date,
+		updatedAt: date,
 		technologies,
 		owner: userInfo,
 		savedBy: [],
@@ -93,7 +94,37 @@ const createProject = async (projectObjParam, user) => {
 	return createdProject;
 };
 
+const updateProject = async (projectObjParam,id) => {
+
+	const projectObj = isValidProjectObject(projectObjParam);
+	const { name, description, github, media, technologies, deploymentLink } =
+		projectObj;
+	const date = new Date();
+	const updateProjectObject = {
+		name,
+		description,
+		github,
+		media,
+		deploymentLink,
+		updatedAt: date,
+		technologies,
+	}
+
+	const projectCollection = await projects();
+	const updateInfo = await projectCollection.updateOne(
+		{_id: ObjectId(id)},
+		{$set: updateProjectObject}
+	  );
+const project = await getProjectById(id)
+if (!project) throw notFoundErr('No Project found ');
+
+	return project;
+
+};
+
+
 module.exports = {
+	updateProject,
 	getProjectById,
 	getAllProjects,
 	createProject,
