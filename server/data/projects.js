@@ -59,7 +59,7 @@ const getProjectsByOwnerUsername = async (usernameParam) => {
 
 const createProject = async (projectObjParam, user) => {
 	const userInfo = user;
-	userInfo._id = isValidObjectId(userInfo._id);
+	userInfo._id = ObjectId(isValidObjectId(userInfo._id));
 	userInfo.username = isValidUsername(userInfo.username);
 	const projectCollection = await projects();
 	const projectObj = isValidProjectObject(projectObjParam);

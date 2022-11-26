@@ -9,7 +9,7 @@ const createComment = async (commentParam, user) => {
 	let { comment, projectId } = commentParam;
 	comment = isValidStr(comment, 'Comment');
 	projectId = isValidObjectId(projectId);
-	user._id = isValidObjectId(user._id);
+	user._id = ObjectId(isValidObjectId(user._id));
 	user.username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);

@@ -12,6 +12,7 @@ const {
 	isValidProjectName,
 	isValidGithub,
 	isValidQueryParamTechnologies,
+	isValidTechnologies,
 } = require('../utils/projects');
 const { authenticateToken } = require('../middleware/auth');
 const technologyTags = require('../utils/data/technologies');
@@ -34,11 +35,10 @@ router
 				: null;
 			github = req.body.github ? isValidGithub(req.body.github) : null;
 			media = isValidArray(media, 'media', 'min', 1);
-			technologies = isValidArray(technologies, 'technologies', 'min', 1);
+			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
 				? isValidStr(req.body.deploymentLink, 'project deployment link')
 				: null;
-
 			const projectObject = {
 				name,
 				description,
@@ -97,8 +97,9 @@ router
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
-			comment = isValidStr(req.body.comment, 'Comment');
 			let projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			comment = isValidStr(req.body.comment, 'Comment');
 			const commentObject = {
 				comment,
 				projectId,
