@@ -3,17 +3,14 @@ const topics = require('./data/technologies');
 const { badRequestErr } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
-
-
-const checkuseraccess = (user , owner) => {
-	console.log(user._id , owner)
-	if (user._id === owner._id)
-{
-	console.log(true)
-	return true;}
-	else{
-	console.log(false)
-	return false
+const checkuseraccess = (user, owner) => {
+	console.log(user._id, owner);
+	if (user._id === owner._id) {
+		console.log(true);
+		return true;
+	} else {
+		console.log(false);
+		return false;
 	}
 };
 
