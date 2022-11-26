@@ -4,11 +4,14 @@ const {
 	isValidObjectId,
 	notFoundErr,
 	isValidStr,
+	forbiddenErr,
+	badRequestErr,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
+	checkuseraccess
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
 const { ObjectId } = require('mongodb');
@@ -94,8 +97,10 @@ const createProject = async (projectObjParam, user) => {
 	return createdProject;
 };
 
-const updateProject = async (projectObjParam,id) => {
-
+const updateProject = async (projectObjParam,id,user) => {
+	let projectCheck = await getProjectById(id)
+	ownercheck = checkuseraccess(user, projectCheck.owner )
+	if (!ownercheck) throw forbiddenErr(`Not Authorised to update this project. Not Project Owner` )
 	const projectObj = isValidProjectObject(projectObjParam);
 	const { name, description, github, media, technologies, deploymentLink } =
 		projectObj;
@@ -123,7 +128,23 @@ if (!project) throw notFoundErr('No Project found ');
 };
 
 
+
+const removeProject = async (id,user) => {
+	let projectCheck = await getProjectById(id)
+	ownercheck = checkuseraccess(user, projectCheck.owner )
+	if (!ownercheck) throw forbiddenErr(`Not Authorised to update this project. Not Project Owner` )
+	id = isValidObjectId(id)
+	const projectCollection = await projects();
+	const removedInfo = await projectCollection.deleteOne(
+		{_id: ObjectId(id)},
+	  );
+	  if (removedInfo.deletedCount == 1){return true;}
+	  else{
+		throw notFoundErr("the element is already deleted")
+	  }
+};
 module.exports = {
+	removeProject,
 	updateProject,
 	getProjectById,
 	getAllProjects,

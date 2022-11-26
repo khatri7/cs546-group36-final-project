@@ -94,6 +94,7 @@ router
 	.route('/:project_id')
 	.put(authenticateToken,async (req, res) => {	
 		const { user } = req;
+		
 		let { name, description, github, media, technologies, deploymentLink } =
 			req.body;
 		try {
@@ -116,14 +117,26 @@ router
 				technologies,
 				deploymentLink,
 			};
-			const project = await projectsData.updateProject(projectObject, req.params.project_id);
+			const project = await projectsData.updateProject(projectObject, req.params.project_id,user);
 			res.json({ project: project, message: "Project udpated successfully"   });
 		}catch(e)
 		{
 			sendErrResp(res, e);
 		}
 	
-	});
+	})
+	
+	// .delete(authenticateToken,async (req, res) => {	
+	// 	try{
+	// 	const { user } = req;
+	// 		const status = await projectsData.removeProject(req.params.project_id,user);
+	// 		if (status) res.json({message: "Project deleted successfully"   });
+	// 	}catch(e)
+	// 	{
+	// 		sendErrResp(res, e);
+	// 	}
+	
+	// });
 
 	
 router
