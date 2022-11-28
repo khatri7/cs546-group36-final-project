@@ -1,7 +1,8 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
+const bookmarksData = require('../data/bookmarks');
+
 const {
 	sendErrResp,
 	isValidArray,
@@ -109,6 +110,38 @@ router
 				user
 			);
 			res.json({ projectComment });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:projectId/bookmark')
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			let projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
+			res.json({ bookmarkedUsers });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			let projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.removeBookmark(
+				projectId,
+				user
+			);
+			res.json({ bookmarkedUsers });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
