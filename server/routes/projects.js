@@ -90,6 +90,7 @@ router.route('/:projectId').get(async (req, res) => {
 	}
 });
 
+//Commments
 router
 	.route('/:projectId/comments')
 	.post(authenticateToken, async (req, res) => {
@@ -115,6 +116,32 @@ router
 		}
 	});
 
+router
+	.route('/:projectId/comments/:commentId')
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			let projectId = isValidObjectId(req.params.projectId);
+			let commentId = isValidObjectId(req.params.commentId);
+			await projectsData.getProjectById(projectId);
+			await commentsData.getCommentById(commentId);
+			const commentObject = {
+				projectId,
+				commentId,
+			};
+			const removedComment = await commentsData.removeComment(
+				commentObject,
+				user
+			);
+			res.json({ removedComment });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+//Bookmark
 router
 	.route('/:projectId/bookmark')
 	.post(authenticateToken, async (req, res) => {
