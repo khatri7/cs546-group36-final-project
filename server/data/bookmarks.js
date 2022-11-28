@@ -1,39 +1,51 @@
-const { ObjectId } = require('mongodb');
 const { getProjectById } = require('./projects');
 const { projects } = require('../config/mongoCollections');
-const { internalServerErr, isValidObjectId } = require('../utils');
+const {
+	internalServerErr,
+	isValidObjectId,
+	badRequestErr,
+} = require('../utils');
 const { isValidUsername } = require('../utils/users');
-const { isValidStatus } = require('../utils/bookmarks');
 
-const bookmarkProject = async (projectId, user, status) => {
+const addBookmark = async (projectId, user) => {
 	projectId = isValidObjectId(projectId);
-	user._id = ObjectId(isValidObjectId(user._id));
+	let userId = isValidObjectId(user._id);
 	user.username = isValidUsername(user.username);
-	status = isValidStatus(status);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	const userId = user._id.toString();
 	let savedByUsers = projectFind.savedBy;
-	if (status) {
-		if (!savedByUsers.includes(userId)) {
-			const bookmarkAcknowledgement = await projectCollection.updateOne(
-				{ _id: projectFind._id },
-				{ $push: { savedBy: userId } }
+	if (!savedByUsers.includes(userId)) {
+		const bookmarkAcknowledgement = await projectCollection.updateOne(
+			{ _id: projectFind._id },
+			{ $push: { savedBy: userId } }
+		);
+		if (
+			!bookmarkAcknowledgement.acknowledged ||
+			!bookmarkAcknowledgement.modifiedCount
+		)
+			throw internalServerErr(
+				'Could not bookmark the project. Please try again.'
 			);
-			if (
-				!bookmarkAcknowledgement.acknowledged ||
-				!bookmarkAcknowledgement.modifiedCount
-			)
-				throw internalServerErr(
-					'Could not bookmark the project. Please try again'
-				);
-		}
-	} else {
+	} else throw badRequestErr('Project already bookmarked.');
+	const projectUpdate = await getProjectById(projectId);
+	return projectUpdate.savedBy;
+};
+
+const removeBookmark = async (projectId, user) => {
+	projectId = isValidObjectId(projectId);
+	let userId = isValidObjectId(user._id);
+	user.username = isValidUsername(user.username);
+
+	const projectCollection = await projects();
+	const projectFind = await getProjectById(projectId);
+	let savedByUsers = projectFind.savedBy;
+
+	if (savedByUsers.includes(userId)) {
 		const index = savedByUsers.indexOf(userId);
 		const firstArray = savedByUsers.slice(0, index);
 		const secondArray = savedByUsers.slice(index + 1, savedByUsers.length);
 		let savedByUsersArray = firstArray.concat(secondArray);
-		const projectCollection = await projects();
+
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },
 			{ $set: { savedBy: savedByUsersArray } }
@@ -42,12 +54,15 @@ const bookmarkProject = async (projectId, user, status) => {
 			!bookmarkAcknowledgement.acknowledged ||
 			!bookmarkAcknowledgement.modifiedCount
 		)
-			throw internalServerErr('Could not unsave the project. Please try again');
-	}
+			throw internalServerErr(
+				'Could not unsave the project. Please try again.'
+			);
+	} else throw badRequestErr('You have already removed the bookmark.');
 	const projectUpdate = await getProjectById(projectId);
 	return projectUpdate.savedBy;
 };
 
 module.exports = {
-	bookmarkProject,
+	addBookmark,
+	removeBookmark,
 };

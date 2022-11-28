@@ -1,5 +1,4 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
 const bookmarksData = require('../data/bookmarks');
@@ -19,7 +18,6 @@ const {
 const { authenticateToken } = require('../middleware/auth');
 const technologyTags = require('../utils/data/technologies');
 const { isValidUsername } = require('../utils/users');
-const { isValidStatus } = require('../utils/bookmarks');
 
 const router = express.Router();
 
@@ -118,20 +116,30 @@ router
 	});
 
 router
-	.route('/:projectId/bookmark-projects')
+	.route('/:projectId/bookmark')
 	.post(authenticateToken, async (req, res) => {
 		const { user } = req;
-		let status = req.body.status;
 		try {
-			status = isValidStatus(status);
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 			let projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
-			const bookmarkedUsers = await bookmarksData.bookmarkProject(
+			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
+			res.json({ bookmarkedUsers });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			let projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.removeBookmark(
 				projectId,
-				user,
-				status
+				user
 			);
 			res.json({ bookmarkedUsers });
 		} catch (e) {
