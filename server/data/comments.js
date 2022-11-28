@@ -1,5 +1,4 @@
 const { ObjectId } = require('mongodb');
-const moment = require('moment');
 const { getProjectById } = require('./projects');
 const { projects } = require('../config/mongoCollections');
 const { isValidStr, internalServerErr, isValidObjectId } = require('../utils');

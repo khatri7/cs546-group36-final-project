@@ -2,6 +2,8 @@ const express = require('express');
 const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
+const bookmarksData = require('../data/bookmarks');
+
 const {
 	sendErrResp,
 	isValidArray,
@@ -17,6 +19,7 @@ const {
 const { authenticateToken } = require('../middleware/auth');
 const technologyTags = require('../utils/data/technologies');
 const { isValidUsername } = require('../utils/users');
+const { isValidStatus } = require('../utils/bookmarks');
 
 const router = express.Router();
 
@@ -109,6 +112,28 @@ router
 				user
 			);
 			res.json({ projectComment });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:projectId/bookmark-projects')
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
+		let status = req.body.status;
+		try {
+			status = isValidStatus(status);
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			let projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.bookmarkProject(
+				projectId,
+				user,
+				status
+			);
+			res.json({ bookmarkedUsers });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
