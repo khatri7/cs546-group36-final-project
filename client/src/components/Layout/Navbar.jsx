@@ -9,11 +9,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import FavIcon from './favicon.png';
 
 const pages = [
 	{
@@ -29,7 +29,6 @@ const pages = [
 		route: '/hire',
 	},
 ];
-const settings = ['Profile', 'Logout'];
 
 function Navbar() {
 	const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -70,26 +69,27 @@ function Navbar() {
 			<Container>
 				<Toolbar disableGutters>
 					{/* Desktop Icon */}
-					<Typography
-						variant="h6"
-						noWrap
+					<Box
 						sx={{
 							display: { xs: 'none', md: 'flex' },
-							fontFamily: 'monospace',
-							fontWeight: 700,
-							letterSpacing: '.3rem',
-							textDecoration: 'none',
 						}}
 					>
 						<Link
 							style={{
 								textDecoration: 'none',
+								lineHeight: 0,
 							}}
 							to="/"
 						>
-							LOGO
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
 						</Link>
-					</Typography>
+					</Box>
 					{/* Mobile Hamburger Icon */}
 					<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
 						<IconButton
@@ -127,22 +127,29 @@ function Navbar() {
 						</Menu>
 					</Box>
 					{/* Mobile Logo */}
-					<Typography
-						variant="h5"
-						noWrap
-						component="a"
-						href=""
+					<Box
 						sx={{
 							display: { xs: 'flex', md: 'none' },
-							flexGrow: 1,
-							fontFamily: 'monospace',
-							fontWeight: 700,
-							letterSpacing: '.3rem',
-							textDecoration: 'none',
+							width: '100%',
+							justifyContent: 'center',
 						}}
 					>
-						LOGO
-					</Typography>
+						<Link
+							style={{
+								textDecoration: 'none',
+								lineHeight: 0,
+							}}
+							to="/"
+						>
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
+						</Link>
+					</Box>
 					{/* Desktop Menu */}
 					<Box
 						sx={{
@@ -181,14 +188,12 @@ function Navbar() {
 					<Box sx={{ flexGrow: 0 }}>
 						{isLoggedIn ? (
 							<>
-								<Tooltip title="Open settings">
-									<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-										<Avatar
-											alt={`${user.firstName} ${user.lastName}`}
-											src="/static/images/avatar/2.jpg"
-										/>
-									</IconButton>
-								</Tooltip>
+								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+									<Avatar
+										alt={`${user.firstName} ${user.lastName}`}
+										src="/static/images/avatar/2.jpg"
+									/>
+								</IconButton>
 								<Menu
 									sx={{ mt: '45px' }}
 									id="menu-appbar"
@@ -205,11 +210,17 @@ function Navbar() {
 									open={Boolean(anchorElUser)}
 									onClose={handleCloseUserMenu}
 								>
-									{settings.map((setting) => (
-										<MenuItem key={setting} onClick={handleCloseUserMenu}>
-											<Typography textAlign="center">{setting}</Typography>
-										</MenuItem>
-									))}
+									<MenuItem
+										onClick={() => {
+											navigate(`/users/${user.username}`);
+											handleCloseUserMenu();
+										}}
+									>
+										<Typography textAlign="center">Profile</Typography>
+									</MenuItem>
+									<MenuItem onClick={handleCloseUserMenu}>
+										<Typography textAlign="center">Log Out</Typography>
+									</MenuItem>
 								</Menu>
 							</>
 						) : (
