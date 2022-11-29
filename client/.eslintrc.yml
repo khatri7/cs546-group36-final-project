@@ -23,4 +23,3 @@ plugins:
   - react
   - prettier
 rules: { 'react/prop-types': 'off', no-underscore-dangle: off }
-prettier/prettier: ['error', { 'endOfLine': 'auto' }]
