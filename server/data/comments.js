@@ -8,7 +8,6 @@ const {
 	notFoundErr,
 	forbiddenErr,
 } = require('../utils');
-const { isValidUsername } = require('../utils/users');
 
 const getCommentById = async (commentId) => {
 	const id = isValidObjectId(commentId);
@@ -20,23 +19,24 @@ const getCommentById = async (commentId) => {
 	return comment;
 };
 
-const iscommentOwner = async (projectId, commentId, userId) => {
+const iscommentOwner = async (projectParam, commentParam, userParam) => {
 	let isOwner = false;
-	projectId = isValidObjectId(projectId);
-	commentId = isValidObjectId(commentId);
-	userId = isValidObjectId(userId.toString());
+	const projectId = isValidObjectId(projectParam);
+	const commentId = isValidObjectId(commentParam);
+	const userId = isValidObjectId(userParam.toString());
 	const projectFind = await getProjectById(projectId);
 	if (projectFind.owner._id.toString() === userId) {
 		isOwner = true;
+		return isOwner;
 	}
-	let commentsArray = projectFind.comments;
-	for (let comment in commentsArray) {
-		if (commentsArray[comment]._id.toString() === commentId) {
-			if (commentsArray[comment].owner._id.toString() === userId) {
+	const commentsArray = projectFind.comments;
+	commentsArray.forEach((comment) => {
+		if (comment._id.toString() === commentId) {
+			if (comment.owner._id.toString() === userId) {
 				isOwner = true;
 			}
 		}
-	}
+	});
 	if (!isOwner)
 		throw forbiddenErr("You are not authorized to delete other user's comment");
 	return isOwner;
@@ -46,14 +46,12 @@ const createComment = async (commentParam, user) => {
 	let { comment, projectId } = commentParam;
 	comment = isValidStr(comment, 'Comment');
 	projectId = isValidObjectId(projectId);
-	user._id = ObjectId(isValidObjectId(user._id));
-	user.username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	let commentDate = new Date();
-	let commentObject = {
+	const commentDate = new Date();
+	const commentObject = {
 		_id: ObjectId(),
-		comment: comment,
+		comment,
 		timestamp: commentDate,
 		owner: user,
 	};
@@ -74,12 +72,11 @@ const removeComment = async (commentParam, user) => {
 	let { projectId, commentId } = commentParam;
 	projectId = isValidObjectId(projectId);
 	commentId = isValidObjectId(commentId);
-	user._id = ObjectId(isValidObjectId(user._id));
-	user.username = isValidUsername(user.username);
+	const userId = ObjectId(isValidObjectId(user._id));
 	const projectCollection = await projects();
 	await getProjectById(projectId);
 	await getCommentById(commentId);
-	await iscommentOwner(projectId, commentId, user._id);
+	await iscommentOwner(projectId, commentId, userId);
 	const removeCommentAcknowledgement = await projectCollection.updateOne(
 		{ _id: ObjectId(projectId) },
 		{ $pull: { comments: { _id: ObjectId(commentId) } } }
