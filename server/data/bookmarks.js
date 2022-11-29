@@ -5,15 +5,13 @@ const {
 	isValidObjectId,
 	badRequestErr,
 } = require('../utils');
-const { isValidUsername } = require('../utils/users');
 
-const addBookmark = async (projectId, user) => {
-	projectId = isValidObjectId(projectId);
-	let userId = isValidObjectId(user._id);
-	user.username = isValidUsername(user.username);
+const addBookmark = async (projectParam, user) => {
+	const projectId = isValidObjectId(projectParam);
+	const userId = isValidObjectId(user._id);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	let savedByUsers = projectFind.savedBy;
+	const savedByUsers = projectFind.savedBy;
 	if (!savedByUsers.includes(userId)) {
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },
@@ -31,20 +29,18 @@ const addBookmark = async (projectId, user) => {
 	return projectUpdate.savedBy;
 };
 
-const removeBookmark = async (projectId, user) => {
-	projectId = isValidObjectId(projectId);
-	let userId = isValidObjectId(user._id);
-	user.username = isValidUsername(user.username);
-
+const removeBookmark = async (projectParam, user) => {
+	const projectId = isValidObjectId(projectParam);
+	const userId = isValidObjectId(user._id);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	let savedByUsers = projectFind.savedBy;
+	const savedByUsers = projectFind.savedBy;
 
 	if (savedByUsers.includes(userId)) {
 		const index = savedByUsers.indexOf(userId);
 		const firstArray = savedByUsers.slice(0, index);
 		const secondArray = savedByUsers.slice(index + 1, savedByUsers.length);
-		let savedByUsersArray = firstArray.concat(secondArray);
+		const savedByUsersArray = firstArray.concat(secondArray);
 
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },

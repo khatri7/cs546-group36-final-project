@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const { projects } = require('../config/mongoCollections');
 const {
 	internalServerErr,
@@ -11,7 +12,6 @@ const {
 	isValidQueryParamTechnologies,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
-const { ObjectId } = require('mongodb');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
