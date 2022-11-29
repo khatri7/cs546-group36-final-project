@@ -137,5 +137,5 @@ module.exports = {
 	createProject,
 	getProjectsByOwnerUsername,
 	likeProject,
-	getSavedProjects
+	getSavedProjects,
 };
