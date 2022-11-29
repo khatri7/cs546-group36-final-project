@@ -7,17 +7,16 @@ const {
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 
-const addBookmark = async (projectId, user) => {
-	projectId = isValidObjectId(projectId);
-	let userId = isValidObjectId(user._id);
-	user.username = isValidUsername(user.username);
+const addBookmark = async (projectParam, user) => {
+	const projectId = isValidObjectId(projectParam);
+	const username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	let savedByUsers = projectFind.savedBy;
-	if (!savedByUsers.includes(userId)) {
+	const savedByUsers = projectFind.savedBy;
+	if (!savedByUsers.includes(username)) {
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },
-			{ $push: { savedBy: userId } }
+			{ $push: { savedBy: username } }
 		);
 		if (
 			!bookmarkAcknowledgement.acknowledged ||
@@ -31,20 +30,18 @@ const addBookmark = async (projectId, user) => {
 	return projectUpdate.savedBy;
 };
 
-const removeBookmark = async (projectId, user) => {
-	projectId = isValidObjectId(projectId);
-	let userId = isValidObjectId(user._id);
-	user.username = isValidUsername(user.username);
-
+const removeBookmark = async (projectParam, user) => {
+	const projectId = isValidObjectId(projectParam);
+	const username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
-	let savedByUsers = projectFind.savedBy;
+	const savedByUsers = projectFind.savedBy;
 
-	if (savedByUsers.includes(userId)) {
-		const index = savedByUsers.indexOf(userId);
+	if (savedByUsers.includes(username)) {
+		const index = savedByUsers.indexOf(username);
 		const firstArray = savedByUsers.slice(0, index);
 		const secondArray = savedByUsers.slice(index + 1, savedByUsers.length);
-		let savedByUsersArray = firstArray.concat(secondArray);
+		const savedByUsersArray = firstArray.concat(secondArray);
 
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },
