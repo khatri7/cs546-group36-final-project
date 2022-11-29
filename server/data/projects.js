@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const { projects } = require('../config/mongoCollections');
 const {
 	internalServerErr,
@@ -11,7 +12,6 @@ const {
 	isValidQueryParamTechnologies,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
-const { ObjectId } = require('mongodb');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -92,10 +92,28 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+const likeProject = async (user, project) => {
+	const userInfo = user;
+	const userId = userInfo._id;
+	const projectId = isValidObjectId(project);
+	isValidObjectId(userId);
+	const projectCollection = await projects();
+	const getProjectInfo = await getProjectById(projectId);
+	if (!getProjectInfo) {
+		throw internalServerErr('Project could not be found');
+	}
+	getProjectInfo.likes.push(ObjectId(userId));
+	const likeProjectAcknowledgment = await projectCollection.updateOne(
+		{ _id: ObjectId(projectId) },
+		{ $set: { likes: getProjectInfo.likes } }
+	);
+	return likeProjectAcknowledgment;
+};
 
 module.exports = {
 	getProjectById,
 	getAllProjects,
 	createProject,
 	getProjectsByOwnerUsername,
+	likeProject,
 };

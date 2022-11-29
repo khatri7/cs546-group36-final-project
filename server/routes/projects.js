@@ -1,5 +1,4 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
 const {
@@ -97,7 +96,7 @@ router
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
-			let projectId = isValidObjectId(req.params.projectId);
+			const projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
 			comment = isValidStr(req.body.comment, 'Comment');
 			const commentObject = {
@@ -113,5 +112,20 @@ router
 			sendErrResp(res, e);
 		}
 	});
+router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	const userId = req.user._id;
+	const { username } = req.user;
+	const { projectId } = req.params;
+	try {
+		isValidObjectId(userId);
+		isValidUsername(username);
+		isValidObjectId(projectId);
+		const likeProject = await projectsData.likeProject(user, projectId);
+		res.json({ likeProject });
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
 
 module.exports = router;
