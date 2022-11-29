@@ -5,6 +5,7 @@ const {
 	isValidObjectId,
 	notFoundErr,
 	isValidStr,
+	unauthorizedErr,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
@@ -93,9 +94,32 @@ const createProject = async (projectObjParam, user) => {
 	return createdProject;
 };
 
+const getSavedProjects = async (usernameParam, ownerParam) => {
+	let savedProjects;
+	const userName = isValidUsername(usernameParam);
+	const loggedinId = isValidObjectId(ownerParam);
+	const user = await getUserByUsername(userName);
+	const userId = user._id.toString();
+	if (userId === loggedinId) {
+		const projectsCollection = await projects();
+		savedProjects = await projectsCollection
+			.find({
+				savedBy: userId,
+			})
+			.toArray();
+		if (savedProjects.length === 0)
+			throw notFoundErr('You have not saved any project!');
+	} else
+		throw unauthorizedErr(
+			"You are not authorized to retrieve other user's saved projects"
+		);
+	return savedProjects;
+};
+
 module.exports = {
 	getProjectById,
 	getAllProjects,
 	createProject,
 	getProjectsByOwnerUsername,
+	getSavedProjects,
 };
