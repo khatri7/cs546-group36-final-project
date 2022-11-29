@@ -10,3 +10,4 @@ parserOptions:
 rules: { no-underscore-dangle: off }
 plugins:
   - prettier
+prettier/prettier: ['error', { 'endOfLine': 'auto' }]

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { ObjectId } = require('mongodb');
 const { users } = require('../config/mongoCollections');
 const {
 	notFoundErr,
@@ -34,7 +35,7 @@ const getUserByEmail = async (emailParam) => {
 const getUserById = async (idParam) => {
 	const id = isValidObjectId(idParam);
 	const usersCollection = await users();
-	const user = await usersCollection.findOne({ _id: id });
+	const user = await usersCollection.findOne({ _id: ObjectId(id) });
 	if (!user) throw notFoundErr('No user found for the provided id');
 	return user;
 };

@@ -154,12 +154,12 @@ const isValidObj = (obj) =>
 /**
  *
  * @param {string} id
- * @returns {ObjectId} the object id if it is valid otherwise throws an error
+ * @returns {ObjectId} the object id string if it is valid otherwise throws an error
  */
 const isValidObjectId = (idParam) => {
 	const id = isValidStr(idParam, 'Id');
 	if (!ObjectId.isValid(id)) throw badRequestErr('Invalid Object Id');
-	return ObjectId(id);
+	return id;
 };
 
 module.exports = {
