@@ -107,8 +107,6 @@ const getSavedProjects = async (usernameParam, ownerParam) => {
 				savedBy: userId,
 			})
 			.toArray();
-		if (savedProjects.length === 0)
-			throw notFoundErr('You have not saved any project!');
 	} else
 		throw unauthorizedErr(
 			"You are not authorized to retrieve other user's saved projects"
