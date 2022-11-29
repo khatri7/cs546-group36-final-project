@@ -5,17 +5,18 @@ const {
 	isValidObjectId,
 	badRequestErr,
 } = require('../utils');
+const { isValidUsername } = require('../utils/users');
 
 const addBookmark = async (projectParam, user) => {
 	const projectId = isValidObjectId(projectParam);
-	const userId = isValidObjectId(user._id);
+	const username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
 	const savedByUsers = projectFind.savedBy;
-	if (!savedByUsers.includes(userId)) {
+	if (!savedByUsers.includes(username)) {
 		const bookmarkAcknowledgement = await projectCollection.updateOne(
 			{ _id: projectFind._id },
-			{ $push: { savedBy: userId } }
+			{ $push: { savedBy: username } }
 		);
 		if (
 			!bookmarkAcknowledgement.acknowledged ||
@@ -31,14 +32,13 @@ const addBookmark = async (projectParam, user) => {
 
 const removeBookmark = async (projectParam, user) => {
 	const projectId = isValidObjectId(projectParam);
-	const userId = isValidObjectId(user._id);
-
+	const username = isValidUsername(user.username);
 	const projectCollection = await projects();
 	const projectFind = await getProjectById(projectId);
 	const savedByUsers = projectFind.savedBy;
 
-	if (savedByUsers.includes(userId)) {
-		const index = savedByUsers.indexOf(userId);
+	if (savedByUsers.includes(username)) {
+		const index = savedByUsers.indexOf(username);
 		const firstArray = savedByUsers.slice(0, index);
 		const secondArray = savedByUsers.slice(index + 1, savedByUsers.length);
 		const savedByUsersArray = firstArray.concat(secondArray);
