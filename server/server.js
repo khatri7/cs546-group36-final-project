@@ -18,5 +18,6 @@ app.use((req, res, next) => {
 configRoutes(app);
 
 app.listen(3005, () => {
+	// eslint-disable-next-line no-console
 	console.log('Server started on port 3005!');
 });

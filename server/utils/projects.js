@@ -4,11 +4,10 @@ const { badRequestErr } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
 const checkuseraccess = (user, owner) => {
-	if (user._id === owner._id) {
+	if (user._id === owner._id.toString()) {
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 };
 
 const isValidProjectName = (projectNameParam) => {
@@ -69,8 +68,10 @@ const isValidProjectObject = (projectObject) => {
 			? isValidStr(projectObject.description, 'project description')
 			: null,
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
-		media: isValidArray(projectObject.media, 'media', 'min', 1),
 		technologies: isValidTechnologies(projectObject.technologies),
+		deploymentLink: projectObject.deploymentLink
+			? isValidStr(projectObject.deploymentLink, 'project deployment link')
+			: null,
 	};
 };
 module.exports = {
@@ -80,5 +81,4 @@ module.exports = {
 	isValidGithub,
 	isValidTechnologies,
 	isValidQueryParamTechnologies,
-	isValidTechnologies
 };
