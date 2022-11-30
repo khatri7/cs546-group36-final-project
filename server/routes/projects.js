@@ -117,16 +117,35 @@ router
 	});
 router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
 	const { user } = req;
+	console.log(req.user);
 	try {
 		user._id = isValidObjectId(user._id);
+		console.log(user._id);
 		user.username = isValidUsername(user.username);
 		const projectId = isValidObjectId(req.params.projectId);
-		const likeProjectInfo = await projectsData.likeProject(projectId);
+		console.log(projectId);
+		const likeProjectInfo = await projectsData.likeProject(user, projectId);
+		console.log(likeProjectInfo);
 		res.json({ likeProjectInfo });
 	} catch (e) {
+		console.log(e);
 		sendErrResp(res, e);
 	}
 });
+router
+	.route('/:projectId/likes')
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			const likeProjectInfo = await projectsData.unlikeProject(user, projectId);
+			res.json({ likeProjectInfo });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
 
 router
 	.route('/:projectId/comments/:commentId')
