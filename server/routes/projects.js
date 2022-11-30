@@ -2,6 +2,7 @@ const express = require('express');
 const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
+
 const {
 	sendErrResp,
 	isValidArray,
@@ -12,6 +13,7 @@ const {
 	isValidProjectName,
 	isValidGithub,
 	isValidQueryParamTechnologies,
+	isValidTechnologies,
 } = require('../utils/projects');
 const { authenticateToken } = require('../middleware/auth');
 const technologyTags = require('../utils/data/technologies');
@@ -91,7 +93,6 @@ router.route('/:projectId').get(async (req, res) => {
 
 router.route('/:project_id').put(authenticateToken, async (req, res) => {
 	const { user } = req;
-
 	let { name, description, github, media, technologies, deploymentLink } =
 		req.body;
 	try {
@@ -100,12 +101,12 @@ router.route('/:project_id').put(authenticateToken, async (req, res) => {
 			? isValidStr(req.body.description, 'project description')
 			: null;
 		github = req.body.github ? isValidGithub(req.body.github) : null;
-		media = isValidArray(media, 'media', 'min', 1);
-		technologies = isValidArray(technologies, 'technologies', 'min', 1);
+		technologies = isValidTechnologies(technologies);
 		deploymentLink = req.body.deploymentLink
 			? isValidStr(req.body.deploymentLink, 'project deployment link')
 			: null;
-
+		const projectId = isValidObjectId(req.params.project_id);
+		await projectsData.getProjectById(projectId);
 		const projectObject = {
 			name: name,
 			description,
@@ -116,26 +117,25 @@ router.route('/:project_id').put(authenticateToken, async (req, res) => {
 		};
 		const project = await projectsData.updateProject(
 			projectObject,
-			req.params.project_id,
+			projectId,
 			user
 		);
 		res.json({ project: project, message: 'Project udpated successfully' });
 	} catch (e) {
 		sendErrResp(res, e);
 	}
+})
+.delete(authenticateToken,async (req, res) => {
+	try{
+	const { user } = req;
+		const status = await projectsData.removeProject(req.params.project_id,user);
+		if (status) res.json({message: "Project deleted successfully"   });
+	}catch(e)
+	{
+		sendErrResp(res, e);
+	}
+
 });
-
-// .delete(authenticateToken,async (req, res) => {
-// 	try{
-// 	const { user } = req;
-// 		const status = await projectsData.removeProject(req.params.project_id,user);
-// 		if (status) res.json({message: "Project deleted successfully"   });
-// 	}catch(e)
-// 	{
-// 		sendErrResp(res, e);
-// 	}
-
-// });
 
 router
 	.route('/:projectId/comments')

@@ -1,3 +1,4 @@
+
 const { projects } = require('../config/mongoCollections');
 const {
 	internalServerErr,
@@ -9,12 +10,16 @@ const {
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
+	isValidProjectName,
+	isValidGithub,
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
 	checkuseraccess,
+	isValidTechnologies,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
 const { ObjectId } = require('mongodb');
+
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -82,6 +87,7 @@ const createProject = async (projectObjParam, user) => {
 		savedBy: [],
 		comments: [],
 		likes: [],
+		imageArr: [],
 	};
 	const createProjectAcknowledgement = await projectCollection.insertOne(
 		createProjectObject
@@ -98,6 +104,7 @@ const createProject = async (projectObjParam, user) => {
 };
 
 const updateProject = async (projectObjParam, id, user) => {
+	id = isValidObjectId(id);
 	let projectCheck = await getProjectById(id);
 	ownercheck = checkuseraccess(user, projectCheck.owner);
 	if (!ownercheck)
@@ -105,10 +112,21 @@ const updateProject = async (projectObjParam, id, user) => {
 			`Not Authorised to update this project. Not Project Owner`
 		);
 	const projectObj = isValidProjectObject(projectObjParam);
-	const { name, description, github, media, technologies, deploymentLink } =
+	let { name, description, github, media, technologies, deploymentLink } =
 		projectObj;
+		name = isValidProjectName(name);
+		description = description
+			? isValidStr(description, 'project description')
+			: null;
+		github = github ? isValidGithub(github) : null;
+		technologies = isValidTechnologies(technologies);
+		deploymentLink = deploymentLink
+			? isValidStr(deploymentLink, 'project deployment link')
+			: null;
 	const date = new Date();
+	t = updateProject;
 	const updateProjectObject = {
+		...updateProject,
 		name,
 		description,
 		github,
@@ -117,7 +135,6 @@ const updateProject = async (projectObjParam, id, user) => {
 		updatedAt: date,
 		technologies,
 	};
-
 	const projectCollection = await projects();
 	const updateInfo = await projectCollection.updateOne(
 		{ _id: ObjectId(id) },
@@ -139,7 +156,7 @@ const removeProject = async (id, user) => {
 	id = isValidObjectId(id);
 	const projectCollection = await projects();
 	const removedInfo = await projectCollection.deleteOne({ _id: ObjectId(id) });
-	if (removedInfo.deletedCount == 1) {
+	if (removedInfo.deletedCount === 1) {
 		return true;
 	} else {
 		throw notFoundErr('the element is already deleted');
