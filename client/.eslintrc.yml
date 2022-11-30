@@ -22,5 +22,4 @@ parserOptions:
 plugins:
   - react
   - prettier
-rules: { 'react/prop-types': 'off' }
-prettier/prettier: ['error', { 'endOfLine': 'auto' }]
+rules: { 'react/prop-types': 'off', no-underscore-dangle: off }

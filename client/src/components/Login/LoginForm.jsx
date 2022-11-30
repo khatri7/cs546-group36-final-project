@@ -14,9 +14,9 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { handleError, login } from 'utils/api-calls';
 import { useDispatch } from 'react-redux';
 import { errorAlert } from 'store/alert';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { setUser } from 'store/user';
 
-// Creating schema
 const schema = Yup.object().shape({
 	username: Yup.string()
 		.required('Username is required')
@@ -34,6 +34,8 @@ function LoginForm() {
 	};
 
 	const dispatch = useDispatch();
+
+	const navigate = useNavigate();
 
 	const handleMouseDownPassword = (event) => {
 		event.preventDefault();
@@ -55,7 +57,9 @@ function LoginForm() {
 				onSubmit={async (values, { setSubmitting }) => {
 					try {
 						setSubmitting(true);
-						await login(values);
+						const resp = await login(values);
+						dispatch(setUser(resp));
+						navigate('/');
 					} catch (e) {
 						let error = 'Unexpected error occurred';
 						if (typeof handleError(e) === 'string') error = handleError(e);

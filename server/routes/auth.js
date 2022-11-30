@@ -8,8 +8,8 @@ const router = express.Router();
 router.route('/login').post(async (req, res) => {
 	try {
 		const userLoginObj = isValidUserLoginObj(req.body);
-		const token = await authenticateUser(userLoginObj);
-		res.status(successStatusCodes.CREATED).json({ token });
+		const response = await authenticateUser(userLoginObj);
+		res.status(successStatusCodes.CREATED).json(response);
 	} catch (e) {
 		sendErrResp(res, e);
 	}

@@ -85,9 +85,8 @@ const createUser = async (userObjParam) => {
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
 	try {
-		const { _id, username, password } = await getUserByUsername(
-			userLoginObj.username
-		);
+		const { _id, firstName, lastName, username, password } =
+			await getUserByUsername(userLoginObj.username);
 		const doPasswordsMatch = await comparePassword(
 			userLoginObj.password,
 			password
@@ -102,7 +101,13 @@ const authenticateUser = async (userLoginObjParam) => {
 			},
 			process.env.JWT_SECRET
 		);
-		return token;
+		return {
+			_id,
+			firstName,
+			lastName,
+			username,
+			token,
+		};
 	} catch (e) {
 		throw badRequestErr('Invalid username or Password');
 	}
