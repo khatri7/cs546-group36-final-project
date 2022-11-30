@@ -171,6 +171,46 @@ const updateEducation = async (
 	return educationObj;
 };
 
+const removeEducation = async (
+	usernameParam,
+	educationIdParam,
+	currentUserParam
+) => {
+	const username = isValidUsername(usernameParam);
+	const educationId = isValidObjectId(educationIdParam);
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	const user = await getUserByUsername(username);
+	const educationOwner = await getEducationById(educationId);
+	if (user._id.toString() !== educationOwner._id.toString())
+		throw notFoundErr('No education found for the provided id');
+	if (
+		user._id.toString() !== currentUser._id ||
+		user.username.toLowerCase() !== currentUser.username.toLowerCase()
+	)
+		throw forbiddenErr('You cannot delete an education of another user');
+	const usersCollection = await users();
+	const result = await usersCollection.updateOne(
+		{
+			_id: educationOwner._id,
+		},
+		{
+			$pull: {
+				education: {
+					_id: ObjectId(educationId),
+				},
+			},
+		}
+	);
+	if (!result || result.matchedCount === 0)
+		throw notFoundErr('Could not find education with the given Id');
+	if (!result || result.modifiedCount === 0)
+		throw internalServerErr('Error removing education');
+	return true;
+};
+
 // End of Education Data Functions
 
 const authenticateUser = async (userLoginObjParam) => {
@@ -213,4 +253,5 @@ module.exports = {
 	getEducationById,
 	createEducation,
 	updateEducation,
+	removeEducation,
 };

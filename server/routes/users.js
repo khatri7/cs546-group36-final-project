@@ -10,12 +10,14 @@ const {
 	createEducation,
 	getEducationById,
 	updateEducation,
+	removeEducation,
 } = require('../data/users');
 const {
 	sendErrResp,
 	isValidObjectId,
 	successStatusCodes,
 	badRequestErr,
+	internalServerErr,
 } = require('../utils');
 const { isValidUsername, isValidEducationObj } = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
@@ -112,6 +114,23 @@ router
 				educationObj
 			);
 			res.json({ education });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const educationId = isValidObjectId(req.params.educationId);
+			await getUserByUsername(username);
+			await getEducationById(educationId);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const result = await removeEducation(username, educationId, currentUser);
+			if (!result) throw internalServerErr('Error removing education');
+			res.status(successStatusCodes.DELETED).json();
 		} catch (e) {
 			sendErrResp(res, e);
 		}
