@@ -118,4 +118,5 @@ module.exports = {
 	getUserByUsername,
 	createUser,
 	authenticateUser,
+	checkUsernameAvailable,
 };
