@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { GET, handleError } from 'utils/api-calls';
 
 /**
@@ -10,10 +11,14 @@ function useQuery(endpoint) {
 	const [error, setError] = useState(false);
 	const [data, setData] = useState(null);
 
+	const user = useSelector((state) => state.user);
+
 	useEffect(() => {
 		const makeReq = async () => {
 			try {
-				const res = await GET(endpoint);
+				const header = {};
+				if (user?.token) header.Authorization = `Bearer ${user.token}`;
+				const res = await GET(endpoint, {}, header);
 				setData(res);
 				setLoading(false);
 				setError(false);
@@ -25,7 +30,7 @@ function useQuery(endpoint) {
 			}
 		};
 		makeReq();
-	}, [endpoint]);
+	}, [endpoint, user?.token]);
 
 	return {
 		loading,
