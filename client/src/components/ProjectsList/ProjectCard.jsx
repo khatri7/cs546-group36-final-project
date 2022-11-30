@@ -7,10 +7,12 @@ import {
 	Chip,
 	Grid,
 	IconButton,
+	Menu,
+	MenuItem,
 	Stack,
 	Typography,
 } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -32,15 +34,26 @@ import { useNavigate } from 'react-router-dom';
 /**
  * @typedef {Object} props
  * @property {Project} project
+ * @property {Boolean} isOwner
+ * @property {number} gridCols
  */
 
 /**
  * @param {props} props
  */
-function ProjectCard({ project, isOwner = false }) {
+function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 	const navigate = useNavigate();
+	const [anchorElProject, setAnchorElProject] = useState(null);
+
+	const handleOpenProjectMenu = (event) => {
+		setAnchorElProject(event.currentTarget);
+	};
+
+	const handleCloseProjectMenu = () => {
+		setAnchorElProject(null);
+	};
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={gridCols}>
 			<Card raised sx={{ height: '100%' }}>
 				<CardHeader
 					title={project.name}
@@ -56,9 +69,37 @@ function ProjectCard({ project, isOwner = false }) {
 								<OpenInNewOutlined />
 							</IconButton>
 							{isOwner && (
-								<IconButton aria-label="options">
-									<MoreVertOutlined />
-								</IconButton>
+								<>
+									<IconButton
+										aria-label="options"
+										onClick={handleOpenProjectMenu}
+									>
+										<MoreVertOutlined />
+									</IconButton>
+									<Menu
+										sx={{ mt: '2rem' }}
+										id="menu-appbar"
+										anchorEl={anchorElProject}
+										anchorOrigin={{
+											vertical: 'top',
+											horizontal: 'right',
+										}}
+										keepMounted
+										transformOrigin={{
+											vertical: 'top',
+											horizontal: 'right',
+										}}
+										open={Boolean(anchorElProject)}
+										onClose={handleCloseProjectMenu}
+									>
+										<MenuItem
+											sx={{ alignItems: 'center' }}
+											onClick={handleCloseProjectMenu}
+										>
+											<Typography textAlign="center">Delete</Typography>
+										</MenuItem>
+									</Menu>
+								</>
 							)}
 						</Stack>
 					}

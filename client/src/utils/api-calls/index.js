@@ -5,7 +5,7 @@ const axios = Axios.create({
 });
 
 export const handleError = (error) => {
-	if (error.response && error.response.message) return error.response.message;
+	if (error.response?.data?.message) return error.response.data.message;
 	if (error.message) return error.message;
 	return error;
 };

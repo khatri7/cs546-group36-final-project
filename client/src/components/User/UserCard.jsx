@@ -49,7 +49,7 @@ function UserCard({ firstName, lastName, username, dob, socials, skills }) {
 								}}
 							>
 								{skills.map((skill) => (
-									<Chip label={skill} />
+									<Chip label={skill} key={skill} />
 								))}
 							</Stack>
 						</>
