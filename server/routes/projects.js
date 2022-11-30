@@ -117,15 +117,12 @@ router
 	});
 router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
 	const { user } = req;
-	const userId = req.user._id;
-	const { username } = req.user;
-	const { projectId } = req.params;
 	try {
-		isValidObjectId(userId);
-		isValidUsername(username);
-		isValidObjectId(projectId);
-		const likeProject = await projectsData.likeProject(user, projectId);
-		res.json({ likeProject });
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		const projectId = isValidObjectId(req.params.projectId);
+		const likeProjectInfo = await projectsData.likeProject(projectId);
+		res.json({ likeProjectInfo });
 	} catch (e) {
 		sendErrResp(res, e);
 	}

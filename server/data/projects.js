@@ -6,6 +6,7 @@ const {
 	notFoundErr,
 	isValidStr,
 	unauthorizedErr,
+	badRequestErr,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
@@ -94,21 +95,27 @@ const createProject = async (projectObjParam, user) => {
 	return createdProject;
 };
 const likeProject = async (user, project) => {
-	const userInfo = user;
-	const userId = userInfo._id;
+	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
-	isValidObjectId(userId);
 	const projectCollection = await projects();
 	const getProjectInfo = await getProjectById(projectId);
-	if (!getProjectInfo) {
-		throw internalServerErr('Project could not be found');
-	}
-	getProjectInfo.likes.push(ObjectId(userId));
-	const likeProjectAcknowledgment = await projectCollection.updateOne(
-		{ _id: ObjectId(projectId) },
-		{ $set: { likes: getProjectInfo.likes } }
-	);
-	return likeProjectAcknowledgment;
+	const likedUsers = getProjectInfo.likes;
+	if (!likedUsers.includes.likes) {
+		getProjectInfo.likes.push(ObjectId(userId));
+		const likeProjectAcknowledgment = await projectCollection.updateOne(
+			{ _id: ObjectId(projectId) },
+			{ $set: { likes: getProjectInfo.likes } }
+		);
+		if (
+			!likeProjectAcknowledgment.acknowledged ||
+			!likeProjectAcknowledgment.modifiedCount
+		)
+			throw internalServerErr(
+				'Could not bookmark the project. Please try again.'
+			);
+	} else throw badRequestErr('Project already bookmarked.');
+	const getUpdatedProject = await getProjectById(projectId);
+	return getUpdatedProject.likes;
 };
 
 const getSavedProjects = async (usernameParam, ownerParam) => {
