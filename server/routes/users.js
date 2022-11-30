@@ -18,9 +18,10 @@ const router = express.Router();
 
 router.route('/username').post(async (req, res) => {
 	try {
-		const username = isValidUsername(req.res.username);
+		const username = isValidUsername(req.body.username);
 		const isAvailable = await checkUsernameAvailable(username);
-		if (!isAvailable) throw badRequestErr('Username already taken');
+		if (!isAvailable)
+			throw badRequestErr('The username provided has already been taken');
 		res.status(successStatusCodes.CREATED).json({ username });
 	} catch (e) {
 		sendErrResp(res, e);
