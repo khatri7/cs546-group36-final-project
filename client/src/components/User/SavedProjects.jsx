@@ -3,8 +3,10 @@ import ProjectsList from 'components/ProjectsList';
 import useQuery from 'hooks/useQuery';
 import React from 'react';
 
-function Projects({ username }) {
-	const { data, loading, error } = useQuery(`/users/${username}/projects`);
+function SavedProjects({ username }) {
+	const { data, loading, error } = useQuery(
+		`/users/${username}/saved-projects`
+	);
 
 	if (error) return <Typography>{error}</Typography>;
 
@@ -19,4 +21,4 @@ function Projects({ username }) {
 	return <ProjectsList projectsList={projects} projectsPerRow={2} />;
 }
 
-export default Projects;
+export default SavedProjects;

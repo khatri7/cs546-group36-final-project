@@ -10,6 +10,7 @@ import TabPanel from 'components/User/TabPanel';
 import Profile from 'components/User/Profile';
 import Projects from 'components/User/Projects';
 import { useSelector } from 'react-redux';
+import SavedProjects from 'components/User/SavedProjects';
 
 function User() {
 	const { username } = useParams();
@@ -87,7 +88,7 @@ function User() {
 						tabAriaLabel="saved-projects-tab"
 						index={2}
 					>
-						<Typography>Saved Projects</Typography>
+						<SavedProjects username={user.username} />
 					</TabPanel>
 				</Grid>
 				<Grid item xs={4}>

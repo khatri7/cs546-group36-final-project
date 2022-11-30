@@ -40,8 +40,8 @@ router
 			const username = isValidUsername(req.params.username);
 			const loggedinId = isValidObjectId(user._id);
 			await getUserByUsername(username);
-			const savedProjects = await getSavedProjects(username, loggedinId);
-			res.json({ savedProjects });
+			const projects = await getSavedProjects(username, loggedinId);
+			res.json({ projects });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
