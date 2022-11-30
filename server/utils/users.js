@@ -40,19 +40,15 @@ const isValidName = (nameParam, varName, allowPunctuations = false) => {
 	return name;
 };
 
-/**
- *
- * @param {string} date in format MM-DD-YYYY
- * @returns {string} date string if it is valid otherwise throws an error
- */
-const isValidDob = (dateParam) => {
-	const date = isValidStr(dateParam, 'DOB');
+const isValidDateStr = (dateParam, varName) => {
+	const date = isValidStr(dateParam, varName);
 	date.split('').forEach((char) => {
-		if (!isNumberChar(char) && char !== '-') throw badRequestErr('Invalid DOB');
+		if (!isNumberChar(char) && char !== '-')
+			throw badRequestErr(`Invalid ${varName}`);
 	});
 	let [month, day, year] = date.split('-');
 	if (month.length !== 2 || day.length !== 2 || year.length !== 4)
-		throw badRequestErr('Invalid DOB');
+		throw badRequestErr(`Invalid ${varName}`);
 	year = parseInt(year.trim(), 10);
 	month = parseInt(month.trim(), 10);
 	day = parseInt(day.trim(), 10);
@@ -61,17 +57,47 @@ const isValidDob = (dateParam) => {
 		!Number.isFinite(month) ||
 		!Number.isFinite(day)
 	)
-		throw badRequestErr('Invalid DOB');
+		throw badRequestErr(`Invalid ${varName}`);
 	const momentDate = moment(
 		`${year.toString().padStart(4, '0')}-${month
 			.toString()
 			.padStart(2, '0')}-${day.toString().padStart(2, '0')}`
 	);
+	if (!momentDate.isValid()) throw badRequestErr(`Invalid ${varName}`);
+	return momentDate;
+};
+
+/**
+ *
+ * @param {string} date in format MM-DD-YYYY
+ * @returns {string} date string if it is valid otherwise throws an error
+ */
+const isValidDob = (dateParam) => {
+	const momentDate = isValidDateStr(dateParam, 'DOB');
 	if (!momentDate.isValid()) throw badRequestErr('Invalid DOB');
 	const difference = moment().diff(momentDate, 'year');
 	if (difference < 12 || difference > 100)
 		throw badRequestErr('Invalid DOB: should be between 12-100 years in age');
 	return momentDate.format('MM-DD-YYYY');
+};
+
+const isValidFromAndToDate = (fromDate, toDate = null) => {
+	const fromMomentDate = isValidDateStr(fromDate, 'From Date');
+	const toMomentDate = toDate ? isValidDateStr(toDate, 'To Date') : null;
+	if (!fromMomentDate.isValid()) throw badRequestErr('Invalid From Date');
+	if (toMomentDate && !toMomentDate.isValid())
+		throw badRequestErr('Invalid To Date');
+	if (moment().diff(fromMomentDate, 'days') < 0)
+		throw badRequestErr('From Date cannot be in the future');
+	if (toMomentDate) {
+		const difference = toMomentDate.diff(fromMomentDate, 'days');
+		if (difference < 1)
+			throw badRequestErr('To Date cannot be same as or before From Date');
+	}
+	return {
+		from: fromMomentDate.format('MM-DD-YYYY'),
+		to: toMomentDate ? toMomentDate.format('MM-DD-YYYY') : null,
+	};
 };
 
 /**
@@ -180,6 +206,20 @@ const isValidUserLoginObj = (userLoginObjParam) => {
 	};
 };
 
+const isValidEducationObj = (educationObjParam) => {
+	isValidObj(educationObjParam);
+	const { from, to } = isValidFromAndToDate(
+		educationObjParam.from,
+		educationObjParam.to
+	);
+	return {
+		school: isValidStr(educationObjParam.school, 'School Name', 'min', 3),
+		course: isValidStr(educationObjParam.course, 'Course Name', 'min', 3),
+		from,
+		to,
+	};
+};
+
 module.exports = {
 	isValidUsername,
 	isValidEmail,
@@ -187,4 +227,5 @@ module.exports = {
 	hashPassword,
 	comparePassword,
 	isValidUserLoginObj,
+	isValidEducationObj,
 };

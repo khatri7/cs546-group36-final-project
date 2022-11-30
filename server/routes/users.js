@@ -4,14 +4,22 @@ const {
 	getProjectsByOwnerUsername,
 	getSavedProjects,
 } = require('../data/projects');
-const { getUserByUsername, checkUsernameAvailable } = require('../data/users');
+const {
+	getUserByUsername,
+	checkUsernameAvailable,
+	createEducation,
+	getEducationById,
+	updateEducation,
+	removeEducation,
+} = require('../data/users');
 const {
 	sendErrResp,
 	isValidObjectId,
 	successStatusCodes,
 	badRequestErr,
+	internalServerErr,
 } = require('../utils');
-const { isValidUsername } = require('../utils/users');
+const { isValidUsername, isValidEducationObj } = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -59,6 +67,70 @@ router
 			await getUserByUsername(username);
 			const projects = await getSavedProjects(username, loggedinId);
 			res.json({ projects });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:username/education')
+	.post(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			await getUserByUsername(username);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const educationObj = isValidEducationObj(req.body);
+			const education = await createEducation(
+				username,
+				currentUser,
+				educationObj
+			);
+			res.status(successStatusCodes.CREATED).json({ education });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:username/education/:educationId')
+	.put(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const educationId = isValidObjectId(req.params.educationId);
+			await getUserByUsername(username);
+			await getEducationById(educationId);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const educationObj = isValidEducationObj(req.body);
+			const education = await updateEducation(
+				username,
+				educationId,
+				currentUser,
+				educationObj
+			);
+			res.json({ education });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const educationId = isValidObjectId(req.params.educationId);
+			await getUserByUsername(username);
+			await getEducationById(educationId);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const result = await removeEducation(username, educationId, currentUser);
+			if (!result) throw internalServerErr('Error removing education');
+			res.status(successStatusCodes.DELETED).json();
 		} catch (e) {
 			sendErrResp(res, e);
 		}
