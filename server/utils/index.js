@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 const successStatusCodes = {
 	OK: 200,
@@ -154,12 +155,21 @@ const isValidObj = (obj) =>
 /**
  *
  * @param {string} id
- * @returns {ObjectId} the object id if it is valid otherwise throws an error
+ * @returns {ObjectId} the object id string if it is valid otherwise throws an error
  */
 const isValidObjectId = (idParam) => {
 	const id = isValidStr(idParam, 'Id');
 	if (!ObjectId.isValid(id)) throw badRequestErr('Invalid Object Id');
 	return id;
+};
+
+const isValidJwtString = (tokenParam) => {
+	const token = isValidStr(tokenParam, 'JWT');
+	try {
+		jwt.verify(token, process.env.JWT_SECRET);
+	} catch (e) {
+		throw badRequestErr('Invalid JWT');
+	}
 };
 
 module.exports = {
@@ -176,4 +186,5 @@ module.exports = {
 	isValidArray,
 	isValidObj,
 	isValidObjectId,
+	isValidJwtString,
 };

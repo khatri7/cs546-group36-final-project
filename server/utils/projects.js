@@ -78,6 +78,7 @@ module.exports = {
 	isValidProjectName,
 	isValidProjectObject,
 	isValidGithub,
+	isValidTechnologies,
 	isValidQueryParamTechnologies,
 	isValidTechnologies
 };

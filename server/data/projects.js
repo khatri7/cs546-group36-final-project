@@ -1,4 +1,5 @@
 
+const { ObjectId } = require('mongodb');
 const { projects } = require('../config/mongoCollections');
 const {
 	internalServerErr,
@@ -7,6 +8,7 @@ const {
 	isValidStr,
 	forbiddenErr,
 	badRequestErr,
+	unauthorizedErr,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
@@ -19,7 +21,6 @@ const {
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
 const { ObjectId } = require('mongodb');
-
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -67,7 +68,7 @@ const getProjectsByOwnerUsername = async (usernameParam) => {
 
 const createProject = async (projectObjParam, user) => {
 	const userInfo = user;
-	userInfo._id = isValidObjectId(userInfo._id);
+	userInfo._id = ObjectId(isValidObjectId(userInfo._id));
 	userInfo.username = isValidUsername(userInfo.username);
 	const projectCollection = await projects();
 	const projectObj = isValidProjectObject(projectObjParam);
@@ -162,6 +163,26 @@ const removeProject = async (id, user) => {
 		throw notFoundErr('the element is already deleted');
 	}
 };
+const getSavedProjects = async (usernameParam, ownerParam) => {
+	let savedProjects;
+	const userName = isValidUsername(usernameParam);
+	const loggedinId = isValidObjectId(ownerParam);
+	const user = await getUserByUsername(userName);
+	const userId = user._id.toString();
+	if (userId === loggedinId) {
+		const projectsCollection = await projects();
+		savedProjects = await projectsCollection
+			.find({
+				savedBy: userId,
+			})
+			.toArray();
+	} else
+		throw unauthorizedErr(
+			"You are not authorized to retrieve other user's saved projects"
+		);
+	return savedProjects;
+};
+
 module.exports = {
 	removeProject,
 	updateProject,
@@ -169,4 +190,5 @@ module.exports = {
 	getAllProjects,
 	createProject,
 	getProjectsByOwnerUsername,
+	getSavedProjects,
 };

@@ -1,7 +1,8 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
+const bookmarksData = require('../data/bookmarks');
+const { successStatusCodes } = require('../utils');
 
 const {
 	sendErrResp,
@@ -36,11 +37,10 @@ router
 				: null;
 			github = req.body.github ? isValidGithub(req.body.github) : null;
 			media = isValidArray(media, 'media', 'min', 1);
-			technologies = isValidArray(technologies, 'technologies', 'min', 1);
+			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
 				? isValidStr(req.body.deploymentLink, 'project deployment link')
 				: null;
-
 			const projectObject = {
 				name,
 				description,
@@ -145,8 +145,9 @@ router
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
 			comment = isValidStr(req.body.comment, 'Comment');
-			let projectId = isValidObjectId(req.params.projectId);
 			const commentObject = {
 				comment,
 				projectId,
@@ -156,6 +157,65 @@ router
 				user
 			);
 			res.json({ projectComment });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:projectId/comments/:commentId')
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			const commentId = isValidObjectId(req.params.commentId);
+			await projectsData.getProjectById(projectId);
+			await commentsData.getCommentById(commentId);
+			const commentObject = {
+				projectId,
+				commentId,
+			};
+			const removedComment = await commentsData.removeComment(
+				commentObject,
+				user
+			);
+			res.status(successStatusCodes.DELETED).json({
+				removedComment,
+			});
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:projectId/bookmark')
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
+			res.json({ bookmarkedUsers });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			await projectsData.getProjectById(projectId);
+			const bookmarkedUsers = await bookmarksData.removeBookmark(
+				projectId,
+				user
+			);
+			res.json({ bookmarkedUsers });
 		} catch (e) {
 			sendErrResp(res, e);
 		}

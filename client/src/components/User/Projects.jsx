@@ -1,0 +1,20 @@
+import { Typography } from '@mui/material';
+import ProjectsList from 'components/ProjectsList';
+import useQuery from 'hooks/useQuery';
+import React from 'react';
+
+function Projects({ username }) {
+	const { data, loading, error } = useQuery(`/users/${username}/projects`);
+
+	if (error) return <Typography>Error getting projects</Typography>;
+
+	if (loading) return <Typography>Loading...</Typography>;
+
+	const { projects } = data;
+
+	if (projects.length === 0) return <Typography>No projects</Typography>;
+
+	return <ProjectsList projectsList={projects} projectsPerRow={2} />;
+}
+
+export default Projects;
