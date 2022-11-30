@@ -16,8 +16,8 @@ export const handleError = (error) => {
  * @param {object} params query parameters
  * @returns response data or error response
  */
-export const GET = async (endpoint, params = {}) => {
-	const { data } = await axios.get(endpoint, { params });
+export const GET = async (endpoint, params = {}, headers = {}) => {
+	const { data } = await axios.get(endpoint, { params, headers });
 	return data;
 };
 

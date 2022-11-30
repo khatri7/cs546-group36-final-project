@@ -4,12 +4,29 @@ const {
 	getProjectsByOwnerUsername,
 	getSavedProjects,
 } = require('../data/projects');
-const { getUserByUsername } = require('../data/users');
-const { sendErrResp, isValidObjectId } = require('../utils');
+const { getUserByUsername, checkUsernameAvailable } = require('../data/users');
+const {
+	sendErrResp,
+	isValidObjectId,
+	successStatusCodes,
+	badRequestErr,
+} = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
+
+router.route('/username').post(async (req, res) => {
+	try {
+		const username = isValidUsername(req.body.username);
+		const isAvailable = await checkUsernameAvailable(username);
+		if (!isAvailable)
+			throw badRequestErr('The username provided has already been taken');
+		res.status(successStatusCodes.CREATED).json({ username });
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
 
 router.route('/:username').get(async (req, res) => {
 	try {
@@ -40,8 +57,8 @@ router
 			const username = isValidUsername(req.params.username);
 			const loggedinId = isValidObjectId(user._id);
 			await getUserByUsername(username);
-			const savedProjects = await getSavedProjects(username, loggedinId);
-			res.json({ savedProjects });
+			const projects = await getSavedProjects(username, loggedinId);
+			res.json({ projects });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
