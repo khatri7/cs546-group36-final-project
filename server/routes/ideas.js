@@ -49,4 +49,35 @@ router.route('/').post(authenticateToken, async (req, res) => {
 		sendErrResp(res, e);
 	}
 });
+
+router.route('/:ideaId/likes').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		const ideaId = isValidObjectId(req.params.ideaId);
+		const likeIdeaInfo = await ideasData.likeIdea(ideaId, user);
+		res.status(successStatusCodes.CREATED).json({
+			likeIdeaInfo,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+
+router.route('/:ideaId/likes').delete(authenticateToken, async (req, res) => {
+	const { user } = req;
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		const ideaId = isValidObjectId(req.params.ideaId);
+		const unlikeIdeaInfo = await ideasData.unlikeIdea(ideaId, user);
+		res.status(successStatusCodes.DELETED).json({
+			unlikeIdeaInfo,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+
 module.exports = router;
