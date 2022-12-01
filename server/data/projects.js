@@ -6,6 +6,7 @@ const {
 	notFoundErr,
 	isValidStr,
 	unauthorizedErr,
+	badRequestErr,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
@@ -93,6 +94,27 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+const likeProject = async (user, project) => {
+	const userId = isValidObjectId(user._id);
+	const projectId = isValidObjectId(project);
+	const projectCollection = await projects();
+	const getProjectInfo = await getProjectById(projectId);
+	const likedUsers = getProjectInfo.likes;
+	if (!likedUsers.toString().includes(userId)) {
+		getProjectInfo.likes.push(ObjectId(userId));
+		const likeProjectAcknowledgment = await projectCollection.updateOne(
+			{ _id: ObjectId(projectId) },
+			{ $set: { likes: getProjectInfo.likes } }
+		);
+		if (
+			!likeProjectAcknowledgment.acknowledged ||
+			!likeProjectAcknowledgment.modifiedCount
+		)
+			throw internalServerErr('Could not like the project. Please try again.');
+	} else throw badRequestErr('Project already liked.');
+	const getUpdatedProject = await getProjectById(projectId);
+	return getUpdatedProject.likes;
+};
 
 const getSavedProjects = async (usernameParam, ownerParam) => {
 	let savedProjects;
@@ -113,11 +135,35 @@ const getSavedProjects = async (usernameParam, ownerParam) => {
 		);
 	return savedProjects;
 };
+const unlikeProject = async (user, project) => {
+	const userId = isValidObjectId(user._id);
+	const projectId = isValidObjectId(project);
+	const projectCollection = await projects();
+	const getProjectInfo = await getProjectById(projectId);
+	const likedUsers = getProjectInfo.likes;
+	if (likedUsers.toString().includes(userId)) {
+		const unlikeProjectAcknowledgment = await projectCollection.updateOne(
+			{ _id: ObjectId(projectId) },
+			{ $pull: { likes: ObjectId(userId) } }
+		);
+		if (
+			!unlikeProjectAcknowledgment.acknowledged ||
+			!unlikeProjectAcknowledgment.modifiedCount
+		)
+			throw internalServerErr(
+				'Could not unlike the project. Please try again.'
+			);
+	} else throw badRequestErr('Project already unliked.');
+	const getUpdatedProject = await getProjectById(projectId);
+	return getUpdatedProject.likes;
+};
 
 module.exports = {
 	getProjectById,
 	getAllProjects,
 	createProject,
 	getProjectsByOwnerUsername,
+	likeProject,
 	getSavedProjects,
+	unlikeProject,
 };

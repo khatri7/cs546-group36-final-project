@@ -50,7 +50,9 @@ router
 				deploymentLink,
 			};
 			const project = await projectsData.createProject(projectObject, user);
-			res.json({ project });
+			res.status(successStatusCodes.CREATED).json({
+				project,
+			});
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -110,7 +112,42 @@ router
 				commentObject,
 				user
 			);
-			res.json({ projectComment });
+			res.status(successStatusCodes.CREATED).json({
+				projectComment,
+			});
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		const projectId = isValidObjectId(req.params.projectId);
+		const likeProjectInfo = await projectsData.likeProject(user, projectId);
+		res.status(successStatusCodes.CREATED).json({
+			likeProjectInfo,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+router
+	.route('/:projectId/likes')
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			const unlikeProjectInfo = await projectsData.unlikeProject(
+				user,
+				projectId
+			);
+			res.status(successStatusCodes.DELETED).json({
+				unlikeProjectInfo,
+			});
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -153,7 +190,9 @@ router
 			const projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
 			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
-			res.json({ bookmarkedUsers });
+			res.status(successStatusCodes.CREATED).json({
+				bookmarkedUsers,
+			});
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -169,7 +208,9 @@ router
 				projectId,
 				user
 			);
-			res.json({ bookmarkedUsers });
+			res.status(successStatusCodes.DELETED).json({
+				bookmarkedUsers,
+			});
 		} catch (e) {
 			sendErrResp(res, e);
 		}
