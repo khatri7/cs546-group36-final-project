@@ -112,8 +112,9 @@ const updateProject = async (projectObjParam, id, user) => {
 	const { name, description, github, technologies, deploymentLink } =
 		projectObj;
 	const date = new Date();
+	delete projectCheck._id;
 	const updateProjectObject = {
-		...updateProject,
+		...projectCheck,
 		name,
 		description,
 		github,
@@ -134,8 +135,6 @@ const updateProject = async (projectObjParam, id, user) => {
 
 const removeProject = async (id, user) => {
 	const projectId = isValidObjectId(id);
-	console.log(projectId);
-	await getProjectById(projectId);
 	const projectCheck = await getProjectById(projectId);
 	const userInfo = user;
 	userInfo.name = isValidUsername(userInfo.username);
