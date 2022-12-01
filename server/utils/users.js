@@ -189,7 +189,7 @@ const isValidUserObj = (userObjParam) => {
 		email: isValidEmail(userObjParam.email),
 		password: isValidPassword(userObjParam.password),
 		education: [],
-		employment: [],
+		experience: [],
 		skills: [],
 		socials: {
 			github: null,
@@ -220,6 +220,20 @@ const isValidEducationObj = (educationObjParam) => {
 	};
 };
 
+const isValidExperienceObj = (experienceObjParam) => {
+	isValidObj(experienceObjParam);
+	const { from, to } = isValidFromAndToDate(
+		experienceObjParam.from,
+		experienceObjParam.to
+	);
+	return {
+		company: isValidStr(experienceObjParam.company, 'Company Name', 'min', 3),
+		title: isValidStr(experienceObjParam.title, 'Title', 'min', 3),
+		from,
+		to,
+	};
+};
+
 module.exports = {
 	isValidUsername,
 	isValidEmail,
@@ -228,4 +242,5 @@ module.exports = {
 	comparePassword,
 	isValidUserLoginObj,
 	isValidEducationObj,
+	isValidExperienceObj,
 };
