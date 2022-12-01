@@ -227,8 +227,8 @@ const isValidExperienceObj = (experienceObjParam) => {
 		experienceObjParam.to
 	);
 	return {
-		school: isValidStr(experienceObjParam.company, 'Company Name', 'min', 3),
-		course: isValidStr(experienceObjParam.title, 'Title', 'min', 3),
+		company: isValidStr(experienceObjParam.company, 'Company Name', 'min', 3),
+		title: isValidStr(experienceObjParam.title, 'Title', 'min', 3),
 		from,
 		to,
 	};
