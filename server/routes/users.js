@@ -4,14 +4,13 @@ const {
 	getProjectsByOwnerUsername,
 	getSavedProjects,
 } = require('../data/projects');
+const { getUserByUsername, checkUsernameAvailable } = require('../data/users');
 const {
-	getUserByUsername,
-	checkUsernameAvailable,
 	createEducation,
 	getEducationById,
 	updateEducation,
 	removeEducation,
-} = require('../data/users');
+} = require('../data/users/education');
 const {
 	sendErrResp,
 	isValidObjectId,
@@ -19,8 +18,18 @@ const {
 	badRequestErr,
 	internalServerErr,
 } = require('../utils');
-const { isValidUsername, isValidEducationObj } = require('../utils/users');
+const {
+	isValidUsername,
+	isValidEducationObj,
+	isValidExperienceObj,
+} = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
+const {
+	createExperience,
+	getExperienceById,
+	updateExperience,
+	removeExperience,
+} = require('../data/users/experience');
 
 const router = express.Router();
 
@@ -71,6 +80,10 @@ router
 			sendErrResp(res, e);
 		}
 	});
+
+/**
+ * User Education Routes
+ */
 
 router
 	.route('/:username/education')
@@ -130,6 +143,78 @@ router
 			};
 			const result = await removeEducation(username, educationId, currentUser);
 			if (!result) throw internalServerErr('Error removing education');
+			res.status(successStatusCodes.DELETED).json();
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+/**
+ * User Experience Routes
+ */
+
+router
+	.route('/:username/experience')
+	.post(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			await getUserByUsername(username);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const experienceObj = isValidExperienceObj(req.body);
+			const experience = await createExperience(
+				username,
+				currentUser,
+				experienceObj
+			);
+			res.status(successStatusCodes.CREATED).json({ experience });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+
+router
+	.route('/:username/experience/:experienceId')
+	.put(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const experienceId = isValidObjectId(req.params.experienceId);
+			await getUserByUsername(username);
+			await getExperienceById(experienceId);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const experienceObj = isValidExperienceObj(req.body);
+			const experience = await updateExperience(
+				username,
+				experienceId,
+				currentUser,
+				experienceObj
+			);
+			res.json({ experience });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const experienceId = isValidObjectId(req.params.experienceId);
+			await getUserByUsername(username);
+			await getExperienceById(experienceId);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const result = await removeExperience(
+				username,
+				experienceId,
+				currentUser
+			);
+			if (!result) throw internalServerErr('Error removing experience');
 			res.status(successStatusCodes.DELETED).json();
 		} catch (e) {
 			sendErrResp(res, e);
