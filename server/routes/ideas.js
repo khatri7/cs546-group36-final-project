@@ -1,0 +1,52 @@
+const express = require('express');
+const ideasData = require('../data/ideas');
+const { successStatusCodes } = require('../utils');
+const { authenticateToken } = require('../middleware/auth');
+const {
+	isValidIdeaName,
+	isValidStatus,
+	isValidLookingFor,
+} = require('../utils/ideas');
+const { isValidTechnologies } = require('../utils/projects');
+const {
+	sendErrResp,
+	isValidArray,
+	isValidStr,
+	isValidObjectId,
+} = require('../utils');
+const { isValidUsername } = require('../utils/users');
+
+const router = express.Router();
+
+router.route('/').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	let { name, description, media, lookingFor, status, technologies } = req.body;
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		name = isValidIdeaName(name);
+		description = req.body.description
+			? isValidStr(req.body.description, 'idea description')
+			: null;
+		media = isValidArray(media, 'media', 'min', 1);
+		technologies = isValidTechnologies(technologies);
+		lookingFor = isValidLookingFor(lookingFor);
+		status = isValidStatus(status);
+
+		const ideaObject = {
+			name,
+			description,
+			media,
+			lookingFor,
+			status,
+			technologies,
+		};
+		const idea = await ideasData.createIdea(ideaObject, user);
+		res.status(successStatusCodes.CREATED).json({
+			idea,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+module.exports = router;
