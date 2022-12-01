@@ -3,6 +3,13 @@ const topics = require('./data/technologies');
 const { badRequestErr } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
+const checkuseraccess = (user, owner) => {
+	if (user._id === owner._id.toString()) {
+		return true;
+	}
+	return false;
+};
+
 const isValidProjectName = (projectNameParam) => {
 	const projectName = isValidStr(projectNameParam, 'project name', 'min', 3);
 	return projectName;
@@ -61,11 +68,14 @@ const isValidProjectObject = (projectObject) => {
 			? isValidStr(projectObject.description, 'project description')
 			: null,
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
-		media: isValidArray(projectObject.media, 'media', 'min', 1),
 		technologies: isValidTechnologies(projectObject.technologies),
+		deploymentLink: projectObject.deploymentLink
+			? isValidStr(projectObject.deploymentLink, 'project deployment link')
+			: null,
 	};
 };
 module.exports = {
+	checkuseraccess,
 	isValidProjectName,
 	isValidProjectObject,
 	isValidGithub,

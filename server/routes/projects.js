@@ -4,12 +4,7 @@ const commentsData = require('../data/comments');
 const bookmarksData = require('../data/bookmarks');
 const { successStatusCodes } = require('../utils');
 
-const {
-	sendErrResp,
-	isValidArray,
-	isValidStr,
-	isValidObjectId,
-} = require('../utils');
+const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const {
 	isValidProjectName,
 	isValidGithub,
@@ -26,8 +21,7 @@ router
 	.route('/')
 	.post(authenticateToken, async (req, res) => {
 		const { user } = req;
-		let { name, description, github, media, technologies, deploymentLink } =
-			req.body;
+		let { name, description, github, technologies, deploymentLink } = req.body;
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
@@ -36,7 +30,6 @@ router
 				? isValidStr(req.body.description, 'project description')
 				: null;
 			github = req.body.github ? isValidGithub(req.body.github) : null;
-			media = isValidArray(media, 'media', 'min', 1);
 			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
 				? isValidStr(req.body.deploymentLink, 'project deployment link')
@@ -45,7 +38,6 @@ router
 				name,
 				description,
 				github,
-				media,
 				technologies,
 				deploymentLink,
 			};
@@ -92,6 +84,58 @@ router.route('/:projectId').get(async (req, res) => {
 		sendErrResp(res, e);
 	}
 });
+
+router
+	.route('/:project_id')
+	.put(authenticateToken, async (req, res) => {
+		const { user } = req;
+		let { name, description, github, technologies, deploymentLink } = req.body;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.project_id);
+			await projectsData.getProjectById(projectId);
+			name = isValidProjectName(name);
+			description = req.body.description
+				? isValidStr(req.body.description, 'project description')
+				: null;
+			github = req.body.github ? isValidGithub(req.body.github) : null;
+			technologies = isValidTechnologies(technologies);
+			deploymentLink = req.body.deploymentLink
+				? isValidStr(req.body.deploymentLink, 'project deployment link')
+				: null;
+			const projectObject = {
+				name,
+				description,
+				github,
+				technologies,
+				deploymentLink,
+			};
+			const project = await projectsData.updateProject(
+				projectObject,
+				projectId,
+				user
+			);
+			res.json({ project, message: 'Project udpated successfully' });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		try {
+			const { user } = req;
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.project_id);
+			await projectsData.getProjectById(projectId);
+			const status = await projectsData.removeProject(projectId, user);
+			res.status(successStatusCodes.DELETED).json({
+				status,
+			});
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
 
 router
 	.route('/:projectId/comments')

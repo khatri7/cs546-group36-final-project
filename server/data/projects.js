@@ -5,6 +5,7 @@ const {
 	isValidObjectId,
 	notFoundErr,
 	isValidStr,
+	forbiddenErr,
 	unauthorizedErr,
 	badRequestErr,
 } = require('../utils');
@@ -12,6 +13,7 @@ const { isValidUsername } = require('../utils/users');
 const {
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
+	checkuseraccess,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
 
@@ -65,16 +67,17 @@ const createProject = async (projectObjParam, user) => {
 	userInfo.username = isValidUsername(userInfo.username);
 	const projectCollection = await projects();
 	const projectObj = isValidProjectObject(projectObjParam);
-	const { name, description, github, media, technologies, deploymentLink } =
+	const { name, description, github, technologies, deploymentLink } =
 		projectObj;
 	const date = new Date();
 	const createProjectObject = {
 		name,
 		description,
 		github,
-		media,
+		media: [],
 		deploymentLink,
 		createdAt: date,
+		updatedAt: date,
 		technologies,
 		owner: userInfo,
 		savedBy: [],
@@ -114,6 +117,63 @@ const likeProject = async (user, project) => {
 	} else throw badRequestErr('Project already liked.');
 	const getUpdatedProject = await getProjectById(projectId);
 	return getUpdatedProject.likes;
+};
+
+const updateProject = async (projectObjParam, id, user) => {
+	const projectObj = isValidProjectObject(projectObjParam);
+	const projectId = isValidObjectId(id);
+	const projectCheck = await getProjectById(projectId);
+	const userInfo = user;
+	userInfo.name = isValidUsername(userInfo.username);
+	userInfo._id = isValidObjectId(userInfo._id);
+	const ownercheck = checkuseraccess(userInfo, projectCheck.owner);
+	if (!ownercheck)
+		throw forbiddenErr(
+			`Not Authorised to update this project. Not Project Owner`
+		);
+	const { name, description, github, technologies, deploymentLink } =
+		projectObj;
+	const date = new Date();
+	delete projectCheck._id;
+	const updateProjectObject = {
+		...projectCheck,
+		name,
+		description,
+		github,
+		deploymentLink,
+		updatedAt: date,
+		technologies,
+	};
+	const projectCollection = await projects();
+	const updateInfo = await projectCollection.updateOne(
+		{ _id: ObjectId(projectId) },
+		{ $set: updateProjectObject }
+	);
+	if (!updateInfo.acknowledged || !updateInfo.modifiedCount)
+		throw internalServerErr('Could not update the project. Please try again.');
+	const project = await getProjectById(id);
+	return project;
+};
+
+const removeProject = async (id, user) => {
+	const projectId = isValidObjectId(id);
+	const projectCheck = await getProjectById(projectId);
+	const userInfo = user;
+	userInfo.name = isValidUsername(userInfo.username);
+	userInfo._id = isValidObjectId(userInfo._id);
+	const ownercheck = checkuseraccess(user, projectCheck.owner);
+	if (!ownercheck)
+		throw forbiddenErr(
+			`Not Authorised to update this project. Not Project Owner`
+		);
+	const projectCollection = await projects();
+	const removedInfo = await projectCollection.deleteOne({
+		_id: ObjectId(projectId),
+	});
+	if (!removedInfo.acknowledged || !removedInfo.deletedCount)
+		throw internalServerErr('Could not update the project. Please try again.');
+	const removeProjectId = projectId;
+	return removeProjectId;
 };
 
 const getSavedProjects = async (usernameParam, ownerParam) => {
@@ -159,6 +219,8 @@ const unlikeProject = async (user, project) => {
 };
 
 module.exports = {
+	removeProject,
+	updateProject,
 	getProjectById,
 	getAllProjects,
 	createProject,
