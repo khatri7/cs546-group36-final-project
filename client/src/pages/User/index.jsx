@@ -72,7 +72,11 @@ function User() {
 						tabAriaLabel="profile-tab"
 						index={0}
 					>
-						<Profile />
+						<Profile
+							bio={user.bio}
+							education={user.education}
+							work={user.work}
+						/>
 					</TabPanel>
 					<TabPanel
 						value={tabValue}
