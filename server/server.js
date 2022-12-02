@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require('express');
-const configRoutes = require('./routes');
 
 const app = express();
 app.use(express.json());
+const configRoutes = require('./routes');
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -18,5 +18,5 @@ app.use((req, res, next) => {
 configRoutes(app);
 
 app.listen(3005, () => {
-	console.log('Server running on port 3005!');
+	console.log('Server started on port 3005!');
 });
