@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 const { ideas } = require('../config/mongoCollections');
-const { isValidObjectId, isValidArray, isValidStr } = require('../utils');
+const { isValidObjectId, isValidStr } = require('../utils');
 const { isValidLookingFor, isValidStatus } = require('../utils/ideas');
 const { isValidProjectName } = require('../utils/projects');
 const { isValidUsername } = require('../utils/users');
@@ -24,13 +24,12 @@ const createIdea = async (ideasObjectParam, user) => {
 	userInfo._id = ObjectId(isValidObjectId(userInfo._id));
 	userInfo.username = isValidUsername(userInfo.username);
 	const ideasCollection = await ideas();
-	let { name, description, media, technologies, lookingFor, status } =
+	let { name, description, technologies, lookingFor, status } =
 		ideasObjectParam;
 	name = isValidProjectName(name);
 	description = ideasObjectParam.description
 		? isValidStr(ideasObjectParam.description, 'idea description')
 		: null;
-	media = isValidArray(media, 'media', 'min', 1);
 	technologies = isValidTechnologies(technologies);
 	lookingFor = isValidLookingFor(lookingFor);
 	status = isValidStatus(status);
@@ -38,7 +37,6 @@ const createIdea = async (ideasObjectParam, user) => {
 	const createIdeaObject = {
 		name,
 		description,
-		media,
 		status,
 		lookingFor,
 		createdAt: date,

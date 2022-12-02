@@ -1,6 +1,7 @@
-const { badRequestErr, isNumberChar, isValidStr } = require('./index');
+const { badRequestErr, isValidStr } = require('./index');
 
 const isValidIdeaName = (ideaNameParam) => {
+	if (!ideaNameParam) throw badRequestErr('Invalid input for idea name');
 	const ideaName = isValidStr(ideaNameParam, 'idea name', 'min', 3);
 	return ideaName;
 };
@@ -13,7 +14,11 @@ const isValidStatus = (status) => {
 	}
 };
 const isValidLookingFor = (lookingForParam) => {
-	isNumberChar(lookingForParam);
+	if (!lookingForParam) throw badRequestErr('Invalid input for looking for');
+	if (typeof lookingForParam !== 'number')
+		throw badRequestErr('Invalid input for looking for');
+	if (Number.isNaN(lookingForParam))
+		throw badRequestErr('Invalid input for looking for');
 	if (lookingForParam <= 0)
 		throw badRequestErr('Invalid input for looking for');
 	return lookingForParam;
