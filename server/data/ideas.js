@@ -109,4 +109,5 @@ module.exports = {
 	createIdea,
 	likeIdea,
 	unlikeIdea,
+	getIdeaById,
 };

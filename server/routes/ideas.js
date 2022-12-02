@@ -1,6 +1,6 @@
 const express = require('express');
 const ideasData = require('../data/ideas');
-const { successStatusCodes } = require('../utils');
+const { successStatusCodes, badRequestErr } = require('../utils');
 const { authenticateToken } = require('../middleware/auth');
 const {
 	isValidIdeaName,
@@ -56,6 +56,8 @@ router.route('/:ideaId/likes').post(authenticateToken, async (req, res) => {
 		user._id = isValidObjectId(user._id);
 		user.username = isValidUsername(user.username);
 		const ideaId = isValidObjectId(req.params.ideaId);
+		const getIdea = await ideasData.getIdeaById(ideaId);
+		if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 		const likeIdeaInfo = await ideasData.likeIdea(ideaId, user);
 		res.status(successStatusCodes.CREATED).json({
 			likeIdeaInfo,
@@ -71,6 +73,8 @@ router.route('/:ideaId/likes').delete(authenticateToken, async (req, res) => {
 		user._id = isValidObjectId(user._id);
 		user.username = isValidUsername(user.username);
 		const ideaId = isValidObjectId(req.params.ideaId);
+		const getIdea = await ideasData.getIdeaById(ideaId);
+		if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 		const unlikeIdeaInfo = await ideasData.unlikeIdea(ideaId, user);
 		res.status(successStatusCodes.DELETED).json({
 			unlikeIdeaInfo,
