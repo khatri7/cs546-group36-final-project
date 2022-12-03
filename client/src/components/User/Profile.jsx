@@ -1,24 +1,19 @@
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Typography, Card, CardContent } from '@mui/material';
 import React from 'react';
-import Education from './Education';
+import { Education, Experience } from './EducationExperiece';
 
-// eslint-disable-next-line no-unused-vars
-function Profile({ bio, work, education }) {
+function Profile({ bio = '', experience = [], education = [] }) {
 	return (
 		<Box>
-			<Box mb={2}>
-				<Typography variant="h4" component="h2">
-					Bio
-				</Typography>
-				<Typography>{bio}</Typography>
-			</Box>
-			<Divider />
-			<Box mb={2}>
-				<Typography variant="h4" component="h2">
-					Work
-				</Typography>
-			</Box>
-			<Divider />
+			<Card raised>
+				<CardContent>
+					<Typography variant="h4" component="h2">
+						Bio
+					</Typography>
+					<Box>{bio}</Box>
+				</CardContent>
+			</Card>
+			<Experience experiece={experience} />
 			<Education education={education} />
 		</Box>
 	);

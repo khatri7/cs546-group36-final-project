@@ -75,7 +75,7 @@ function User() {
 						<Profile
 							bio={user.bio}
 							education={user.education}
-							work={user.work}
+							employment={user.employment}
 						/>
 					</TabPanel>
 					<TabPanel
