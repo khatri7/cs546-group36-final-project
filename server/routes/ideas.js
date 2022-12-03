@@ -1,112 +1,80 @@
-// ======================================================================
 const express = require('express');
+
 const router = express.Router();
-
 const ideasData = require('../data/ideas');
-
 const { successStatusCodes, badRequestErr } = require('../utils');
 const { authenticateToken } = require('../middleware/auth');
-const { isValidIdeaName, isValidStatus, isValidLookingFor } = require('../utils/ideas');
+const {
+	isValidIdeaName,
+	isValidStatus,
+	isValidLookingFor,
+} = require('../utils/ideas');
 const { isValidTechnologies } = require('../utils/projects');
 const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 
+router.route('/').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	let { name, description, lookingFor, status, technologies } = req.body;
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		name = isValidIdeaName(name);
+		description = req.body.description
+			? isValidStr(req.body.description, 'idea description')
+			: null;
+		lookingFor = isValidLookingFor(lookingFor);
+		status = isValidStatus(status);
+		technologies = isValidTechnologies(technologies);
 
-// Create a new Idea
-// ======================================================================
-router
-	.route('/')
-	.post(authenticateToken, async (request, response) => {
-		const { user } = request;
-		let { name, description, lookingFor, status, technologies } = request.body;
-		try {
-			// User Validation
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+		const ideaObject = {
+			name,
+			description,
+			lookingFor,
+			status,
+			technologies,
+		};
 
-			// Name Validation
-			name = isValidIdeaName(name);
+		const idea = await ideasData.createIdea(ideaObject, user);
 
-			// Description Validation
-			description = request.body.description
-				? isValidStr(request.body.description, 'idea description')
-				: null;
+		res.status(successStatusCodes.CREATED).json({
+			idea,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
 
-			// LookingFor Validation
-			lookingFor = isValidLookingFor(lookingFor);
-
-			// Status Validation
-			status = isValidStatus(status);
-
-			// Technologies Validation
-			technologies = isValidTechnologies(technologies);
-
-			const ideaObject = {
-				name,
-				description,
-				lookingFor,
-				status,
-				technologies,
-			};
-
-			const idea = await ideasData.createIdea(ideaObject, user);
-
-			response
-				.status(successStatusCodes.CREATED)
-				.json({
-					idea
-				});
-
-		} catch (e) {
-			sendErrResp(response, e);
-		}
-	});
-
-
-// Update & Delete an Idea
-// ======================================================================
 router
 	.route('/:ideaId')
-	.get(async (request, response) => {
+	.get(async (req, res) => {
 		try {
-			const ideaId = isValidObjectId(request.params.ideaId);
+			const ideaId = isValidObjectId(req.params.ideaId);
 			const ideas = await ideasData.getIdeaById(ideaId);
-			response
-				.json({
-					ideas,
-				});
+			res.json({
+				ideas,
+			});
 		} catch (e) {
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	})
-	.put(authenticateToken, async (request, response) => {
+	.put(authenticateToken, async (req, res) => {
 		try {
-			// User Validation
-			const { user } = request;
+			const { user } = req;
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 
-			// Idea ID Validation
-			const ideaId = isValidObjectId(request.params.ideaId);
+			const ideaId = isValidObjectId(req.params.ideaId);
 			await ideasData.getIdeaById(ideaId);
 
-			let { name, description, status, lookingFor, technologies } = request.body;
+			let { name, description, status, lookingFor, technologies } = req.body;
 
-			// Name Validation
 			name = isValidIdeaName(name);
-
-			// Description Validation
-			description = request.body.description
-				? isValidStr(request.body.description, 'idea description')
+			description = req.body.description
+				? isValidStr(req.body.description, 'idea description')
 				: null;
-
-			// LookingFor Validation
 			lookingFor = isValidLookingFor(lookingFor);
-
-			// Status Validation
 			status = isValidStatus(status);
-
-			// Technologies Validation
 			technologies = isValidTechnologies(technologies);
 
 			const idea = await ideasData.updateIdea(
@@ -115,154 +83,125 @@ router
 				user
 			);
 
-			response
-				.status(successStatusCodes.OK)
-				.json({
-					idea,
-					message: 'Idea updated successfully'
-				});
-
+			res.status(successStatusCodes.OK).json({
+				idea,
+				message: 'Idea updated successfully',
+			});
 		} catch (e) {
-			console.log(e);
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	})
-	.delete(authenticateToken, async (request, response) => {
+	.delete(authenticateToken, async (req, res) => {
 		try {
-			const { user } = request;
+			const { user } = req;
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 
-			const ideaId = isValidObjectId(request.params.ideaId);
+			const ideaId = isValidObjectId(req.params.ideaId);
 			await ideasData.getIdeaById(ideaId);
 
 			const status = await ideasData.removeIdea(ideaId, user);
 
-			response
-				.status(successStatusCodes.DELETED)
-				.json({
-					status,
-				});
-
+			res.status(successStatusCodes.DELETED).json({
+				status,
+			});
 		} catch (e) {
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	});
 
-
-
-// Like / Dislike an Idea
-// ======================================================================
 router
 	.route('/:ideaId/likes')
-	.post(authenticateToken, async (request, response) => {
-		const { user } = request;
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 
-			const ideaId = isValidObjectId(request.params.ideaId);
+			const ideaId = isValidObjectId(req.params.ideaId);
 			const getIdea = await ideasData.getIdeaById(ideaId);
 			if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 			const likeIdeaInfo = await ideasData.likeIdea(ideaId, user);
 
-			response
-				.status(successStatusCodes.CREATED)
-				.json({
-					likeIdeaInfo,
-				});
-
+			res.status(successStatusCodes.CREATED).json({
+				likeIdeaInfo,
+			});
 		} catch (e) {
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	})
-	.delete(authenticateToken, async (request, response) => {
-		const { user } = request;
+	.delete(authenticateToken, async (req, res) => {
+		const { user } = req;
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 
-			const ideaId = isValidObjectId(request.params.ideaId);
+			const ideaId = isValidObjectId(req.params.ideaId);
 			const getIdea = await ideasData.getIdeaById(ideaId);
 			if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 			const unlikeIdeaInfo = await ideasData.unlikeIdea(ideaId, user);
 
-			response
-				.status(successStatusCodes.DELETED)
-				.json({
-					unlikeIdeaInfo,
-				});
-
+			res.status(successStatusCodes.DELETED).json({
+				unlikeIdeaInfo,
+			});
 		} catch (e) {
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	});
 
+router.route('/:ideaId/comments').post(authenticateToken, async (req, res) => {
+	const { user } = req;
+	let { comment } = req.body;
 
+	try {
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
 
-// Create a new Comment for a given Idea
-// ======================================================================
-router
-	.route('/:ideaId/comments')
-	.post(authenticateToken, async (request, response) => {
-		const { user } = request;
-		let { comment } = request.body;
+		const ideaId = isValidObjectId(req.params.ideaId);
+		await ideasData.getIdeaById(ideaId);
 
-		try {
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+		comment = isValidStr(req.body.comment, 'Comment');
+		const commentObject = {
+			comment,
+			ideaId,
+		};
 
-			const ideaId = isValidObjectId(request.params.ideaId);
-			await ideasData.getIdeaById(ideaId);
+		const comments = await ideasData.createComment(commentObject, user);
 
-			comment = isValidStr(request.body.comment, 'Comment');
-			const commentObject = {
-				comment,
-				ideaId
-			};
+		res.status(successStatusCodes.CREATED).json({
+			comments,
+		});
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
 
-			const comments = await ideasData.createComment(commentObject, user);
-
-			response
-				.status(successStatusCodes.CREATED)
-				.json({
-					comments
-				});
-
-		} catch (e) {
-			sendErrResp(response, e);
-		}
-	});
-
-
-// Delete the given Comment for a given Idea
-// ======================================================================
 router
 	.route('/:ideaId/comments/:commentId')
-	.delete(authenticateToken, async (request, response) => {
+	.delete(authenticateToken, async (req, res) => {
 		try {
-			const { user } = request;
+			const { user } = req;
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 
-			const ideaId = isValidObjectId(request.params.ideaId);
-			const commentId = isValidObjectId(request.params.commentId);
+			const ideaId = isValidObjectId(req.params.ideaId);
+			const commentId = isValidObjectId(req.params.commentId);
 
 			const ideaObj = await ideasData.getIdeaById(ideaId);
 			if (!ideaObj) throw badRequestErr('Could not find any idea with the id');
 
-			const removeResp = await ideasData.removeIdeaComment(ideaObj, ideaId, commentId);
-			response
-				.status(successStatusCodes.DELETED)
-				.json({
-					removeResp
-				});
+			const idObj = {
+				ideaId,
+				commentId,
+			};
 
+			const removeResp = await ideasData.removeIdeaComment(ideaObj, idObj);
+			res.status(successStatusCodes.DELETED).json({
+				removeResp,
+			});
 		} catch (e) {
-			sendErrResp(response, e);
+			sendErrResp(res, e);
 		}
 	});
 
-
-// ======================================================================
 module.exports = router;

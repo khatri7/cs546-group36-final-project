@@ -1,16 +1,23 @@
-// ======================================================================
 const { ObjectId } = require('mongodb');
 const { ideas } = require('../config/mongoCollections');
 const { isValidObjectId, isValidStr } = require('../utils');
 const { isValidProjectName } = require('../utils/projects');
 const { isValidUsername } = require('../utils/users');
 const { isValidTechnologies } = require('../utils/projects');
-const { internalServerErr, badRequestErr, notFoundErr } = require('../utils/index');
+const {
+	internalServerErr,
+	badRequestErr,
+	forbiddenErr,
+	notFoundErr,
+} = require('../utils/index');
+const {
+	isValidIdeaName,
+	isValidStatus,
+	isValidLookingFor,
+	checkUserAccess,
+	getAllComments,
+} = require('../utils/ideas');
 
-const helper = require('../utils/ideas');
-
-// getIdeaById
-// ======================================================================
 const getIdeaById = async (idParam) => {
 	const id = isValidObjectId(idParam);
 
@@ -20,12 +27,8 @@ const getIdeaById = async (idParam) => {
 	if (!idea) throw notFoundErr('No Idea found for the provided id');
 
 	return idea;
-
 };
 
-
-// createIdea
-// ======================================================================
 const createIdea = async (ideasObjectParam, user) => {
 	const userInfo = user;
 
@@ -34,15 +37,16 @@ const createIdea = async (ideasObjectParam, user) => {
 
 	const ideasCollection = await ideas();
 
-	let { name, description, technologies, lookingFor, status } = ideasObjectParam;
+	let { name, description, technologies, lookingFor, status } =
+		ideasObjectParam;
 
-	name = isValidProjectName(name);
+	name = isValidIdeaName(name);
 	description = ideasObjectParam.description
 		? isValidStr(ideasObjectParam.description, 'idea description')
 		: null;
 	technologies = isValidTechnologies(technologies);
-	lookingFor = helper.isValidLookingFor(lookingFor);
-	status = helper.isValidStatus(status);
+	lookingFor = isValidLookingFor(lookingFor);
+	status = isValidStatus(status);
 
 	const createIdeaObject = {
 		name,
@@ -62,17 +66,11 @@ const createIdea = async (ideasObjectParam, user) => {
 		throw internalServerErr('Could not create idea. Please try again');
 	}
 
-	const createdIdea = await getIdeaById(
-		createIdeaAck.insertedId.toString()
-	);
+	const createdIdea = await getIdeaById(createIdeaAck.insertedId.toString());
 
 	return createdIdea;
-
 };
 
-
-// removeIdea
-// ======================================================================
 const removeIdea = async (id, user) => {
 	const ideaId = isValidObjectId(id);
 	const idCheck = await getIdeaById(ideaId);
@@ -81,10 +79,8 @@ const removeIdea = async (id, user) => {
 	userInfo.name = isValidUsername(userInfo.username);
 	userInfo._id = isValidObjectId(userInfo._id);
 
-	if (!helper.checkUserAccess(user, idCheck.owner))
-		throw forbiddenErr(
-			'Not Authorized to update this Idea. Not Idea Owner'
-		);
+	if (!checkUserAccess(user, idCheck.owner))
+		throw forbiddenErr('Not Authorized to update this Idea. Not Idea Owner');
 
 	const ideasCollection = await ideas();
 
@@ -98,9 +94,6 @@ const removeIdea = async (id, user) => {
 	return ideaId;
 };
 
-
-// updateIdea
-// ======================================================================
 const updateIdea = async (ideaObj, id, user) => {
 	const ideaId = isValidObjectId(id);
 
@@ -110,8 +103,7 @@ const updateIdea = async (ideaObj, id, user) => {
 	userInfo._id = ObjectId(isValidObjectId(userInfo._id));
 	userInfo.name = isValidUsername(userInfo.username);
 
-
-	if (!!helper.checkUserAccess(userInfo, ideaCheck.owner))
+	if (!checkUserAccess(userInfo, ideaCheck.owner))
 		throw forbiddenErr(
 			`Not Authorized to update this project. Not Project Owner`
 		);
@@ -122,25 +114,25 @@ const updateIdea = async (ideaObj, id, user) => {
 	description = ideaObj.description
 		? isValidStr(ideaObj.description, 'idea description')
 		: null;
-	status = helper.isValidStatus(status);
-	lookingFor = helper.isValidLookingFor(lookingFor);
+	status = isValidStatus(status);
+	lookingFor = isValidLookingFor(lookingFor);
 	technologies = isValidTechnologies(technologies);
 
 	delete ideaCheck._id;
 
-	const updateIdea = {
+	const updateidea = {
 		...ideaCheck,
 		name,
 		description,
 		status,
 		lookingFor,
 		technologies,
-		updatedAt: new Date()
+		updatedAt: new Date(),
 	};
 	const ideasCollection = await ideas();
 	const updateInfo = await ideasCollection.updateOne(
 		{ _id: ObjectId(ideaId) },
-		{ $set: updateIdea }
+		{ $set: updateidea }
 	);
 	if (!updateInfo.acknowledged || !updateInfo.modifiedCount)
 		throw internalServerErr('Could not update the Idea. Please try again.');
@@ -150,9 +142,6 @@ const updateIdea = async (ideaObj, id, user) => {
 	return idea;
 };
 
-
-// likeIdea
-// ======================================================================
 const likeIdea = async (ideasObjectParam, user) => {
 	const userId = isValidObjectId(user._id);
 	isValidUsername(user.username);
@@ -178,12 +167,8 @@ const likeIdea = async (ideasObjectParam, user) => {
 	const getUpdatedIdea = await getIdeaById(likeIdeaId);
 
 	return getUpdatedIdea.likes;
-
 };
 
-
-// unlikeIdea
-// ======================================================================
 const unlikeIdea = async (ideasObjectParam, user) => {
 	const userId = isValidObjectId(user._id);
 	isValidUsername(user.username);
@@ -208,12 +193,8 @@ const unlikeIdea = async (ideasObjectParam, user) => {
 	const getUpdatedIdea = await getIdeaById(ideaId);
 
 	return getUpdatedIdea.likes;
-
 };
 
-
-// createComment
-// ======================================================================
 const createComment = async (commentParam, user) => {
 	let { comment, ideaId } = commentParam;
 	comment = isValidStr(comment, 'Comment');
@@ -238,18 +219,15 @@ const createComment = async (commentParam, user) => {
 	}
 
 	return commentObj;
-
 };
 
-
-// removeIdeaComment
-// ======================================================================
-const removeIdeaComment = async (ideaObj, ideaId, commentId) => {
+const removeIdeaComment = async (ideaObj, idObj) => {
+	let { ideaId, commentId } = idObj;
 	ideaId = isValidObjectId(ideaId);
 	commentId = isValidObjectId(commentId);
 
 	const ideasCollection = await ideas();
-	const commentsList = helper.getAllComments(ideaObj.comments);
+	const commentsList = getAllComments(ideaObj.comments);
 
 	if (commentsList.toString().includes(commentId)) {
 		const removeIdeaCommAck = await ideasCollection.updateOne(
@@ -257,7 +235,9 @@ const removeIdeaComment = async (ideaObj, ideaId, commentId) => {
 			{ $pull: { comments: { _id: ObjectId(commentId) } } }
 		);
 		if (!removeIdeaCommAck.acknowledged || !removeIdeaCommAck.modifiedCount) {
-			throw internalServerErr('Could not remove the Idea Comment. Please try again.');
+			throw internalServerErr(
+				'Could not remove the Idea Comment. Please try again.'
+			);
 		}
 	} else {
 		throw badRequestErr('Idea Comment already removed or did not exist.');
@@ -266,21 +246,15 @@ const removeIdeaComment = async (ideaObj, ideaId, commentId) => {
 	const getUpdatedIdea = await getIdeaById(ideaId);
 
 	return getUpdatedIdea.comments;
-
 };
 
-
-// ======================================================================
 module.exports = {
 	getIdeaById,
-
 	createIdea,
 	removeIdea,
 	updateIdea,
-
 	likeIdea,
 	unlikeIdea,
-
 	createComment,
-	removeIdeaComment
+	removeIdeaComment,
 };
