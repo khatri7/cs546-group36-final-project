@@ -60,13 +60,17 @@ const createIdea = async (ideasObjectParam, user) => {
 		likes: [],
 	};
 
-	const createIdeaAck = await ideasCollection.insertOne(createIdeaObject);
-
-	if (!createIdeaAck?.acknowledged || !createIdeaAck?.insertedId) {
+	const createIdeaAcknowledgement = await ideasCollection.insertOne(
+		createIdeaObject
+	);
+	if (
+		!createIdeaAcknowledgement?.acknowledged ||
+		!createIdeaAcknowledgement?.insertedId
+	)
 		throw internalServerErr('Could not create idea. Please try again');
-	}
-
-	const createdIdea = await getIdeaById(createIdeaAck.insertedId.toString());
+	const createdIdea = await getIdeaById(
+		createIdeaAcknowledgement.insertedId.toString()
+	);
 
 	return createdIdea;
 };
@@ -153,16 +157,16 @@ const likeIdea = async (ideasObjectParam, user) => {
 
 	if (!likedUsers.toString().includes(userId)) {
 		getIdeaInfo.likes.push(ObjectId(userId));
-		const likeIdeaAck = await ideasCollection.updateOne(
+		const likeIdeaAcknowledgment = await ideasCollection.updateOne(
 			{ _id: ObjectId(likeIdeaId) },
 			{ $set: { likes: getIdeaInfo.likes } }
 		);
-		if (!likeIdeaAck.acknowledged || !likeIdeaAck.modifiedCount) {
+		if (
+			!likeIdeaAcknowledgment.acknowledged ||
+			!likeIdeaAcknowledgment.modifiedCount
+		)
 			throw internalServerErr('Could not like the idea. Please try again.');
-		}
-	} else {
-		throw badRequestErr('Idea already liked.');
-	}
+	} else throw badRequestErr('Idea already liked.');
 
 	const getUpdatedIdea = await getIdeaById(likeIdeaId);
 
@@ -179,16 +183,16 @@ const unlikeIdea = async (ideasObjectParam, user) => {
 	const likedUsers = getIdeaInfo.likes;
 
 	if (likedUsers.toString().includes(userId)) {
-		const unlikeIdeaAck = await ideasCollection.updateOne(
+		const unlikeIdeaAcknowledgment = await ideasCollection.updateOne(
 			{ _id: ObjectId(ideaId) },
 			{ $pull: { likes: ObjectId(userId) } }
 		);
-		if (!unlikeIdeaAck.acknowledged || !unlikeIdeaAck.modifiedCount) {
+		if (
+			!unlikeIdeaAcknowledgment.acknowledged ||
+			!unlikeIdeaAcknowledgment.modifiedCount
+		)
 			throw internalServerErr('Could not unlike the idea. Please try again.');
-		}
-	} else {
-		throw badRequestErr('Idea already unliked.');
-	}
+	} else throw badRequestErr('Idea already unliked.');
 
 	const getUpdatedIdea = await getIdeaById(ideaId);
 

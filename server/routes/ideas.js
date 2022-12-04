@@ -1,6 +1,4 @@
 const express = require('express');
-
-const router = express.Router();
 const ideasData = require('../data/ideas');
 const { successStatusCodes, badRequestErr } = require('../utils');
 const { authenticateToken } = require('../middleware/auth');
@@ -12,6 +10,8 @@ const {
 const { isValidTechnologies } = require('../utils/projects');
 const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const { isValidUsername } = require('../utils/users');
+
+const router = express.Router();
 
 router.route('/').post(authenticateToken, async (req, res) => {
 	const { user } = req;
