@@ -7,19 +7,43 @@ import {
 	Link,
 	Chip,
 	Button,
+	IconButton,
 } from '@mui/material';
 import React from 'react';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import CakeOutlinedIcon from '@mui/icons-material/CakeOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import EditUserDetails from './UserCard/EditUserDetails';
 
-function UserCard({ firstName, lastName, username, dob, socials, skills }) {
+function UserCard({
+	firstName,
+	lastName,
+	username,
+	dob,
+	socials,
+	skills,
+	isCurrentUserProfile = false,
+}) {
 	return (
 		<Card raised>
 			<CardContent>
 				<Stack spacing={2} alignItems="center">
+					{isCurrentUserProfile && (
+						<IconButton
+							aria-label="edit profile"
+							sx={{ alignSelf: 'flex-end' }}
+						>
+							<EditIcon />
+						</IconButton>
+					)}
 					<Avatar sx={{ width: 100, height: 100 }} />
+					<EditUserDetails
+						firstName={firstName}
+						lastName={lastName}
+						dob={dob}
+					/>
 					<Typography variant="h1" fontSize="2rem">
 						{firstName} {lastName}
 					</Typography>

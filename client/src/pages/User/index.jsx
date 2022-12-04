@@ -103,6 +103,7 @@ function User() {
 						dob={user.dob}
 						socials={user.socials}
 						skills={user.skills}
+						isCurrentUserProfile={isCurrentUserProfile}
 					/>
 				</Grid>
 			</Grid>
