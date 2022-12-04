@@ -5,6 +5,7 @@ const isValidIdeaName = (ideaNameParam) => {
 	const ideaName = isValidStr(ideaNameParam, 'idea name', 'min', 3);
 	return ideaName;
 };
+
 const isValidStatus = (status) => {
 	const statusValue = status.toLowerCase();
 	if (statusValue !== 'active' && statusValue !== 'inactive') {
@@ -13,6 +14,7 @@ const isValidStatus = (status) => {
 		return statusValue;
 	}
 };
+
 const isValidLookingFor = (lookingForParam) => {
 	if (!lookingForParam) throw badRequestErr('Invalid input for looking for');
 	if (typeof lookingForParam !== 'number')
@@ -21,11 +23,29 @@ const isValidLookingFor = (lookingForParam) => {
 		throw badRequestErr('Invalid input for looking for');
 	if (lookingForParam <= 0)
 		throw badRequestErr('Invalid input for looking for');
+
 	return lookingForParam;
+};
+
+const checkUserAccess = (user, owner) => {
+	return user._id === owner._id.toString();
+};
+
+const getAllComments = (comments) => {
+	const commentList = [];
+	comments.forEach((comment) => {
+		if (comment._id) {
+			commentList.push(comment._id.toString());
+		}
+	});
+
+	return commentList;
 };
 
 module.exports = {
 	isValidIdeaName,
 	isValidStatus,
 	isValidLookingFor,
+	checkUserAccess,
+	getAllComments,
 };
