@@ -7,43 +7,70 @@ const {
 	isValidStatus,
 	isValidLookingFor,
 } = require('../utils/ideas');
-const { isValidTechnologies } = require('../utils/projects');
+const {
+	isValidTechnologies,
+	isValidQueryParamTechnologies,
+} = require('../utils/projects');
 const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 
 const router = express.Router();
 
-router.route('/').post(authenticateToken, async (req, res) => {
-	const { user } = req;
-	let { name, description, lookingFor, status, technologies } = req.body;
-	try {
-		user._id = isValidObjectId(user._id);
-		user.username = isValidUsername(user.username);
-		name = isValidIdeaName(name);
-		description = req.body.description
-			? isValidStr(req.body.description, 'idea description')
-			: null;
-		lookingFor = isValidLookingFor(lookingFor);
-		status = isValidStatus(status);
-		technologies = isValidTechnologies(technologies);
+router
+	.route('/')
+	.post(authenticateToken, async (req, res) => {
+		const { user } = req;
+		let { name, description, lookingFor, status, technologies } = req.body;
+		try {
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			name = isValidIdeaName(name);
+			description = req.body.description
+				? isValidStr(req.body.description, 'idea description')
+				: null;
+			lookingFor = isValidLookingFor(lookingFor);
+			status = isValidStatus(status);
+			technologies = isValidTechnologies(technologies);
 
-		const ideaObject = {
-			name,
-			description,
-			lookingFor,
-			status,
-			technologies,
-		};
+			const ideaObject = {
+				name,
+				description,
+				lookingFor,
+				status,
+				technologies,
+			};
 
-		const idea = await ideasData.createIdea(ideaObject, user);
+			const idea = await ideasData.createIdea(ideaObject, user);
 
-		res.status(successStatusCodes.CREATED).json({
-			idea,
-		});
-	} catch (e) {
-		sendErrResp(res, e);
-	}
-});
+			res.status(successStatusCodes.CREATED).json({
+				idea,
+			});
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.get(authenticateToken, async (req, res) => {
+		try {
+			let { technologies, name, status } = req.query;
+			technologies = technologies?.trim() ?? '';
+			name = name?.trim() ?? '';
+			if (technologies && technologies.length > 0)
+				technologies = isValidQueryParamTechnologies(technologies);
+			if (name && name.length > 0)
+				name = isValidStr(name, 'ideas name query param', 'min', 1);
+			if (status && status.length > 0) {
+				status = isValidStatus(status);
+			}
+			const ideas = await ideasData.getAllIdeas({
+				name,
+				technologies,
+				status,
+			});
+			res.json({ ideas });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
 
 router
 	.route('/:ideaId')

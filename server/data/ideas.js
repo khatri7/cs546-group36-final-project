@@ -3,7 +3,10 @@ const { ideas } = require('../config/mongoCollections');
 const { isValidObjectId, isValidStr } = require('../utils');
 const { isValidProjectName } = require('../utils/projects');
 const { isValidUsername } = require('../utils/users');
-const { isValidTechnologies } = require('../utils/projects');
+const {
+	isValidTechnologies,
+	isValidQueryParamTechnologies,
+} = require('../utils/projects');
 const {
 	internalServerErr,
 	badRequestErr,
@@ -17,6 +20,35 @@ const {
 	checkUserAccess,
 	getAllComments,
 } = require('../utils/ideas');
+
+const getAllIdeas = async (
+	options = {
+		name: '',
+		technologies: '',
+		status: '',
+	}
+) => {
+	const { name, technologies, status } = options;
+	const ideasCollection = await ideas();
+	const query = {};
+	if (
+		name &&
+		name.trim().length > 0 &&
+		isValidStr(name, 'project name query param', 'min', 1)
+	)
+		query.name = { $regex: name.trim(), $options: 'i' };
+	if (technologies && technologies.trim().length > 0) {
+		const technologiesArr =
+			isValidQueryParamTechnologies(technologies).split(',');
+		query.technologies = { $all: technologiesArr };
+	}
+	if (status) {
+		const ideaStatus = isValidStatus(status);
+		query.status = { $eq: ideaStatus };
+	}
+	const allIdeas = await ideasCollection.find(query).toArray();
+	return allIdeas;
+};
 
 const getIdeaById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -261,4 +293,5 @@ module.exports = {
 	unlikeIdea,
 	createComment,
 	removeIdeaComment,
+	getAllIdeas,
 };
