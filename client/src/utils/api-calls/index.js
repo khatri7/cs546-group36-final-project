@@ -42,9 +42,10 @@ export const POST = async (endpoint, body = {}, params = {}) => {
  * @param {object} params query parameters
  * @returns
  */
-export const PUT = async (endpoint, body = {}, params = {}) => {
+export const PUT = async (endpoint, body = {}, params = {}, headers = {}) => {
 	const { data } = await axios.put(endpoint, body, {
 		params,
+		headers,
 	});
 	return data;
 };
@@ -80,3 +81,13 @@ Object.freeze(requestTypes);
 export const createUser = async (user) => POST('/auth/signup', user);
 
 export const login = async (userLoginObj) => POST('/auth/login', userLoginObj);
+
+export const updateUser = async (username, updateUserObj, token) =>
+	PUT(
+		`/users/${username}`,
+		updateUserObj,
+		{},
+		{
+			Authorization: `Bearer ${token}`,
+		}
+	);

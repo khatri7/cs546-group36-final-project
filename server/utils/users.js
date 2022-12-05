@@ -8,6 +8,7 @@ const {
 	isValidObj,
 	internalServerErr,
 } = require('./index');
+const { isValidTechnologies } = require('./projects');
 
 const saltRounds = 16;
 
@@ -198,6 +199,36 @@ const isValidUserObj = (userObjParam) => {
 	};
 };
 
+const isValidUpdateUserObj = (userObjParam) => {
+	isValidObj(userObjParam);
+	const { firstName, lastName, dob, bio, location, skills, socials } =
+		userObjParam;
+	const updateUserObj = {};
+	if (firstName)
+		updateUserObj.firstName = isValidName(
+			userObjParam.firstName,
+			'First Name',
+			false
+		);
+	if (lastName)
+		updateUserObj.lastName = isValidName(
+			userObjParam.lastName,
+			'Last Name',
+			false
+		);
+	if (dob) updateUserObj.dob = isValidDob(userObjParam.dob);
+	if (bio) updateUserObj.bio = isValidStr(userObjParam.bio, 'Bio');
+	if (location)
+		updateUserObj.location = isValidStr(userObjParam.location, 'Location');
+	if (skills) updateUserObj.skills = isValidTechnologies(userObjParam.skills);
+	const { github, linkedin } = socials;
+	updateUserObj.socials = {
+		github: github || null,
+		linkedin: linkedin || null,
+	};
+	return updateUserObj;
+};
+
 const isValidUserLoginObj = (userLoginObjParam) => {
 	isValidObj(userLoginObjParam);
 	return {
@@ -243,4 +274,5 @@ module.exports = {
 	isValidUserLoginObj,
 	isValidEducationObj,
 	isValidExperienceObj,
+	isValidUpdateUserObj,
 };
