@@ -217,15 +217,20 @@ const isValidUpdateUserObj = (userObjParam) => {
 			false
 		);
 	if (dob) updateUserObj.dob = isValidDob(userObjParam.dob);
-	if (bio) updateUserObj.bio = isValidStr(userObjParam.bio, 'Bio');
+	if (Object.keys(userObjParam).includes('bio'))
+		updateUserObj.bio =
+			bio === null || bio.trim().length === 0
+				? null
+				: isValidStr(userObjParam.bio, 'Bio');
 	if (location)
 		updateUserObj.location = isValidStr(userObjParam.location, 'Location');
 	if (skills) updateUserObj.skills = isValidTechnologies(userObjParam.skills);
-	const { github, linkedin } = socials;
-	updateUserObj.socials = {
-		github: github || null,
-		linkedin: linkedin || null,
-	};
+	if (socials) {
+		updateUserObj.socials = {
+			github: socials.github || null,
+			linkedin: socials.linkedin || null,
+		};
+	}
 	return updateUserObj;
 };
 

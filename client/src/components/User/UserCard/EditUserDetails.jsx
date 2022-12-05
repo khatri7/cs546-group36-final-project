@@ -14,7 +14,7 @@ import DatePickerInput from 'components/DatePicker';
 import technologyTags from 'utils/data/technologyTags';
 import { isValidDateStr, isValidDob, isValidSkills } from 'utils/helpers';
 import { handleError, updateUser } from 'utils/api-calls';
-import { errorAlert } from 'store/alert';
+import { errorAlert, successAlert } from 'store/alert';
 import { useDispatch, useSelector } from 'react-redux';
 
 const schema = Yup.object().shape({
@@ -84,6 +84,7 @@ function EditUserDetails({
 					if (!resp.user) throw new Error();
 					handleUpdateUser(resp.user);
 					cancel();
+					dispatch(successAlert('Details updated successfully'));
 				} catch (e) {
 					let error = 'Unexpected error occurred';
 					if (typeof handleError(e) === 'string') error = handleError(e);

@@ -80,9 +80,12 @@ function User() {
 						index={0}
 					>
 						<Profile
+							username={username}
 							bio={user.bio}
 							education={user.education}
 							employment={user.employment}
+							isCurrentUserProfile={isCurrentUserProfile}
+							handleUpdateUser={handleUpdateUser}
 						/>
 					</TabPanel>
 					<TabPanel
