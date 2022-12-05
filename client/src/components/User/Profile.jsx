@@ -1,18 +1,24 @@
-import { Box, Typography, Card, CardContent } from '@mui/material';
+import { Box } from '@mui/material';
 import React from 'react';
+import Bio from './Bio';
 import { Education, Experience } from './EducationExperiece';
 
-function Profile({ bio = '', experience = [], education = [] }) {
+function Profile({
+	username,
+	bio = '',
+	experience = [],
+	education = [],
+	handleUpdateUser,
+	isCurrentUserProfile,
+}) {
 	return (
 		<Box>
-			<Card raised>
-				<CardContent>
-					<Typography variant="h4" component="h2">
-						Bio
-					</Typography>
-					<Box>{bio}</Box>
-				</CardContent>
-			</Card>
+			<Bio
+				username={username}
+				bio={bio}
+				handleUpdateUser={handleUpdateUser}
+				isCurrentUserProfile={isCurrentUserProfile}
+			/>
 			<Experience experiece={experience} />
 			<Education education={education} />
 		</Box>

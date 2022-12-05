@@ -53,7 +53,7 @@ export function Education({ education = [] }) {
 export function Experience({ experiece = [] }) {
 	return (
 		<EducationExperiece
-			cardTitle="Experiece"
+			cardTitle="Experience"
 			titleKey="company"
 			subtitleKey="title"
 			array={experiece}

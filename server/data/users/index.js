@@ -6,6 +6,7 @@ const {
 	isValidObjectId,
 	internalServerErr,
 	badRequestErr,
+	forbiddenErr,
 } = require('../../utils');
 const {
 	isValidUsername,
@@ -14,6 +15,7 @@ const {
 	isValidUserLoginObj,
 	isValidEmail,
 	hashPassword,
+	isValidUpdateUserObj,
 } = require('../../utils/users');
 
 const getUserByUsername = async (usernameParam) => {
@@ -82,6 +84,45 @@ const createUser = async (userObjParam) => {
 	return createdUser;
 };
 
+const updateUser = async (
+	usernameParam,
+	currentUserParam,
+	updateUserObjParam
+) => {
+	const username = isValidUsername(usernameParam);
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	const user = await getUserByUsername(username);
+	if (
+		user._id.toString() !== currentUser._id ||
+		user.username.toLowerCase() !== currentUser.username.toLowerCase()
+	)
+		throw forbiddenErr('You cannot edit details of another user');
+	const updateUserObj = isValidUpdateUserObj(updateUserObjParam);
+	const usersCollection = await users();
+	const result = await usersCollection.updateOne(
+		{
+			_id: user._id,
+		},
+		{
+			$set: {
+				...user,
+				...updateUserObj,
+			},
+		}
+	);
+	if (!result || result.matchedCount === 0)
+		throw notFoundErr('Could not find user with given username');
+	if (!result || result.modifiedCount === 0)
+		throw badRequestErr(
+			'Could not update details, as all the fields are the same as before'
+		);
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
+};
+
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
 	try {
@@ -117,6 +158,7 @@ module.exports = {
 	getUserById,
 	getUserByUsername,
 	createUser,
+	updateUser,
 	authenticateUser,
 	checkUsernameAvailable,
 };

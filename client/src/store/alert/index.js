@@ -36,6 +36,12 @@ export const alertSlice = createSlice({
 	},
 });
 
-export const { errorAlert, dismissAlert } = alertSlice.actions;
+export const {
+	infoAlert,
+	warningAlert,
+	successAlert,
+	errorAlert,
+	dismissAlert,
+} = alertSlice.actions;
 
 export default alertSlice.reducer;

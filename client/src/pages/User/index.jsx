@@ -1,6 +1,6 @@
 import { Box, Grid, Tabs, Tab, Typography } from '@mui/material';
 import useQuery from 'hooks/useQuery';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
@@ -16,14 +16,21 @@ function User() {
 	const { username } = useParams();
 	const { data, loading, error } = useQuery(`/users/${username}`);
 	const [tabValue, setTabValue] = useState(0);
+	const [user, setUser] = useState(data?.user ?? null);
+
+	const handleUpdateUser = (updatedUserObj) => {
+		setUser(updatedUserObj);
+	};
 
 	const currentUser = useSelector((state) => state.user);
+
+	useEffect(() => {
+		if (data?.user) setUser(data.user);
+	}, [data]);
 
 	if (error) return <Typography>{error}</Typography>;
 
 	if (loading) return <Typography>Loading...</Typography>;
-
-	const { user } = data;
 
 	if (!user) return <Typography>Error getting user</Typography>;
 
@@ -73,9 +80,12 @@ function User() {
 						index={0}
 					>
 						<Profile
+							username={username}
 							bio={user.bio}
 							education={user.education}
 							employment={user.employment}
+							isCurrentUserProfile={isCurrentUserProfile}
+							handleUpdateUser={handleUpdateUser}
 						/>
 					</TabPanel>
 					<TabPanel
@@ -103,6 +113,8 @@ function User() {
 						dob={user.dob}
 						socials={user.socials}
 						skills={user.skills}
+						isCurrentUserProfile={isCurrentUserProfile}
+						handleUpdateUser={handleUpdateUser}
 					/>
 				</Grid>
 			</Grid>

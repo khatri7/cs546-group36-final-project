@@ -1,4 +1,4 @@
-const tags = [
+export default [
 	'3d',
 	'3ds-homebrew',
 	'4d-component',
@@ -788,5 +788,3 @@ const tags = [
 	'zustand',
 	'zx-spectrum',
 ];
-
-export default tags;

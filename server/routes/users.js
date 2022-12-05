@@ -4,7 +4,11 @@ const {
 	getProjectsByOwnerUsername,
 	getSavedProjects,
 } = require('../data/projects');
-const { getUserByUsername, checkUsernameAvailable } = require('../data/users');
+const {
+	getUserByUsername,
+	checkUsernameAvailable,
+	updateUser,
+} = require('../data/users');
 const {
 	createEducation,
 	getEducationById,
@@ -22,6 +26,7 @@ const {
 	isValidUsername,
 	isValidEducationObj,
 	isValidExperienceObj,
+	isValidUpdateUserObj,
 } = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
 const {
@@ -45,15 +50,36 @@ router.route('/username').post(async (req, res) => {
 	}
 });
 
-router.route('/:username').get(async (req, res) => {
-	try {
-		const username = isValidUsername(req.params.username);
-		const user = await usersData.getUserByUsername(username);
-		res.json({ user });
-	} catch (e) {
-		sendErrResp(res, e);
-	}
-});
+router
+	.route('/:username')
+	.get(async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			const user = await usersData.getUserByUsername(username);
+			res.json({ user });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.put(authenticateToken, async (req, res) => {
+		try {
+			const username = isValidUsername(req.params.username);
+			await getUserByUsername(username);
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			const updateUserObj = isValidUpdateUserObj(req.body);
+			const updatedUser = await updateUser(
+				username,
+				currentUser,
+				updateUserObj
+			);
+			res.json({ user: updatedUser });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
 
 router.route('/:username/projects').get(async (req, res) => {
 	try {
