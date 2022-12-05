@@ -7,6 +7,7 @@ const {
 	sendErrResp,
 	isValidStr,
 	isValidObjectId,
+	successStatusCodes,
 } = require('../utils');
 const { getProjectById } = require('../data/projects');
 
@@ -29,8 +30,7 @@ router
 					imagePos,
 					req.body.projectId
 				);
-				// console.log(imageUpload);
-				res.json({ message: 'image uploaded succesfully' });
+				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
 			} else {
 				throw badRequestErr(
 					'Invald Entry, mediaType needs to be of resume or image'

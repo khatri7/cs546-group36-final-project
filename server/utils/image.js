@@ -18,23 +18,14 @@ const images = async (image, project, imagePos, projectId) => {
 			Body: image.buffer,
 			ContentType: image.mimetype,
 		};
-
-		s3.upload(params, async (err, result) => {
-			if (err) {
-				throw badRequestErr('internal error here');
-			}
-			const resultFinalurl = result.Location;
-			await projectData.updateImageOrResume(
-				// const response = await projectData.updateImageOrResume(
-				resultFinalurl,
-				imagePos,
-				projectId
-			);
-			await projectData.getProjectById(projectId);
-			// return {updatedProject}; unable to return succesfully the project object here
-			const message = { message: 'image added succesfully' };
-			return { message };
-		});
+		const s3result = await s3.upload(params).promise();
+		await projectData.updateImageOrResume(
+			s3result.Location,
+			imagePos,
+			projectId
+		);
+		const updatedProject = await projectData.getProjectById(projectId);
+		return updatedProject;
 	} catch (e) {
 		throw badRequestErr(
 			`Invalid AWS request/ AWS unable to process your request right now`
