@@ -20,7 +20,7 @@ router
 	.route('/')
 	.post(authenticateToken, async (req, res) => {
 		const { user } = req;
-		let { name, description, lookingFor, status, technologies } = req.body;
+		let { name, description, lookingFor, technologies } = req.body;
 		try {
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
@@ -29,14 +29,13 @@ router
 				? isValidStr(req.body.description, 'idea description')
 				: null;
 			lookingFor = isValidLookingFor(lookingFor);
-			status = isValidStatus(status);
 			technologies = isValidTechnologies(technologies);
 
 			const ideaObject = {
 				name,
 				description,
 				lookingFor,
-				status,
+				status: 'active',
 				technologies,
 			};
 

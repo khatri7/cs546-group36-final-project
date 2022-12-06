@@ -34,7 +34,7 @@ const getAllIdeas = async (
 	if (
 		name &&
 		name.trim().length > 0 &&
-		isValidStr(name, 'project name query param', 'min', 1)
+		isValidIdeaName(name, 'idea name query param', 'min', 1)
 	)
 		query.name = { $regex: name.trim(), $options: 'i' };
 	if (technologies && technologies.trim().length > 0) {
