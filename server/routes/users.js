@@ -20,12 +20,15 @@ const {
 	isValidObjectId,
 	successStatusCodes,
 	badRequestErr,
+	unauthorizedErr,
 } = require('../utils');
 const {
 	isValidUsername,
 	isValidEducationObj,
 	isValidExperienceObj,
 	isValidUpdateUserObj,
+	isValidHiringArray,
+	isvalidBoolean,
 } = require('../utils/users');
 const { authenticateToken } = require('../middleware/auth');
 const {
@@ -34,6 +37,10 @@ const {
 	updateExperience,
 	removeExperience,
 } = require('../data/users/experience');
+const {
+	clearUserhiringInfo,
+	updateUserHiring,
+} = require('../data/users/hiring');
 
 const router = express.Router();
 
@@ -211,6 +218,32 @@ router
 				experienceObj
 			);
 			res.json({ user });
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	});
+router
+	.route('/:username/hiring')
+	.post(authenticateToken, async (req, res) => {
+		try {
+			const isAvailable = isvalidBoolean(req.body.isAvailable);
+			const username = isValidUsername(req.params.username);
+			const userParam = await getUserByUsername(username);
+			if (userParam._id.toString() !== req.user._id) {
+				throw unauthorizedErr('User is not allowed to make this request');
+			}
+			if (isAvailable === false) {
+				const response = await clearUserhiringInfo(username);
+				res.json({ response });
+			} else {
+				const hiringObj = isValidHiringArray(
+					req.body.hiringArray,
+					req.body.isAvailable
+				);
+
+				const response = await updateUserHiring(username, hiringObj);
+				res.json({ response });
+			}
 		} catch (e) {
 			sendErrResp(res, e);
 		}
