@@ -58,7 +58,7 @@ function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
 						<Stack direction="row" gap={1}>
 							<IconButton
 								onClick={() => {
-									navigate(`/idea/${idea._id}`);
+									navigate(`/ideas/${idea._id}`);
 								}}
 								aria-label="open idea"
 							>
