@@ -5,9 +5,6 @@ import CommentList from 'components/CommentsList/CommentList';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 function IdeaInfo({ idea }) {
-	console.log(idea);
-	console.log('Here');
-	console.log(idea.comments);
 	return (
 		<Card
 			sx={{
