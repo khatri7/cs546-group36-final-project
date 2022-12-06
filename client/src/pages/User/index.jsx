@@ -83,7 +83,7 @@ function User() {
 							username={username}
 							bio={user.bio}
 							education={user.education}
-							employment={user.employment}
+							experience={user.experience}
 							isCurrentUserProfile={isCurrentUserProfile}
 							handleUpdateUser={handleUpdateUser}
 						/>

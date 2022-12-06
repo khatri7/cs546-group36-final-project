@@ -8,7 +8,7 @@ const {
 	forbiddenErr,
 } = require('../../utils');
 const { isValidUsername, isValidExperienceObj } = require('../../utils/users');
-const { getUserByUsername } = require('./index');
+const { getUserByUsername, getUserById } = require('./index');
 
 const getExperienceById = async (experienceIdParam) => {
 	const experienceId = isValidObjectId(experienceIdParam);
@@ -45,7 +45,8 @@ const createExperience = async (
 	);
 	if (!acknowledgement.acknowledged || !acknowledgement.modifiedCount)
 		throw internalServerErr('Could not add the experience. Please try again');
-	return experienceObj;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 const updateExperience = async (
@@ -74,7 +75,7 @@ const updateExperience = async (
 	const usersCollection = await users();
 	const result = await usersCollection.updateOne(
 		{
-			_id: experienceObj._id,
+			_id: experienceOwner._id,
 			'experience._id': experienceObj._id,
 		},
 		{
@@ -89,7 +90,8 @@ const updateExperience = async (
 		throw badRequestErr(
 			'Could not update the experience, as all the fields are the same as before'
 		);
-	return experienceObj;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 const removeExperience = async (
@@ -129,7 +131,8 @@ const removeExperience = async (
 		throw notFoundErr('Could not find experience with the given Id');
 	if (!result || result.modifiedCount === 0)
 		throw internalServerErr('Error removing experience');
-	return true;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 module.exports = {

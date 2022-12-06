@@ -29,7 +29,7 @@ function UserCard({
 }) {
 	const [showEditProfile, setShowEditProfile] = useState(false);
 	return (
-		<Card raised>
+		<Card sx={{ position: 'sticky', top: '5rem' }} raised>
 			<CardContent>
 				<Stack spacing={2} alignItems="center">
 					{isCurrentUserProfile && (
