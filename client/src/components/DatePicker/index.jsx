@@ -8,6 +8,7 @@ function DatePickerInput({
 	field,
 	form: { setFieldValue, errors },
 	label,
+	disabled = false,
 	required,
 }) {
 	return (
@@ -15,6 +16,7 @@ function DatePickerInput({
 			<LocalizationProvider dateAdapter={AdapterMoment}>
 				<DatePicker
 					label={label}
+					disabled={disabled}
 					name={field.name}
 					value={field.value}
 					inputFormat="MM-DD-YYYY"

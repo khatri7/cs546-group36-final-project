@@ -8,7 +8,7 @@ const {
 	forbiddenErr,
 } = require('../../utils');
 const { isValidUsername, isValidEducationObj } = require('../../utils/users');
-const { getUserByUsername } = require('./index');
+const { getUserByUsername, getUserById } = require('./index');
 
 const getEducationById = async (educationIdParam) => {
 	const educationId = isValidObjectId(educationIdParam);
@@ -48,7 +48,8 @@ const createEducation = async (
 		!educationAcknowledgement.modifiedCount
 	)
 		throw internalServerErr('Could not upload the education. Please try again');
-	return educationObj;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 const updateEducation = async (
@@ -92,7 +93,8 @@ const updateEducation = async (
 		throw badRequestErr(
 			'Could not update the education, as all the fields are the same as before'
 		);
-	return educationObj;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 const removeEducation = async (
@@ -132,7 +134,8 @@ const removeEducation = async (
 		throw notFoundErr('Could not find education with the given Id');
 	if (!result || result.modifiedCount === 0)
 		throw internalServerErr('Error removing education');
-	return true;
+	const updatedUser = await getUserById(user._id.toString());
+	return updatedUser;
 };
 
 module.exports = {

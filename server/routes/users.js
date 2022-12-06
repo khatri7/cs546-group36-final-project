@@ -20,7 +20,6 @@ const {
 	isValidObjectId,
 	successStatusCodes,
 	badRequestErr,
-	internalServerErr,
 } = require('../utils');
 const {
 	isValidUsername,
@@ -122,12 +121,8 @@ router
 				username: isValidUsername(req.user.username),
 			};
 			const educationObj = isValidEducationObj(req.body);
-			const education = await createEducation(
-				username,
-				currentUser,
-				educationObj
-			);
-			res.status(successStatusCodes.CREATED).json({ education });
+			const user = await createEducation(username, currentUser, educationObj);
+			res.status(successStatusCodes.CREATED).json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -146,13 +141,13 @@ router
 				username: isValidUsername(req.user.username),
 			};
 			const educationObj = isValidEducationObj(req.body);
-			const education = await updateEducation(
+			const user = await updateEducation(
 				username,
 				educationId,
 				currentUser,
 				educationObj
 			);
-			res.json({ education });
+			res.json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -167,9 +162,8 @@ router
 				_id: isValidObjectId(req.user._id),
 				username: isValidUsername(req.user.username),
 			};
-			const result = await removeEducation(username, educationId, currentUser);
-			if (!result) throw internalServerErr('Error removing education');
-			res.status(successStatusCodes.DELETED).json();
+			const user = await removeEducation(username, educationId, currentUser);
+			res.json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -190,12 +184,8 @@ router
 				username: isValidUsername(req.user.username),
 			};
 			const experienceObj = isValidExperienceObj(req.body);
-			const experience = await createExperience(
-				username,
-				currentUser,
-				experienceObj
-			);
-			res.status(successStatusCodes.CREATED).json({ experience });
+			const user = await createExperience(username, currentUser, experienceObj);
+			res.status(successStatusCodes.CREATED).json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -214,13 +204,13 @@ router
 				username: isValidUsername(req.user.username),
 			};
 			const experienceObj = isValidExperienceObj(req.body);
-			const experience = await updateExperience(
+			const user = await updateExperience(
 				username,
 				experienceId,
 				currentUser,
 				experienceObj
 			);
-			res.json({ experience });
+			res.json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
@@ -235,13 +225,8 @@ router
 				_id: isValidObjectId(req.user._id),
 				username: isValidUsername(req.user.username),
 			};
-			const result = await removeExperience(
-				username,
-				experienceId,
-				currentUser
-			);
-			if (!result) throw internalServerErr('Error removing experience');
-			res.status(successStatusCodes.DELETED).json();
+			const user = await removeExperience(username, experienceId, currentUser);
+			res.json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
