@@ -7,6 +7,7 @@ const {
 	isNumberChar,
 	isValidObj,
 	internalServerErr,
+	isValidArray,
 } = require('./index');
 const { isValidTechnologies } = require('./projects');
 
@@ -119,6 +120,42 @@ const isValidUsername = (usernameParam) => {
 	return username.toLowerCase();
 };
 
+const isvalidBoolean = (status) => {
+	if (typeof status !== 'boolean')
+		throw badRequestErr('enter valid boolean input for is isAvailable');
+
+	return status;
+};
+
+const belongsToHiringArray = (value) => {
+	if (
+		[
+			'Full time',
+			'Part time',
+			'Contract',
+			'Internship',
+			'Code Collab',
+		].includes(value)
+	)
+		return value;
+	throw badRequestErr('invalid element passed in array');
+};
+
+const isValidHiringArray = (hiringArray, isAvailable) => {
+	if (!(typeof isAvailable === 'boolean'))
+		throw badRequestErr('enter valid boolean input for is isAvailable');
+	isValidArray(hiringArray, 'Hiring Array');
+	let i = 0;
+	const arr = [];
+	hiringArray.forEach((hiringValue) => {
+		arr[i] = belongsToHiringArray(isValidStr(hiringValue));
+		i += 1;
+	});
+	return {
+		hiringArray: arr,
+		isAvailable,
+	};
+};
 /**
  *
  * @param {string} email
@@ -192,6 +229,8 @@ const isValidUserObj = (userObjParam) => {
 		education: [],
 		experience: [],
 		skills: [],
+		availableForHire: [],
+		isAvailable: false,
 		socials: {
 			github: null,
 			linkedin: null,
@@ -280,4 +319,6 @@ module.exports = {
 	isValidEducationObj,
 	isValidExperienceObj,
 	isValidUpdateUserObj,
+	isValidHiringArray,
+	isvalidBoolean,
 };
