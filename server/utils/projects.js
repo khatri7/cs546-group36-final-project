@@ -47,7 +47,9 @@ const isValidTechnologies = (technologiesParam) => {
 		'min',
 		1
 	);
-	technologies.map((tech, index) => {
+	const technologiesSet = new Set(technologies);
+	const technologiesArr = Array.from(technologiesSet);
+	technologiesArr.map((tech, index) => {
 		if (
 			!isValidStr(tech, `Technology at index ${index}`) ||
 			!topics.includes(tech.trim().toLowerCase())

@@ -69,7 +69,6 @@ function SearchProject({ setEndpoint }) {
 						value={technologies}
 						onChange={handleChange}
 						renderInput={(params) => {
-							// eslint-disable-next-line react/jsx-props-no-spreading
 							return <TextField {...params} placeholder="Technologies" />;
 						}}
 						renderTags={() => {}}

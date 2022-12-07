@@ -161,3 +161,8 @@ export const deleteEducation = async (username, educationId, token) =>
 			Authorization: `Bearer ${token}`,
 		}
 	);
+
+export const checkUsernameAvailable = async (username) =>
+	POST('/users/username', {
+		username,
+	});

@@ -1,21 +1,34 @@
 import {
-	Autocomplete,
 	Box,
 	Button,
-	Chip,
+	Checkbox,
 	CircularProgress,
+	FormControl,
+	FormControlLabel,
+	FormGroup,
+	FormHelperText,
+	FormLabel,
 	Stack,
+	Switch,
 	TextField,
 } from '@mui/material';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import React from 'react';
 import DatePickerInput from 'components/DatePicker';
-import technologyTags from 'utils/data/technologyTags';
 import { isValidDateStr, isValidDob, isValidSkills } from 'utils/helpers';
 import { handleError, updateUser } from 'utils/api-calls';
 import { errorAlert, successAlert } from 'store/alert';
 import { useDispatch, useSelector } from 'react-redux';
+import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
+
+const AVAILABILITY = [
+	'Full time',
+	'Part time',
+	'Contract',
+	'Internship',
+	'Code Collab',
+];
 
 const schema = Yup.object().shape({
 	firstName: Yup.string('First Name should be a string')
@@ -35,6 +48,8 @@ function EditUserDetails({
 	lastName,
 	dob,
 	skills,
+	isAvailable,
+	availability,
 	github = null,
 	linkedin = null,
 	cancel,
@@ -49,6 +64,8 @@ function EditUserDetails({
 				lastName,
 				dob,
 				skills,
+				isAvailable,
+				availability,
 				github,
 				linkedin,
 			}}
@@ -61,6 +78,8 @@ function EditUserDetails({
 				if (!values.skills || values.skills.length < 1)
 					errors.skills = 'Need to mention at least one skill';
 				if (!isValidSkills(values.skills)) errors.skills = 'Invalid skills';
+				if (values.isAvailable && values.availability.length < 1)
+					errors.availability = 'You need to select at least one';
 				return errors;
 			}}
 			enableReinitialize
@@ -74,6 +93,8 @@ function EditUserDetails({
 							lastName: values.lastName,
 							dob: values.dob,
 							skills: values.skills,
+							isAvailable: values.isAvailable,
+							availability: values.isAvailable ? values.availability : [],
 							socials: {
 								github: values.github,
 								linkedin: values.linkedin,
@@ -100,8 +121,8 @@ function EditUserDetails({
 				touched,
 				handleChange,
 				handleBlur,
-				setFieldValue,
 				isSubmitting,
+				setFieldValue,
 			}) => {
 				return (
 					<Form
@@ -148,34 +169,64 @@ function EditUserDetails({
 								label="Date of Birth"
 								required
 							/>
-							<Autocomplete
-								multiple
-								autoHighlight
-								filterSelectedOptions
-								fullWidth
+							<Field
+								name="skills"
+								component={TechnologiesAutocomplete}
+								label="Skills"
 								id="select-skills-autocomplete"
-								options={technologyTags}
-								value={values.skills}
-								onChange={(event, value) => {
-									setFieldValue('skills', value);
-								}}
-								renderInput={(params) => {
-									return (
-										<TextField
-											{...params}
-											label="Skills"
-											error={Boolean(errors.skills)}
-											helperText={errors.skills || ''}
-										/>
-									);
-								}}
-								renderTags={(value, getTagProps) =>
-									value.map((skill, index) => (
-										<Chip label={skill} {...getTagProps({ index })} />
-									))
-								}
-								clearIcon={null}
+								required
 							/>
+							<FormGroup>
+								<FormControlLabel
+									control={<Switch checked={values.isAvailable} />}
+									label="Available for Hire"
+									onChange={(e) => {
+										setFieldValue('isAvailable', e.target.checked);
+									}}
+								/>
+							</FormGroup>
+							{values.isAvailable && (
+								<FormControl
+									required={values.isAvailable}
+									error={errors.availability}
+									component="fieldset"
+									sx={{ m: 3 }}
+									variant="standard"
+									fullWidth
+								>
+									<FormLabel component="legend">Select Availability</FormLabel>
+									<FormGroup>
+										{AVAILABILITY.map((item) => (
+											<FormControlLabel
+												control={
+													<Checkbox
+														checked={values.availability.includes(item)}
+														onChange={(e) => {
+															if (e.target.checked)
+																setFieldValue('availability', [
+																	...values.availability,
+																	item,
+																]);
+															else
+																setFieldValue(
+																	'availability',
+																	values.availability.filter(
+																		(selectedItem) => selectedItem !== item
+																	)
+																);
+														}}
+														name={item}
+													/>
+												}
+												label={item}
+											/>
+										))}
+									</FormGroup>
+									{errors.availability && (
+										<FormHelperText>{errors.availability}</FormHelperText>
+									)}
+								</FormControl>
+							)}
 							<TextField
 								variant="outlined"
 								label="GitHub"

@@ -6,6 +6,7 @@ import Signup from 'pages/Signup';
 import User from 'pages/User';
 import Projects from 'pages/Projects';
 import Project from 'pages/Project';
+import CreateProject from 'pages/CreateProject';
 
 function Routes() {
 	return (
@@ -19,6 +20,7 @@ function Routes() {
 			<Route path="/projects">
 				<Route index element={<Projects />} />
 				<Route path=":projectId" element={<Project />} />
+				<Route path="create" element={<CreateProject />} />
 			</Route>
 		</RRDRoutes>
 	);
