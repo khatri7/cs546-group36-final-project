@@ -14,29 +14,6 @@ import {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * @typedef {Object} Project
- * @property {ObjectId} _id
- * @property {string} name
- * @property {string} description
- * @property {Date} createdAt
- * @property {string[]} technologies
- * @property {Object} user
- * @property {ObjectId[]} savedBy
- * @property {ObjectId[]} likes
- * @property {Object} comments
- */
-
-/**
- * @typedef {Object} props
- * @property {Project} project
- * @property {Boolean} isOwner
- * @property {number} gridCols
- */
-
-/**
- * @param {props} props
- */
 function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
 	const navigate = useNavigate();
 	const [anchorElIdea, setAnchorElIdea] = useState(null);
