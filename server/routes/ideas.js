@@ -48,7 +48,7 @@ router
 			sendErrResp(res, e);
 		}
 	})
-	.get(authenticateToken, async (req, res) => {
+	.get(async (req, res) => {
 		try {
 			let { technologies, name, status } = req.query;
 			technologies = technologies?.trim() ?? '';
@@ -76,9 +76,9 @@ router
 	.get(async (req, res) => {
 		try {
 			const ideaId = isValidObjectId(req.params.ideaId);
-			const ideas = await ideasData.getIdeaById(ideaId);
+			const idea = await ideasData.getIdeaById(ideaId);
 			res.json({
-				ideas,
+				idea,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
