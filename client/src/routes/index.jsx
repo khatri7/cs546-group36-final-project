@@ -6,6 +6,8 @@ import Signup from 'pages/Signup';
 import User from 'pages/User';
 import Projects from 'pages/Projects';
 import Project from 'pages/Project';
+import Ideas from 'pages/Ideas';
+import Idea from 'pages/Idea';
 
 function Routes() {
 	return (
@@ -19,6 +21,10 @@ function Routes() {
 			<Route path="/projects">
 				<Route index element={<Projects />} />
 				<Route path=":projectId" element={<Project />} />
+			</Route>
+			<Route path="/ideas">
+				<Route index element={<Ideas />} />
+				<Route path=":ideaId" element={<Idea />} />
 			</Route>
 		</RRDRoutes>
 	);
