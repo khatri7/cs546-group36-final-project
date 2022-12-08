@@ -11,7 +11,7 @@ const images = async (image, project, imagePos, projectId) => {
 			signatureVersion: 'v4',
 		});
 		const s3 = new AWS.S3({ signatureVersion: 'v4' });
-		const photoKey = `${process.env.ENVIRONMENT}/${project._id}/image/${imagePos}/${image.originalname}`;
+		const photoKey = `${process.env.ENVIRONMENT}/projects/${project._id}/image/${imagePos}/${image.originalname}`;
 		const params = {
 			Bucket: process.env.AWS_S3_BUCKET_NAME,
 			Key: photoKey,

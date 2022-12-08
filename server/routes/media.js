@@ -1,6 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const imageUpload = require('../utils/image');
+const resumeUpload = require('../utils/resume');
+const avatarUpload = require('../utils/avatar');
 const { authenticateToken } = require('../middleware/auth');
 const {
 	badRequestErr,
@@ -10,6 +12,7 @@ const {
 	successStatusCodes,
 } = require('../utils');
 const { getProjectById } = require('../data/projects');
+const { getUserById } = require('../data/users');
 
 const upload = multer();
 const router = express.Router();
@@ -18,11 +21,17 @@ router
 	.route('/')
 	.post(authenticateToken, upload.single('media'), async (req, res) => {
 		try {
-			const projectId = isValidObjectId(req.body.projectId);
-			const project = await getProjectById(projectId);
 			if (req.body.mediaType === 'resume') {
-				/* empty */
+				const user = await getUserById(req.body.userId);
+				const resumeUploaded = await resumeUpload.resume(
+					req.file,
+					user,
+					req.body.userId
+				);
+				res.status(successStatusCodes.CREATED).json({ user: resumeUploaded });
 			} else if (req.body.mediaType === 'image') {
+				const projectId = isValidObjectId(req.body.projectId);
+				const project = await getProjectById(projectId);
 				const imagePos = isValidStr(req.body.imagePos);
 				const imageUploaded = await imageUpload.images(
 					req.file,
@@ -31,6 +40,14 @@ router
 					req.body.projectId
 				);
 				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
+			} else if (req.body.mediaType === 'avatar') {
+				const user = await getUserById(req.body.userId);
+				const avatarUploaded = await avatarUpload.avatar(
+					req.file,
+					user,
+					req.body.userId
+				);
+				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
 			} else {
 				throw badRequestErr(
 					'Invald Entry, mediaType needs to be of resume or image'
