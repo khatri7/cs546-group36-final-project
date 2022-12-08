@@ -36,7 +36,6 @@ function EducationExperiece({
 }) {
 	const [showAddEducationExperienceForm, setShowEducationExperienceForm] =
 		useState(false);
-	// eslint-disable-next-line no-unused-vars
 	const [showEditForm, setShowEditForm] = useState(null);
 	const dispatch = useDispatch();
 	return (

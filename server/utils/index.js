@@ -68,6 +68,10 @@ const isLetterChar = (char) =>
  */
 const isNumberChar = (char) => char >= '0' && char <= '9';
 
+const isBoolean = (param) => {
+	return typeof param === 'boolean';
+};
+
 /**
  *
  * @param {string} str
@@ -182,6 +186,7 @@ module.exports = {
 	sendErrResp,
 	isLetterChar,
 	isNumberChar,
+	isBoolean,
 	isValidStr,
 	isValidArray,
 	isValidObj,

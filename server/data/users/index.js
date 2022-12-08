@@ -69,21 +69,6 @@ const checkEmailTaken = async (emailParam) => {
 	return true;
 };
 
-const createUser = async (userObjParam) => {
-	await checkUsernameAvailable(userObjParam.username);
-	await checkEmailTaken(userObjParam.email);
-	const userObj = isValidUserObj(userObjParam);
-	const password = await hashPassword(userObj.password);
-	const usersCollection = await users();
-	const result = await usersCollection.insertOne({
-		...userObj,
-		password,
-	});
-	if (!result?.acknowledged || !result?.insertedId)
-		throw internalServerErr('Could not create user. Please try again');
-	const createdUser = await getUserById(result.insertedId.toString());
-	return createdUser;
-};
 const udpateAvatar = async (url, userName, userId) => {
 	try {
 		const user = await getUserByUsername(userName);
@@ -107,6 +92,8 @@ const udpateAvatar = async (url, userName, userId) => {
 		);
 	}
 };
+=======
+>>>>>>> dev
 const updateUser = async (
 	usernameParam,
 	currentUserParam,
@@ -199,6 +186,26 @@ const authenticateUser = async (userLoginObjParam) => {
 	} catch (e) {
 		throw badRequestErr('Invalid username or Password');
 	}
+};
+
+const createUser = async (userObjParam) => {
+	await checkUsernameAvailable(userObjParam.username);
+	await checkEmailTaken(userObjParam.email);
+	const userObj = isValidUserObj(userObjParam);
+	const password = await hashPassword(userObj.password);
+	const usersCollection = await users();
+	const result = await usersCollection.insertOne({
+		...userObj,
+		password,
+	});
+	if (!result?.acknowledged || !result?.insertedId)
+		throw internalServerErr('Could not create user. Please try again');
+	await getUserById(result.insertedId.toString());
+	const createdUser = await authenticateUser({
+		username: userObj.username,
+		password: userObj.password,
+	});
+	return createdUser;
 };
 
 module.exports = {
