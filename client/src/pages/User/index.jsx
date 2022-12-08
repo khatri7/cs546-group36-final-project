@@ -113,6 +113,8 @@ function User() {
 						dob={user.dob}
 						socials={user.socials}
 						skills={user.skills}
+						isAvailable={user.isAvailable}
+						availability={user.availability}
 						isCurrentUserProfile={isCurrentUserProfile}
 						handleUpdateUser={handleUpdateUser}
 					/>

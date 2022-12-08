@@ -58,8 +58,9 @@ function LoginForm() {
 					try {
 						setSubmitting(true);
 						const resp = await login(values);
-						dispatch(setUser(resp));
-						navigate('/');
+						if (!resp.user) throw new Error();
+						dispatch(setUser(resp.user));
+						navigate(`/users/${resp.user.username}`);
 					} catch (e) {
 						let error = 'Unexpected error occurred';
 						if (typeof handleError(e) === 'string') error = handleError(e);

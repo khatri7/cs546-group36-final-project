@@ -14,7 +14,9 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import CakeOutlinedIcon from '@mui/icons-material/CakeOutlined';
+import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import moment from 'moment';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
@@ -24,6 +26,8 @@ function UserCard({
 	dob,
 	socials,
 	skills,
+	isAvailable,
+	availability,
 	isCurrentUserProfile = false,
 	handleUpdateUser,
 }) {
@@ -54,6 +58,8 @@ function UserCard({
 							github={socials.github}
 							linkedin={socials.linkedin}
 							handleUpdateUser={handleUpdateUser}
+							isAvailable={isAvailable}
+							availability={availability}
 							cancel={() => {
 								setShowEditProfile(false);
 							}}
@@ -65,8 +71,7 @@ function UserCard({
 							</Typography>
 							<Typography
 								variant="h2"
-								fontSize="1.5rem"
-								fontWeight="bold"
+								fontSize="1.2rem"
 								sx={{
 									marginTop: '0px !important',
 								}}
@@ -74,12 +79,16 @@ function UserCard({
 								@{username}
 							</Typography>
 							<Stack direction="row" spacing={1}>
-								<CakeOutlinedIcon /> <Typography>{dob}</Typography>
+								<CakeOutlinedIcon />
+								<Typography textAlign="center">
+									Date of Birth: {moment(dob).format('MMMM Do, YYYY')}
+								</Typography>
 							</Stack>
 							{skills.length > 0 && (
 								<>
 									<Stack direction="row" spacing={1}>
-										<WorkOutlineIcon /> <Typography>My skills are:</Typography>
+										<HandymanOutlinedIcon />
+										<Typography>My skills are:</Typography>
 									</Stack>
 									<Stack
 										direction="row"
@@ -94,6 +103,23 @@ function UserCard({
 									</Stack>
 								</>
 							)}
+							<Stack direction="row" spacing={1}>
+								<WorkOutlineIcon />
+								<Typography>I am available for:</Typography>
+							</Stack>
+							<Stack
+								direction="row"
+								spacing={1}
+								sx={{
+									marginTop: '0.5rem !important',
+								}}
+							>
+								{isAvailable && availability.length > 0 ? (
+									availability.map((item) => <Chip label={item} key={item} />)
+								) : (
+									<Typography>Not looking for anything currently</Typography>
+								)}
+							</Stack>
 							<Stack direction="row" spacing={2} alignItems="center">
 								{socials.github && (
 									<Link href={socials.github} target="_blank" color="inherit">

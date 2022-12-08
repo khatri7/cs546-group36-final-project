@@ -8,6 +8,7 @@ const {
 	isValidObj,
 	internalServerErr,
 	isValidArray,
+	isBoolean,
 } = require('./index');
 const { isValidTechnologies } = require('./projects');
 
@@ -17,6 +18,14 @@ const saltRounds = 16;
 const rEmail =
 	// eslint-disable-next-line no-useless-escape
 	/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+const AVAILABILITY = [
+	'Full time',
+	'Part time',
+	'Contract',
+	'Internship',
+	'Code Collab',
+];
 
 /**
  *
@@ -120,42 +129,20 @@ const isValidUsername = (usernameParam) => {
 	return username.toLowerCase();
 };
 
-const isvalidBoolean = (status) => {
-	if (typeof status !== 'boolean')
-		throw badRequestErr('enter valid boolean input for is isAvailable');
-
-	return status;
-};
-
-const belongsToHiringArray = (value) => {
-	if (
-		[
-			'Full time',
-			'Part time',
-			'Contract',
-			'Internship',
-			'Code Collab',
-		].includes(value)
-	)
-		return value;
-	throw badRequestErr('invalid element passed in array');
-};
-
-const isValidHiringArray = (hiringArray, isAvailable) => {
-	if (!(typeof isAvailable === 'boolean'))
-		throw badRequestErr('enter valid boolean input for is isAvailable');
-	isValidArray(hiringArray, 'Hiring Array');
-	let i = 0;
-	const arr = [];
-	hiringArray.forEach((hiringValue) => {
-		arr[i] = belongsToHiringArray(isValidStr(hiringValue));
-		i += 1;
+const isValidAvailability = (availabilityArr) => {
+	const availability = isValidArray(
+		availabilityArr,
+		'Availability Array',
+		'min',
+		1
+	);
+	return availability.map((item, index) => {
+		if (!AVAILABILITY.includes(item.trim()))
+			throw badRequestErr(`Invalid availabliity at index ${index}`);
+		return item.trim();
 	});
-	return {
-		hiringArray: arr,
-		isAvailable,
-	};
 };
+
 /**
  *
  * @param {string} email
@@ -208,7 +195,7 @@ const isValidPassword = (passwordParam) => {
 	return password;
 };
 
-// TODO - validate location and bio
+// TODO - validate bio
 // TODO - check email specs on wiki and create validation (HTML input validation breaks when there is missing TLD after .)
 /**
  *
@@ -223,14 +210,13 @@ const isValidUserObj = (userObjParam) => {
 		username: isValidUsername(userObjParam.username),
 		dob: isValidDob(userObjParam.dob),
 		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
-		location: isValidStr(userObjParam.location),
 		email: isValidEmail(userObjParam.email),
 		password: isValidPassword(userObjParam.password),
 		education: [],
 		experience: [],
-		skills: [],
-		availableForHire: [],
+		skills: isValidTechnologies(userObjParam.skills),
 		isAvailable: false,
+		availability: [],
 		socials: {
 			github: null,
 			linkedin: null,
@@ -240,35 +226,42 @@ const isValidUserObj = (userObjParam) => {
 
 const isValidUpdateUserObj = (userObjParam) => {
 	isValidObj(userObjParam);
-	const { firstName, lastName, dob, bio, location, skills, socials } =
-		userObjParam;
+	const {
+		firstName,
+		lastName,
+		dob,
+		bio,
+		skills,
+		socials,
+		isAvailable,
+		availability,
+	} = userObjParam;
 	const updateUserObj = {};
 	if (firstName)
-		updateUserObj.firstName = isValidName(
-			userObjParam.firstName,
-			'First Name',
-			false
-		);
+		updateUserObj.firstName = isValidName(firstName, 'First Name', false);
 	if (lastName)
-		updateUserObj.lastName = isValidName(
-			userObjParam.lastName,
-			'Last Name',
-			false
-		);
-	if (dob) updateUserObj.dob = isValidDob(userObjParam.dob);
+		updateUserObj.lastName = isValidName(lastName, 'Last Name', false);
+	if (dob) updateUserObj.dob = isValidDob(dob);
 	if (Object.keys(userObjParam).includes('bio'))
 		updateUserObj.bio =
-			bio === null || bio.trim().length === 0
-				? null
-				: isValidStr(userObjParam.bio, 'Bio');
-	if (location)
-		updateUserObj.location = isValidStr(userObjParam.location, 'Location');
-	if (skills) updateUserObj.skills = isValidTechnologies(userObjParam.skills);
+			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
+	if (skills) updateUserObj.skills = isValidTechnologies(skills);
 	if (socials) {
 		updateUserObj.socials = {
 			github: socials.github || null,
 			linkedin: socials.linkedin || null,
 		};
+	}
+	if (Object.keys(userObjParam).includes('isAvailable')) {
+		if (!isBoolean(isAvailable))
+			throw badRequestErr('isAvailable needs to be of type boolean');
+		if (isAvailable === true) {
+			updateUserObj.isAvailable = true;
+			updateUserObj.availability = isValidAvailability(availability);
+		} else {
+			updateUserObj.isAvailable = false;
+			updateUserObj.availability = [];
+		}
 	}
 	return updateUserObj;
 };
@@ -319,6 +312,4 @@ module.exports = {
 	isValidEducationObj,
 	isValidExperienceObj,
 	isValidUpdateUserObj,
-	isValidHiringArray,
-	isvalidBoolean,
 };

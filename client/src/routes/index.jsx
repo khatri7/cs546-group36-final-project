@@ -6,6 +6,7 @@ import Signup from 'pages/Signup';
 import User from 'pages/User';
 import Projects from 'pages/Projects';
 import Project from 'pages/Project';
+import CreateProject from 'pages/CreateProject';
 import Ideas from 'pages/Ideas';
 import Idea from 'pages/Idea';
 
@@ -21,6 +22,7 @@ function Routes() {
 			<Route path="/projects">
 				<Route index element={<Projects />} />
 				<Route path=":projectId" element={<Project />} />
+				<Route path="create" element={<CreateProject />} />
 			</Route>
 			<Route path="/ideas">
 				<Route index element={<Ideas />} />
