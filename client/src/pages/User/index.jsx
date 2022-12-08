@@ -43,20 +43,6 @@ function User() {
 	return (
 		<Box>
 			<Grid container spacing={2}>
-				<Grid item xs={4}>
-					<UserCard
-						firstName={user.firstName}
-						lastName={user.lastName}
-						username={user.username}
-						dob={user.dob}
-						socials={user.socials}
-						skills={user.skills}
-						isAvailable={user.isAvailable}
-						availability={user.availability}
-						isCurrentUserProfile={isCurrentUserProfile}
-						handleUpdateUser={handleUpdateUser}
-					/>
-				</Grid>
 				<Grid item xs={8}>
 					<Tabs
 						value={tabValue}
@@ -118,6 +104,20 @@ function User() {
 					>
 						<SavedProjects username={user.username} />
 					</TabPanel>
+				</Grid>
+				<Grid item xs={4}>
+					<UserCard
+						firstName={user.firstName}
+						lastName={user.lastName}
+						username={user.username}
+						dob={user.dob}
+						socials={user.socials}
+						skills={user.skills}
+						isAvailable={user.isAvailable}
+						availability={user.availability}
+						isCurrentUserProfile={isCurrentUserProfile}
+						handleUpdateUser={handleUpdateUser}
+					/>
 				</Grid>
 			</Grid>
 		</Box>

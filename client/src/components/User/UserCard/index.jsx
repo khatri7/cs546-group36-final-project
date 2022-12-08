@@ -8,7 +8,6 @@ import {
 	Chip,
 	Button,
 	IconButton,
-	Box,
 } from '@mui/material';
 import React, { useState } from 'react';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -17,6 +16,7 @@ import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import CakeOutlinedIcon from '@mui/icons-material/CakeOutlined';
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import moment from 'moment';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
@@ -71,21 +71,19 @@ function UserCard({
 							</Typography>
 							<Typography
 								variant="h2"
-								fontSize="1.5rem"
-								fontWeight="bold"
+								fontSize="1.2rem"
 								sx={{
 									marginTop: '0px !important',
 								}}
 							>
 								@{username}
 							</Typography>
-							<Box>
-								<Stack direction="row" spacing={1}>
-									<CakeOutlinedIcon />
-									<Typography textAlign="center">Date of Birth:</Typography>
-								</Stack>
-								<Typography>{dob}</Typography>
-							</Box>
+							<Stack direction="row" spacing={1}>
+								<CakeOutlinedIcon />
+								<Typography textAlign="center">
+									Date of Birth: {moment(dob).format('MMMM Do, YYYY')}
+								</Typography>
+							</Stack>
 							{skills.length > 0 && (
 								<>
 									<Stack direction="row" spacing={1}>
