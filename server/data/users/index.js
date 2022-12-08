@@ -92,8 +92,7 @@ const udpateAvatar = async (url, userName, userId) => {
 		);
 	}
 };
-=======
->>>>>>> dev
+
 const updateUser = async (
 	usernameParam,
 	currentUserParam,
