@@ -127,10 +127,7 @@ const authenticateUser = async (userLoginObjParam) => {
 			process.env.JWT_SECRET
 		);
 		return {
-			_id,
-			firstName,
-			lastName,
-			username,
+			user: { _id, firstName, lastName, username },
 			token,
 		};
 	} catch (e) {

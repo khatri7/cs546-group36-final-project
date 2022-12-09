@@ -16,7 +16,7 @@ import {
 	deleteExperience,
 	handleError,
 } from 'utils/api-calls';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { errorAlert, successAlert } from 'store/alert';
 import {
 	CreateEducationForm,
@@ -160,9 +160,8 @@ export function Education({
 	isCurrentUserProfile = false,
 	handleUpdateUser = () => {},
 }) {
-	const token = useSelector((state) => state.user?.token);
 	const deleteFn = async (educationId) => {
-		const res = await deleteEducation(username, educationId, token);
+		const res = await deleteEducation(username, educationId);
 		if (!res.user) throw new Error();
 		handleUpdateUser(res.user);
 	};
@@ -187,9 +186,8 @@ export function Experience({
 	isCurrentUserProfile = false,
 	handleUpdateUser = () => {},
 }) {
-	const token = useSelector((state) => state.user?.token);
 	const deleteFn = async (experieceId) => {
-		const res = await deleteExperience(username, experieceId, token);
+		const res = await deleteExperience(username, experieceId);
 		if (!res.user) throw new Error();
 		handleUpdateUser(res.user);
 	};
