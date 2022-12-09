@@ -25,11 +25,11 @@ function UserCard({
 	username,
 	dob,
 	socials,
-	skills,
+	skills = [],
 	isAvailable,
-	availability,
+	availability = [],
 	isCurrentUserProfile = false,
-	handleUpdateUser,
+	handleUpdateUser = () => {},
 }) {
 	const [showEditProfile, setShowEditProfile] = useState(false);
 	return (

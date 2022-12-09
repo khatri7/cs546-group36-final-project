@@ -50,7 +50,7 @@ const internalServerErr = (message) =>
 
 const sendErrResp = (res, { status, message }) =>
 	res
-		.status(status || error.INTERNAL_SERVER_ERROR)
+		.status(status || error.INTERNAL_SERVER_ERROR.status)
 		.json(message ? { message } : '');
 
 /**

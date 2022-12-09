@@ -1,8 +1,22 @@
-const { badRequestErr, isValidStr } = require('./index');
+const {
+	badRequestErr,
+	isValidStr,
+	isLetterChar,
+	isNumberChar,
+} = require('./index');
 
 const isValidIdeaName = (ideaNameParam) => {
 	if (!ideaNameParam) throw badRequestErr('Invalid input for idea name');
 	const ideaName = isValidStr(ideaNameParam, 'idea name', 'min', 3);
+	ideaName.split('').forEach((char) => {
+		if (
+			!isLetterChar(char) &&
+			!isNumberChar(char) &&
+			char !== '' &&
+			char !== ' '
+		)
+			throw badRequestErr('Invalid Idea name');
+	});
 	return ideaName;
 };
 

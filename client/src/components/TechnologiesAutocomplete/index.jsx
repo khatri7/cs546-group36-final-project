@@ -27,8 +27,8 @@ function TechnologiesAutocomplete({
 						<TextField
 							{...params}
 							label={`${label}${required ? ' *' : ''}`}
-							error={Boolean(errors.skills)}
-							helperText={errors.skills || ''}
+							error={Boolean(errors[field.name])}
+							helperText={errors[field.name] || ''}
 						/>
 					);
 				}}

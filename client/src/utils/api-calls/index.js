@@ -1,4 +1,5 @@
 import Axios from 'axios';
+import $ from 'jquery';
 
 const axios = Axios.create({
 	baseURL: process.env.REACT_APP_SERVER_URL,
@@ -166,3 +167,17 @@ export const checkUsernameAvailable = async (username) =>
 	POST('/users/username', {
 		username,
 	});
+
+// jQuery AJAX request
+export const createProject = async (projectObj, token) => {
+	const result = await $.ajax({
+		method: 'POST',
+		url: `${process.env.REACT_APP_SERVER_URL}/projects`,
+		contentType: 'application/json',
+		data: JSON.stringify(projectObj),
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+	return result;
+};
