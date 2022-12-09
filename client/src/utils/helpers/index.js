@@ -1,4 +1,7 @@
 import moment from 'moment';
+import { initializeApp } from 'store/app';
+import { setUser } from 'store/user';
+import { login } from 'utils/api-calls';
 import technologyTags from 'utils/data/technologyTags';
 
 /**
@@ -52,4 +55,14 @@ export const isValidSkills = (skills) => {
 	});
 	if (error) return false;
 	return true;
+};
+
+export const autoLogin = async (dispatch) => {
+	try {
+		const resp = await login();
+		if (!resp.user) throw new Error();
+		dispatch(setUser(resp.user));
+	} finally {
+		dispatch(initializeApp());
+	}
 };
