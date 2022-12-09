@@ -2,8 +2,25 @@ import { Box, Button, CircularProgress, TextField } from '@mui/material';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
 import { Field, Form, Formik } from 'formik';
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { errorAlert, successAlert } from 'store/alert';
+import { createProject } from 'utils/api-calls';
+import { isValidSkills } from 'utils/helpers';
+import * as Yup from 'yup';
+
+const schema = Yup.object().shape({
+	name: Yup.string()
+		.required('Project name is required')
+		.matches('^[a-zA-Z0-9 ]*$', 'Invalid Project name')
+		.min(3, 'Project name should be atleast 3 cahracters'),
+	description: Yup.string(),
+});
 
 function CreateProject() {
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const token = useSelector((state) => state.user?.token);
 	return (
 		<Box
 			sx={{
@@ -19,9 +36,44 @@ function CreateProject() {
 				initialValues={{
 					name: '',
 					description: '',
+					technologies: [],
+					github: '',
+					deploymentLink: '',
 				}}
-				onSubmit={(values) => {
-					console.log(values);
+				validationSchema={schema}
+				validate={(values) => {
+					const errors = {};
+					if (values.name.trim().length < 3)
+						errors.name = 'Project name should be at least 3 characters';
+					if (!values.technologies || values.technologies.length < 1)
+						errors.technologies =
+							'Need to mention at least one technology used';
+					if (!isValidSkills(values.technologies))
+						errors.skills = 'Invalid skills';
+					return errors;
+				}}
+				onSubmit={async (values) => {
+					try {
+						const projectObj = {
+							...values,
+							github:
+								values.github.trim().length === 0 ? null : values.github.trim(),
+							deploymentLink:
+								values.deploymentLink.trim().length === 0
+									? null
+									: values.deploymentLink.trim(),
+						};
+						const resp = await createProject(projectObj, token);
+						if (!resp.project) throw new Error();
+						navigate(`/projects/${resp.project._id}`);
+						dispatch(successAlert('Project created successfully'));
+					} catch (e) {
+						let error = 'Unexpected error occured';
+						if (typeof e.responseJSON?.message === 'string') {
+							error = e.responseJSON.message;
+						} else if (typeof e.statusText === 'string') error = e.statusText;
+						dispatch(errorAlert(error));
+					}
 				}}
 			>
 				{({
@@ -87,7 +139,7 @@ function CreateProject() {
 							<TextField
 								variant="outlined"
 								label="Deployment Link"
-								name="description"
+								name="deploymentLink"
 								value={values.deploymentLink}
 								onChange={handleChange}
 								onBlur={handleBlur}
@@ -102,7 +154,13 @@ function CreateProject() {
 									width: '10rem',
 								}}
 								variant="contained"
-								disabled={isSubmitting}
+								disabled={
+									isSubmitting ||
+									!values.name ||
+									!values.technologies ||
+									values.technologies?.length < 1 ||
+									Object.keys(errors).length > 0
+								}
 							>
 								{isSubmitting ? <CircularProgress /> : 'Create Project'}
 							</Button>

@@ -1,6 +1,6 @@
 // Projects Validations
 const topics = require('./data/technologies');
-const { badRequestErr } = require('./index');
+const { badRequestErr, isLetterChar, isNumberChar } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
 const checkuseraccess = (user, owner) => {
@@ -12,6 +12,15 @@ const checkuseraccess = (user, owner) => {
 
 const isValidProjectName = (projectNameParam) => {
 	const projectName = isValidStr(projectNameParam, 'project name', 'min', 3);
+	projectName.split('').forEach((char) => {
+		if (
+			!isLetterChar(char) &&
+			!isNumberChar(char) &&
+			char !== '' &&
+			char !== ' '
+		)
+			throw badRequestErr('Invalid Project name');
+	});
 	return projectName;
 };
 
