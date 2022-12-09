@@ -26,7 +26,7 @@ const pages = [
 	},
 	{
 		title: 'Hire Talent',
-		route: '/hire',
+		route: '/hiring',
 	},
 ];
 

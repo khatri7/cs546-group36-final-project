@@ -301,6 +301,12 @@ const isValidExperienceObj = (experienceObjParam) => {
 		to,
 	};
 };
+const isValidAvailabilityQueryParams = (availabilityParam) => {
+	if (AVAILABILITY.includes(availabilityParam)) {
+		return availabilityParam;
+	}
+	return badRequestErr('Not a valid availability param');
+};
 
 module.exports = {
 	isValidUsername,
@@ -312,4 +318,6 @@ module.exports = {
 	isValidEducationObj,
 	isValidExperienceObj,
 	isValidUpdateUserObj,
+	isValidAvailability,
+	isValidAvailabilityQueryParams,
 };

@@ -8,6 +8,7 @@ const {
 	badRequestErr,
 	forbiddenErr,
 } = require('../../utils');
+const { isValidQueryParamTechnologies } = require('../../utils/projects');
 const {
 	isValidUsername,
 	isValidUserObj,
@@ -16,7 +17,29 @@ const {
 	isValidEmail,
 	hashPassword,
 	isValidUpdateUserObj,
+	isValidAvailabilityQueryParams,
 } = require('../../utils/users');
+
+const getAllUsers = async (
+	options = {
+		skills: '',
+		availability: '',
+	}
+) => {
+	let { skills, availability } = options;
+	const usersCollection = await users();
+	const query = {};
+	if (skills && skills.trim().length > 0) {
+		skills = isValidQueryParamTechnologies(skills).split(',');
+		query.skills = { $all: skills };
+	}
+	if (availability && availability.trim().length > 0) {
+		availability = isValidAvailabilityQueryParams(availability);
+		query.availability = availability;
+	}
+	const allUsers = await usersCollection.find(query).toArray();
+	return allUsers;
+};
 
 const getUserByUsername = async (usernameParam) => {
 	const username = isValidUsername(usernameParam);
@@ -165,4 +188,5 @@ module.exports = {
 	updateUser,
 	authenticateUser,
 	checkUsernameAvailable,
+	getAllUsers,
 };
