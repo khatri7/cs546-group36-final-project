@@ -29,7 +29,9 @@ const getAllUsers = async (
 ) => {
 	let { skills, availability } = options;
 	const usersCollection = await users();
-	const query = {};
+	const query = {
+		isAvailable: true,
+	};
 	if (skills && skills.trim().length > 0) {
 		skills = isValidQueryParamTechnologies(skills).split(',');
 		query.skills = { $all: skills };

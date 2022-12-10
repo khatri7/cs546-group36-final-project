@@ -9,8 +9,9 @@ const router = express.Router();
 router.route('/').get(async (req, res) => {
 	try {
 		let { skills, availability } = req.query;
-		skills = isValidQueryParamTechnologies(skills);
-		availability = isValidAvailabilityQueryParams(availability);
+		if (skills) skills = isValidQueryParamTechnologies(skills);
+		if (availability)
+			availability = isValidAvailabilityQueryParams(availability);
 		const users = await usersData.getAllUsers({
 			skills,
 			availability,

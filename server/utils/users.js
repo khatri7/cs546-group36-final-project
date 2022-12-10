@@ -20,11 +20,11 @@ const rEmail =
 	/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 const AVAILABILITY = [
-	'Full time',
-	'Part time',
-	'Contract',
-	'Internship',
-	'Code Collab',
+	'full-time',
+	'part-time',
+	'contract',
+	'internship',
+	'code-collab',
 ];
 
 /**
@@ -137,9 +137,9 @@ const isValidAvailability = (availabilityArr) => {
 		1
 	);
 	return availability.map((item, index) => {
-		if (!AVAILABILITY.includes(item.trim()))
+		if (!AVAILABILITY.includes(item.trim().toLowerCase()))
 			throw badRequestErr(`Invalid availabliity at index ${index}`);
-		return item.trim();
+		return item.trim().toLowerCase();
 	});
 };
 
@@ -304,10 +304,9 @@ const isValidExperienceObj = (experienceObjParam) => {
 	};
 };
 const isValidAvailabilityQueryParams = (availabilityParam) => {
-	if (AVAILABILITY.includes(availabilityParam)) {
-		return availabilityParam;
-	}
-	return badRequestErr('Not a valid availability param');
+	if (!AVAILABILITY.includes(availabilityParam.trim().toLowerCase()))
+		throw badRequestErr('Not a valid availability param');
+	return availabilityParam.trim().toLowerCase();
 };
 
 module.exports = {
