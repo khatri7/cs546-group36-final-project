@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
-const userData = require('../data/users');
-const { badRequestErr } = require('.');
+const userData = require('../../data/users');
+const { badRequestErr } = require('..');
 
 const avatar = async (incomingAvatar, user, userId) => {
 	try {
