@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
-const projectData = require('../data/projects');
+const userData = require('../data/users');
 const { badRequestErr } = require('.');
 
-const images = async (image, project, imagePos, projectId) => {
+const resume = async (incomingResume, user, userId) => {
 	try {
 		AWS.config.update({
 			secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
@@ -11,28 +11,25 @@ const images = async (image, project, imagePos, projectId) => {
 			signatureVersion: 'v4',
 		});
 		const s3 = new AWS.S3({ signatureVersion: 'v4' });
-		const photoKey = `${process.env.ENVIRONMENT}/${project._id}/image/${imagePos}/${image.originalname}`;
+		const photoKey = `${process.env.ENVIRONMENT}/resumes/${user._id}/${incomingResume.originalname}`;
 		const params = {
 			Bucket: process.env.AWS_S3_BUCKET_NAME,
 			Key: photoKey,
-			Body: image.buffer,
-			ContentType: image.mimetype,
+			Body: incomingResume.buffer,
+			ContentType: incomingResume.mimetype,
 		};
 		const s3result = await s3.upload(params).promise();
-		await projectData.updateImageOrResume(
-			s3result.Location,
-			imagePos,
-			projectId
-		);
-		const updatedProject = await projectData.getProjectById(projectId);
-		return updatedProject;
+		await userData.udpateResume(s3result.Location, user.username, userId);
+
+		const updatedUser = await userData.getUserById(userId);
+		return updatedUser;
 	} catch (e) {
 		throw badRequestErr(
-			`Invalid AWS request/ AWS unable to process your request right now`
+			`Invalid AWS request/ AWS unable to process your Resume request right now`
 		);
 	}
 };
 
 module.exports = {
-	images,
+	resume,
 };

@@ -214,6 +214,8 @@ const isValidUserObj = (userObjParam) => {
 		password: isValidPassword(userObjParam.password),
 		education: [],
 		experience: [],
+		resumeUrl: '',
+		avatar: '',
 		skills: isValidTechnologies(userObjParam.skills),
 		isAvailable: false,
 		availability: [],
