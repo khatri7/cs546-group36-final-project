@@ -120,7 +120,7 @@ function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 						))}
 						{project.technologies.length > 4 && (
 							<Chip
-								label={`+${project.technologies.length - 1}`}
+								label={`+${project.technologies.length - 4}`}
 								variant="outlined"
 							/>
 						)}

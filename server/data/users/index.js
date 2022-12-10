@@ -7,6 +7,7 @@ const {
 	internalServerErr,
 	badRequestErr,
 	forbiddenErr,
+	isValidStr,
 } = require('../../utils');
 const { isValidQueryParamTechnologies } = require('../../utils/projects');
 const {
@@ -91,6 +92,30 @@ const checkEmailTaken = async (emailParam) => {
 	return true;
 };
 
+const udpateAvatar = async (url, userName, userId) => {
+	try {
+		const user = await getUserByUsername(userName);
+		isValidStr(url, 'avatar');
+		if (user._id.toString() !== userId) {
+			throw badRequestErr('user doesnt not have appropriate persmissions');
+		}
+		const usersCollection = await users();
+		const updateInfo = await usersCollection.updateOne(
+			{ _id: ObjectId(userId) },
+			{ $set: { avatar: url } }
+		);
+
+		if (!updateInfo.acknowledged)
+			throw badRequestErr('Could not update the User. Please try again.');
+		const udpatedAvatar = await getUserByUsername(userName);
+		return udpatedAvatar;
+	} catch (e) {
+		throw badRequestErr(
+			'Invalid AWS request/ AWS unable to process your avatar right now'
+		);
+	}
+};
+
 const updateUser = async (
 	usernameParam,
 	currentUserParam,
@@ -129,6 +154,30 @@ const updateUser = async (
 	const updatedUser = await getUserById(user._id.toString());
 	return updatedUser;
 };
+const udpateResume = async (url, userName, userId) => {
+	try {
+		isValidStr(url, 'resume');
+		const user = await getUserByUsername(userName);
+		if (user._id.toString() !== userId) {
+			throw badRequestErr('user doesnt not have appropriate persmissions');
+		}
+
+		const usersCollection = await users();
+		const updateInfo = await usersCollection.updateOne(
+			{ _id: ObjectId(userId) },
+			{ $set: { resumeUrl: url } }
+		);
+
+		if (!updateInfo.acknowledged)
+			throw badRequestErr('Could not update the User. Please try again.');
+		const updatedResume = await getUserByUsername(userName);
+		return updatedResume;
+	} catch (e) {
+		throw badRequestErr(
+			'Invalid AWS request/ AWS unable to process your request right now'
+		);
+	}
+};
 
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
@@ -150,10 +199,7 @@ const authenticateUser = async (userLoginObjParam) => {
 			process.env.JWT_SECRET
 		);
 		return {
-			_id,
-			firstName,
-			lastName,
-			username,
+			user: { _id, firstName, lastName, username },
 			token,
 		};
 	} catch (e) {
@@ -189,4 +235,6 @@ module.exports = {
 	authenticateUser,
 	checkUsernameAvailable,
 	getAllUsers,
+	udpateResume,
+	udpateAvatar,
 };

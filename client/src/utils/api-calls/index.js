@@ -1,7 +1,9 @@
 import Axios from 'axios';
+import $ from 'jquery';
 
 const axios = Axios.create({
 	baseURL: process.env.REACT_APP_SERVER_URL,
+	withCredentials: true,
 });
 
 export const handleError = (error) => {
@@ -84,85 +86,44 @@ export const createUser = async (user) => POST('/auth/signup', user);
 
 export const login = async (userLoginObj) => POST('/auth/login', userLoginObj);
 
-export const updateUser = async (username, updateUserObj, token) =>
-	PUT(
-		`/users/${username}`,
-		updateUserObj,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const logout = async () => POST('/auth/logout');
 
-export const createExperience = async (username, experienceObj, token) =>
-	POST(
-		`/users/${username}/experience`,
-		experienceObj,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const updateUser = async (username, updateUserObj) =>
+	PUT(`/users/${username}`, updateUserObj);
 
-export const updateExperience = async (
-	username,
-	experienceObj,
-	experienceId,
-	token
-) =>
-	PUT(
-		`/users/${username}/experience/${experienceId}`,
-		experienceObj,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const createExperience = async (username, experienceObj) =>
+	POST(`/users/${username}/experience`, experienceObj);
 
-export const deleteExperience = async (username, experienceId, token) =>
-	DELETE(
-		`/users/${username}/experience/${experienceId}`,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const updateExperience = async (username, experienceObj, experienceId) =>
+	PUT(`/users/${username}/experience/${experienceId}`, experienceObj);
 
-export const createEducation = async (username, educationObj, token) =>
-	POST(
-		`/users/${username}/education`,
-		educationObj,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const deleteExperience = async (username, experienceId) =>
+	DELETE(`/users/${username}/experience/${experienceId}`);
 
-export const updateEducation = async (
-	username,
-	educationObj,
-	educationId,
-	token
-) =>
-	PUT(
-		`/users/${username}/education/${educationId}`,
-		educationObj,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const createEducation = async (username, educationObj) =>
+	POST(`/users/${username}/education`, educationObj);
 
-export const deleteEducation = async (username, educationId, token) =>
-	DELETE(
-		`/users/${username}/education/${educationId}`,
-		{},
-		{
-			Authorization: `Bearer ${token}`,
-		}
-	);
+export const updateEducation = async (username, educationObj, educationId) =>
+	PUT(`/users/${username}/education/${educationId}`, educationObj);
+
+export const deleteEducation = async (username, educationId) =>
+	DELETE(`/users/${username}/education/${educationId}`);
 
 export const checkUsernameAvailable = async (username) =>
 	POST('/users/username', {
 		username,
 	});
+
+export const initialReq = async () => POST('/auth');
+
+// jQuery AJAX request
+export const createProject = async (projectObj) => {
+	const result = await $.ajax({
+		method: 'POST',
+		url: `${process.env.REACT_APP_SERVER_URL}/projects`,
+		contentType: 'application/json',
+		data: JSON.stringify(projectObj),
+		withCredentials: true,
+	});
+	return result;
+};

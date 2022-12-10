@@ -19,7 +19,7 @@ import DatePickerInput from 'components/DatePicker';
 import { isValidDateStr, isValidDob, isValidSkills } from 'utils/helpers';
 import { handleError, updateUser } from 'utils/api-calls';
 import { errorAlert, successAlert } from 'store/alert';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
 
 const AVAILABILITY = [
@@ -56,7 +56,6 @@ function EditUserDetails({
 	handleUpdateUser,
 }) {
 	const dispatch = useDispatch();
-	const token = useSelector((state) => state.user?.token);
 	return (
 		<Formik
 			initialValues={{
@@ -86,22 +85,18 @@ function EditUserDetails({
 			onSubmit={async (values, { setSubmitting }) => {
 				try {
 					setSubmitting(true);
-					const resp = await updateUser(
-						username,
-						{
-							firstName: values.firstName,
-							lastName: values.lastName,
-							dob: values.dob,
-							skills: values.skills,
-							isAvailable: values.isAvailable,
-							availability: values.isAvailable ? values.availability : [],
-							socials: {
-								github: values.github,
-								linkedin: values.linkedin,
-							},
+					const resp = await updateUser(username, {
+						firstName: values.firstName,
+						lastName: values.lastName,
+						dob: values.dob,
+						skills: values.skills,
+						isAvailable: values.isAvailable,
+						availability: values.isAvailable ? values.availability : [],
+						socials: {
+							github: values.github,
+							linkedin: values.linkedin,
 						},
-						token
-					);
+					});
 					if (!resp.user) throw new Error();
 					handleUpdateUser(resp.user);
 					cancel();

@@ -30,11 +30,11 @@ const schema = Yup.object().shape({
 	firstName: Yup.string()
 		.required('First name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid First name')
-		.min(3, 'Firstname must be atleast 3 cahracters'),
+		.min(3, 'First name must be atleast 3 cahracters'),
 	lastName: Yup.string()
 		.required('Last name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid Last name')
-		.min(3, 'Lastname must be atleast 3 characters'),
+		.min(3, 'Last name must be atleast 3 characters'),
 	username: Yup.string()
 		.required('Username is required')
 		.matches('^[a-zA-Z][a-zA-Z0-9]*$', 'Invalid username')
