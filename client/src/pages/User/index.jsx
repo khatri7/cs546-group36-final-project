@@ -107,6 +107,7 @@ function User() {
 				</Grid>
 				<Grid item xs={4}>
 					<UserCard
+						_id={user._id}
 						firstName={user.firstName}
 						lastName={user.lastName}
 						username={user.username}
@@ -115,6 +116,7 @@ function User() {
 						skills={user.skills}
 						isAvailable={user.isAvailable}
 						availability={user.availability}
+						resume={user.resumeUrl}
 						isCurrentUserProfile={isCurrentUserProfile}
 						handleUpdateUser={handleUpdateUser}
 					/>

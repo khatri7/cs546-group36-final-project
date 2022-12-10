@@ -127,3 +127,23 @@ export const createProject = async (projectObj) => {
 	});
 	return result;
 };
+
+export const uploadMedia = (body = {}) => {
+	const formData = new FormData();
+	Object.entries(body).forEach((item) => {
+		formData.append(item[0], item[1]);
+	});
+	return POST(
+		'/media',
+		formData,
+		{},
+		{ 'Content-Type': 'multipart/form-data' }
+	);
+};
+
+export const uploadResume = (resume, userId) =>
+	uploadMedia({
+		media: resume,
+		userId,
+		mediaType: 'resume',
+	});

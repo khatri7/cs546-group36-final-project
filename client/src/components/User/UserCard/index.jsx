@@ -8,23 +8,30 @@ import {
 	Chip,
 	Button,
 	IconButton,
+	CircularProgress,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import CakeOutlinedIcon from '@mui/icons-material/CakeOutlined';
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { errorAlert, successAlert } from 'store/alert';
+import { handleError, uploadResume } from 'utils/api-calls';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
+	_id,
 	firstName,
 	lastName,
 	username,
 	dob,
 	socials,
+	resume,
 	skills = [],
 	isAvailable,
 	availability = [],
@@ -32,6 +39,41 @@ function UserCard({
 	handleUpdateUser = () => {},
 }) {
 	const [showEditProfile, setShowEditProfile] = useState(false);
+	const [submittingResume, setSubmittingResume] = useState(false);
+	const resumeRef = useRef(null);
+	const dispatch = useDispatch();
+	const handleResumeUpload = useCallback(
+		async (e) => {
+			setSubmittingResume(true);
+			const resumeFile = e.target.files[0];
+			if (resumeFile) {
+				if (resumeFile.type !== 'application/pdf') {
+					e.target.value = '';
+					dispatch(errorAlert('Resume needs to be of type pdf'));
+				} else if (resumeFile.size > 5000000) {
+					e.target.value = '';
+					return dispatch(errorAlert('File size cannot be greater than 5MB'));
+				} else dispatch(successAlert('Resume uploaded successfully'));
+				try {
+					const res = await uploadResume(e.target.files[0], _id);
+					if (!res.user) throw new Error();
+					handleUpdateUser(res.user);
+				} catch (err) {
+					let error = 'Unexpected error occurred';
+					if (typeof handleError(err) === 'string') error = handleError(err);
+					dispatch(errorAlert(error));
+				}
+			}
+			e.target.value = '';
+			setSubmittingResume(false);
+			return true;
+		},
+		[dispatch, _id, handleUpdateUser]
+	);
+	useEffect(() => {
+		if (resumeRef.current)
+			resumeRef.current.addEventListener('change', handleResumeUpload);
+	}, [resumeRef, handleResumeUpload]);
 	return (
 		<Card sx={{ position: 'sticky', top: '5rem' }} raised>
 			<CardContent>
@@ -132,9 +174,39 @@ function UserCard({
 									</Link>
 								)}
 							</Stack>
-							<Button variant="contained" size="large">
-								Resume
-							</Button>
+							<Stack direction="row" spacing={1}>
+								{isCurrentUserProfile && (
+									<Button
+										variant="outlined"
+										component="label"
+										aria-label="upload resume"
+										startIcon={<UploadRoundedIcon />}
+										disabled={submittingResume}
+									>
+										{submittingResume ? (
+											<CircularProgress size={16} />
+										) : (
+											'Upload Resume'
+										)}
+										<input
+											ref={resumeRef}
+											hidden
+											accept="application/pdf"
+											type="file"
+										/>
+									</Button>
+								)}
+								{resume && (
+									<Button
+										variant="contained"
+										onClick={() => {
+											window.open(resume, '_blank');
+										}}
+									>
+										Resume
+									</Button>
+								)}
+							</Stack>
 						</>
 					)}
 				</Stack>
