@@ -5,8 +5,7 @@ const { isValidUsername } = require('../utils/users');
 
 const authenticateToken = async (req, res, next) => {
 	try {
-		const authHeader = req.headers.authorization;
-		const token = authHeader?.split(' ')[1];
+		const { token } = req.cookies;
 		if (!token) throw unauthorizedErr('No JWT found');
 		try {
 			const { user } = jwt.verify(token, process.env.JWT_SECRET);
@@ -17,6 +16,7 @@ const authenticateToken = async (req, res, next) => {
 			req.user = user;
 			next();
 		} catch (e) {
+			res.clearCookie('token');
 			throw unauthorizedErr('Invalid JWT');
 		}
 	} catch (e) {

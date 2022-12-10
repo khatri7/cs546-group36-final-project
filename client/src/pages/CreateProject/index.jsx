@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, TextField } from '@mui/material';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
 import { Field, Form, Formik } from 'formik';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { errorAlert, successAlert } from 'store/alert';
 import { createProject } from 'utils/api-calls';
@@ -20,7 +20,6 @@ const schema = Yup.object().shape({
 function CreateProject() {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-	const token = useSelector((state) => state.user?.token);
 	return (
 		<Box
 			sx={{
@@ -63,7 +62,7 @@ function CreateProject() {
 									? null
 									: values.deploymentLink.trim(),
 						};
-						const resp = await createProject(projectObj, token);
+						const resp = await createProject(projectObj);
 						if (!resp.project) throw new Error();
 						navigate(`/projects/${resp.project._id}`);
 						dispatch(successAlert('Project created successfully'));

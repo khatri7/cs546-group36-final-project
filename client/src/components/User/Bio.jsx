@@ -14,12 +14,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Form, Formik } from 'formik';
 import { handleError, updateUser } from 'utils/api-calls';
 import { errorAlert, successAlert } from 'store/alert';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 function Bio({ username, bio, handleUpdateUser, isCurrentUserProfile }) {
 	const [showEditForm, setShowEditForm] = useState(false);
 	const dispatch = useDispatch();
-	const token = useSelector((state) => state.user?.token);
 	return (
 		<Card raised>
 			<CardContent>
@@ -49,13 +48,9 @@ function Bio({ username, bio, handleUpdateUser, isCurrentUserProfile }) {
 							onSubmit={async (values, { setSubmitting }) => {
 								try {
 									setSubmitting(true);
-									const resp = await updateUser(
-										username,
-										{
-											bio: values.bio.trim(),
-										},
-										token
-									);
+									const resp = await updateUser(username, {
+										bio: values.bio.trim(),
+									});
 									if (!resp.user) throw new Error();
 									handleUpdateUser(resp.user);
 									setShowEditForm(false);

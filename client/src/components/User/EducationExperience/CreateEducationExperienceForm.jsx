@@ -10,7 +10,7 @@ import {
 import DatePickerInput from 'components/DatePicker';
 import { Field, Form, Formik } from 'formik';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { errorAlert, successAlert } from 'store/alert';
 import {
 	createEducation,
@@ -156,12 +156,10 @@ export function CreateEducationForm({
 	handleUpdateUser = () => {},
 	isUpdateForm = false,
 }) {
-	const token = useSelector((state) => state.user?.token);
 	const onSubmit = async (experieceObj) => {
 		let resp;
-		if (isUpdateForm)
-			resp = await updateEducation(username, experieceObj, _id, token);
-		else resp = await createEducation(username, experieceObj, token);
+		if (isUpdateForm) resp = await updateEducation(username, experieceObj, _id);
+		else resp = await createEducation(username, experieceObj);
 		if (!resp.user) throw new Error();
 		handleUpdateUser(resp.user);
 		cancel();
@@ -194,12 +192,11 @@ export function CreateExperienceForm({
 	handleUpdateUser = () => {},
 	isUpdateForm = false,
 }) {
-	const token = useSelector((state) => state.user?.token);
 	const onSubmit = async (experieceObj) => {
 		let resp;
 		if (isUpdateForm)
-			resp = await updateExperience(username, experieceObj, _id, token);
-		else resp = await createExperience(username, experieceObj, token);
+			resp = await updateExperience(username, experieceObj, _id);
+		else resp = await createExperience(username, experieceObj);
 		if (!resp.user) throw new Error();
 		handleUpdateUser(resp.user);
 		cancel();

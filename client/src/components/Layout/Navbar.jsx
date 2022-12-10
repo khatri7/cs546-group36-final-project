@@ -11,8 +11,11 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { handleError, logout } from 'utils/api-calls';
+import { unsetUser } from 'store/user';
+import { errorAlert } from 'store/alert';
 import FavIcon from './favicon.png';
 
 const pages = [
@@ -35,6 +38,8 @@ function Navbar() {
 	const [anchorElUser, setAnchorElUser] = React.useState(null);
 
 	const user = useSelector((state) => state.user);
+
+	const dispatch = useDispatch();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -231,7 +236,20 @@ function Navbar() {
 									>
 										<Typography textAlign="center">Profile</Typography>
 									</MenuItem>
-									<MenuItem onClick={handleCloseUserMenu}>
+									<MenuItem
+										onClick={async () => {
+											handleCloseUserMenu();
+											try {
+												await logout();
+												dispatch(unsetUser());
+											} catch (e) {
+												let error = 'Unexpected error occurred';
+												if (typeof handleError(e) === 'string')
+													error = handleError(e);
+												dispatch(errorAlert(error));
+											}
+										}}
+									>
 										<Typography textAlign="center">Log Out</Typography>
 									</MenuItem>
 								</Menu>
