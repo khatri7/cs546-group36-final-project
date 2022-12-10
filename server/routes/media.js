@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
-const imageUpload = require('../utils/image');
-const resumeUpload = require('../utils/resume');
+const imageUpload = require('../utils/aws/image');
+const resumeUpload = require('../utils/aws/resume');
 const avatarUpload = require('../utils/aws/avatar');
 const { authenticateToken } = require('../middleware/auth');
 const {

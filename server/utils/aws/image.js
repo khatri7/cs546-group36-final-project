@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
-const projectData = require('../data/projects');
-const { badRequestErr } = require('.');
+const projectData = require('../../data/projects');
+const { badRequestErr } = require('..');
 
 const images = async (image, project, imagePos, projectId) => {
 	try {
