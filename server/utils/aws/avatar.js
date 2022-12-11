@@ -12,7 +12,7 @@ const avatar = async (incomingAvatar, user, userId) => {
 			incomingAvatar.mimetype === 'image/png'
 		)
 	)
-		throw badRequestErr('file type wrong');
+		throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
 
 	const fileSize = incomingAvatar.size;
 	if (fileSize > 5242880)

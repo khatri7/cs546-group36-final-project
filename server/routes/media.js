@@ -49,7 +49,7 @@ router
 						req.file.mimetype === 'image/png'
 					)
 				)
-					throw badRequestErr('file type wrong');
+					throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
 				if (fileSize > 5253365.76)
 					throw badRequestErr(
 						'the file size of Image uploaded has exceeded 5 mb'

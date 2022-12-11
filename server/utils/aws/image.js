@@ -8,7 +8,7 @@ const images = async (image, project, imagePos, projectId) => {
 	}
 	const fileSize = image.size;
 	if (!(image.mimetype === 'image/jpeg' || image.mimetype === 'image/png'))
-		throw badRequestErr('file type wrong');
+		throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
 	if (fileSize > 5242880)
 		throw badRequestErr('the file size of Image uploaded has exceeded 5 mb');
 
