@@ -1,5 +1,6 @@
 import { MoreVertOutlined, OpenInNewOutlined } from '@mui/icons-material';
 import {
+	Button,
 	Card,
 	CardActions,
 	CardContent,
@@ -19,10 +20,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleError, likeIdea, unlikeIdea } from 'utils/api-calls';
-import { errorAlert, warningAlert } from 'store/alert';
+import { deleteIdea, handleError, likeIdea, unlikeIdea } from 'utils/api-calls';
+import { errorAlert, successAlert, warningAlert } from 'store/alert';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 
-function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
+function IdeaCard({
+	idea,
+	isOwner = false,
+	gridCols = 4,
+	removeIdea = () => {},
+}) {
 	const navigate = useNavigate();
 	const [anchorElIdea, setAnchorElIdea] = useState(null);
 	const user = useSelector((state) => state.user);
@@ -54,6 +61,18 @@ function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
 				if (typeof handleError(err) === 'string') error = handleError(err);
 				dispatch(errorAlert(error));
 			}
+		}
+	};
+
+	const handleDeleteIdea = async () => {
+		try {
+			await deleteIdea(idea._id);
+			removeIdea(idea._id);
+			dispatch(successAlert('Idea deleted successfully'));
+		} catch (err) {
+			let error = 'Unexpected error occurred';
+			if (typeof handleError(err) === 'string') error = handleError(err);
+			dispatch(errorAlert(error));
 		}
 	};
 
@@ -108,7 +127,13 @@ function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
 											sx={{ alignItems: 'center' }}
 											onClick={handleCloseIdeaMenu}
 										>
-											<Typography textAlign="center">Delete</Typography>
+											<Button
+												startIcon={<DeleteRoundedIcon />}
+												onClick={handleDeleteIdea}
+												color="error"
+											>
+												Delete
+											</Button>
 										</MenuItem>
 									</Menu>
 								</>
@@ -116,7 +141,13 @@ function IdeaCard({ idea, isOwner = false, gridCols = 4 }) {
 						</Stack>
 					}
 				/>
-				<CardContent>
+				<CardContent
+					sx={{
+						':last-child': {
+							pb: 2,
+						},
+					}}
+				>
 					<Typography variant="body2" color="text.secondary">
 						{idea.description}
 					</Typography>

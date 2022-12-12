@@ -16,7 +16,7 @@ const schema = Yup.object().shape({
 		.min(3, 'Idea name should be atleast 3 cahracters'),
 	description: Yup.string()
 		.required('Description is required')
-		.min(5, 'Description length should be atleast 5 characters'),
+		.min(5, 'Description should be at least 5 characters'),
 	lookingFor: Yup.number('Number of people should be a number')
 		.required('Number of people you are looking for is required')
 		.min(1, 'Number of people you are looking for should be at least 1')
@@ -49,6 +49,8 @@ function CreateIdea() {
 					const errors = {};
 					if (values.name.trim().length < 3)
 						errors.name = 'Idea name should be at least 3 characters';
+					if (values.description.trim().length < 5)
+						errors.description = 'Description should be at least 5 characters';
 					if (!values.technologies || values.technologies.length < 1)
 						errors.technologies =
 							'Need to mention at least one technology going to be used';
