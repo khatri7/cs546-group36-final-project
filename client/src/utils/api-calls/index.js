@@ -158,3 +158,14 @@ export const uploadAvatar = (avatar, userId) =>
 		userId,
 		mediaType: 'avatar',
 	});
+
+export const deleteProject = (projectId) => DELETE(`/projects/${projectId}`);
+
+export const likeProject = (projectId) => POST(`/projects/${projectId}/likes`);
+export const unlikeProject = (projectId) =>
+	DELETE(`/projects/${projectId}/likes`);
+
+export const bookmarkProject = (projectId) =>
+	POST(`/projects/${projectId}/bookmark`);
+export const removeProjectBookmark = (projectId) =>
+	DELETE(`/projects/${projectId}/bookmark`);

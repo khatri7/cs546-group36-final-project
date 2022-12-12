@@ -18,7 +18,13 @@ function SavedProjects({ username }) {
 
 	if (projects.length === 0) return <Typography>No projects</Typography>;
 
-	return <ProjectsList projectsList={projects} projectsPerRow={2} />;
+	return (
+		<ProjectsList
+			projectsList={projects}
+			projectsPerRow={2}
+			removeProjectOnUnsave
+		/>
+	);
 }
 
 export default SavedProjects;

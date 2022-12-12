@@ -171,7 +171,7 @@ router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
 		const projectId = isValidObjectId(req.params.projectId);
 		const likeProjectInfo = await projectsData.likeProject(user, projectId);
 		res.status(successStatusCodes.CREATED).json({
-			likeProjectInfo,
+			likes: likeProjectInfo,
 		});
 	} catch (e) {
 		sendErrResp(res, e);
@@ -189,8 +189,8 @@ router
 				user,
 				projectId
 			);
-			res.status(successStatusCodes.DELETED).json({
-				unlikeProjectInfo,
+			res.status(successStatusCodes.OK).json({
+				likes: unlikeProjectInfo,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
@@ -235,7 +235,7 @@ router
 			await projectsData.getProjectById(projectId);
 			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
 			res.status(successStatusCodes.CREATED).json({
-				bookmarkedUsers,
+				savedBy: bookmarkedUsers,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
@@ -252,8 +252,8 @@ router
 				projectId,
 				user
 			);
-			res.status(successStatusCodes.DELETED).json({
-				bookmarkedUsers,
+			res.status(successStatusCodes.OK).json({
+				savedBy: bookmarkedUsers,
 			});
 		} catch (e) {
 			sendErrResp(res, e);

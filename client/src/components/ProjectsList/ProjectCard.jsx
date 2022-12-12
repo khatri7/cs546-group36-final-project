@@ -1,10 +1,14 @@
 import { MoreVertOutlined, OpenInNewOutlined } from '@mui/icons-material';
 import {
+	Button,
 	Card,
+	CardActions,
 	CardContent,
 	CardHeader,
 	CardMedia,
+	Checkbox,
 	Chip,
+	FormControlLabel,
 	Grid,
 	IconButton,
 	Menu,
@@ -13,7 +17,22 @@ import {
 	Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import { useDispatch, useSelector } from 'react-redux';
+import { errorAlert, successAlert, warningAlert } from 'store/alert';
+import {
+	bookmarkProject,
+	deleteProject,
+	handleError,
+	likeProject,
+	removeProjectBookmark,
+	unlikeProject,
+} from 'utils/api-calls';
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
+import Favorite from '@mui/icons-material/Favorite';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 
 /**
  * @typedef {Object} Project
@@ -41,9 +60,56 @@ import { useNavigate } from 'react-router-dom';
 /**
  * @param {props} props
  */
-function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
+function ProjectCard({
+	project,
+	isOwner = false,
+	gridCols = 4,
+	removeProject = () => {},
+	removeProjectOnUnsave,
+}) {
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const user = useSelector((state) => state.user);
 	const [anchorElProject, setAnchorElProject] = useState(null);
+	const [likes, setLikes] = useState(project.likes);
+	const [savedBy, setSavedBy] = useState(project.savedBy);
+
+	const handleAction = async (action, endpoint) => {
+		if (!user)
+			dispatch(
+				warningAlert('You need to login before liking/unliking a project')
+			);
+		else {
+			try {
+				let res;
+				if (endpoint === 'likes') {
+					if (action) res = await likeProject(project._id);
+					else res = await unlikeProject(project._id);
+					if (!res.likes) throw new Error();
+					setLikes(res.likes);
+				}
+				if (endpoint === 'bookmark') {
+					if (action) res = await bookmarkProject(project._id);
+					else res = await removeProjectBookmark(project._id);
+					if (!res.savedBy) throw new Error();
+					setSavedBy(res.savedBy);
+					if (!action && removeProjectOnUnsave) removeProject(project._id);
+				}
+			} catch (e) {
+				let error = 'Unexpected error occurred';
+				if (typeof handleError(e) === 'string') error = handleError(e);
+				dispatch(errorAlert(error));
+			}
+		}
+	};
+
+	const handleLike = (e) => {
+		handleAction(e.target.checked, 'likes');
+	};
+
+	const handleBookmark = (e) => {
+		handleAction(e.target.checked, 'bookmark');
+	};
 
 	const handleOpenProjectMenu = (event) => {
 		setAnchorElProject(event.currentTarget);
@@ -52,12 +118,34 @@ function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 	const handleCloseProjectMenu = () => {
 		setAnchorElProject(null);
 	};
+
+	const handleDeleteProject = async () => {
+		try {
+			await deleteProject(project._id);
+			removeProject(project._id);
+			dispatch(successAlert('Project deleted successfully'));
+		} catch (e) {
+			let error = 'Unexpected error occurred';
+			if (typeof handleError(e) === 'string') error = handleError(e);
+			dispatch(errorAlert(error));
+		}
+	};
 	return (
 		<Grid item xs={gridCols}>
 			<Card raised sx={{ height: '100%' }}>
 				<CardHeader
 					title={project.name}
-					subheader={`@${project.owner.username}`}
+					subheader={
+						<Link
+							to={`/users/${project.owner?.username}`}
+							style={{
+								all: 'unset',
+								cursor: 'pointer',
+							}}
+						>
+							@{project.owner.username}
+						</Link>
+					}
 					action={
 						<Stack direction="row" gap={1}>
 							<IconButton
@@ -96,7 +184,13 @@ function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 											sx={{ alignItems: 'center' }}
 											onClick={handleCloseProjectMenu}
 										>
-											<Typography textAlign="center">Delete</Typography>
+											<Button
+												startIcon={<DeleteRoundedIcon />}
+												onClick={handleDeleteProject}
+												color="error"
+											>
+												Delete
+											</Button>
 										</MenuItem>
 									</Menu>
 								</>
@@ -110,7 +204,13 @@ function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 					alt={project.name}
 					height={180}
 				/>
-				<CardContent>
+				<CardContent
+					sx={{
+						':last-child': {
+							pb: 2,
+						},
+					}}
+				>
 					<Typography variant="body2" color="text.secondary">
 						{project.description}
 					</Typography>
@@ -125,6 +225,34 @@ function ProjectCard({ project, isOwner = false, gridCols = 4 }) {
 							/>
 						)}
 					</Stack>
+					<CardActions sx={{ p: 0 }} disableSpacing>
+						<Stack direction="row" gap={1}>
+							<FormControlLabel
+								control={
+									<Checkbox
+										inputProps={{ 'aria-label': 'Like' }}
+										icon={<FavoriteBorder />}
+										checkedIcon={<Favorite />}
+										checked={likes.includes(user?._id)}
+										onClick={handleLike}
+									/>
+								}
+								label={likes.length}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										inputProps={{ 'aria-label': 'Save' }}
+										icon={<BookmarkBorderIcon />}
+										checkedIcon={<BookmarkIcon />}
+										checked={savedBy.includes(user?._id)}
+										onClick={handleBookmark}
+									/>
+								}
+								label={savedBy.length}
+							/>
+						</Stack>
+					</CardActions>
 				</CardContent>
 			</Card>
 		</Grid>
