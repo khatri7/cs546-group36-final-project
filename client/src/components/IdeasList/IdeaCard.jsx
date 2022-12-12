@@ -47,7 +47,7 @@ function IdeaCard({
 	const handleLike = async (e) => {
 		if (!user)
 			dispatch(
-				warningAlert('You need to login before liking/unliking a project')
+				warningAlert('You need to login before liking/unliking an idea')
 			);
 		else {
 			try {

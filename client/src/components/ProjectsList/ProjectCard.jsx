@@ -76,9 +76,7 @@ function ProjectCard({
 
 	const handleAction = async (action, endpoint) => {
 		if (!user)
-			dispatch(
-				warningAlert('You need to login before liking/unliking a project')
-			);
+			dispatch(warningAlert('You need to login before performing this action'));
 		else {
 			try {
 				let res;
