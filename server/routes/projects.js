@@ -68,6 +68,15 @@ router
 		}
 	});
 
+router.route('/trendingProjects').get(async (req, res) => {
+	try {
+		const projects = await projectsData.getTrendingProjects();
+		res.json({ projects });
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+
 // returns list of all technology tags
 router.route('/technologies').get(async (req, res) => {
 	res.json({
