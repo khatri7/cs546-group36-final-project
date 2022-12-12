@@ -169,3 +169,6 @@ export const bookmarkProject = (projectId) =>
 	POST(`/projects/${projectId}/bookmark`);
 export const removeProjectBookmark = (projectId) =>
 	DELETE(`/projects/${projectId}/bookmark`);
+
+export const likeIdea = (ideaId) => POST(`/ideas/${ideaId}/likes`);
+export const unlikeIdea = (ideaId) => DELETE(`/ideas/${ideaId}/likes`);

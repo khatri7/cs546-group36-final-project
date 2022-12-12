@@ -150,7 +150,7 @@ router
 			const likeIdeaInfo = await ideasData.likeIdea(ideaId, user);
 
 			res.status(successStatusCodes.CREATED).json({
-				likeIdeaInfo,
+				likes: likeIdeaInfo,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
@@ -167,8 +167,8 @@ router
 			if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 			const unlikeIdeaInfo = await ideasData.unlikeIdea(ideaId, user);
 
-			res.status(successStatusCodes.DELETED).json({
-				unlikeIdeaInfo,
+			res.status(successStatusCodes.OK).json({
+				likes: unlikeIdeaInfo,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
