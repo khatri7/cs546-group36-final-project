@@ -123,7 +123,9 @@ export const createProject = async (projectObj) => {
 		url: `${process.env.REACT_APP_SERVER_URL}/projects`,
 		contentType: 'application/json',
 		data: JSON.stringify(projectObj),
-		withCredentials: true,
+		xhrFields: {
+			withCredentials: true,
+		},
 	});
 	return result;
 };
