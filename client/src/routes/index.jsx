@@ -19,6 +19,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { infoAlert } from 'store/alert';
 import CreateIdea from 'pages/CreateIdea';
 
+const protectedRoutes = ['/projects/create', '/ideas/create'];
+
 function Routes() {
 	const { pathname } = useLocation();
 	const user = useSelector((state) => state.user);
@@ -27,7 +29,7 @@ function Routes() {
 		user !== null && Boolean(user._id) && Boolean(user.username);
 	if (isLoggedIn && ['/login', '/signup'].includes(pathname))
 		return <Navigate to={`/users/${user.username}`} />;
-	if (!isLoggedIn && pathname === '/projects/create') {
+	if (!isLoggedIn && protectedRoutes.includes(pathname)) {
 		dispatch(infoAlert('Please login'));
 		return <Navigate to="/login" />;
 	}
