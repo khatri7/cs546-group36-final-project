@@ -14,7 +14,9 @@ const schema = Yup.object().shape({
 		.required('Idea name is required')
 		.matches('^[a-zA-Z0-9 ]*$', 'Invalid Idea name')
 		.min(3, 'Idea name should be atleast 3 cahracters'),
-	description: Yup.string(),
+	description: Yup.string()
+		.required('Description is required')
+		.min(5, 'Description length should be atleast 5 characters'),
 	lookingFor: Yup.number('Number of people should be a number')
 		.required('Number of people you are looking for is required')
 		.min(1, 'Number of people you are looking for should be at least 1')
@@ -118,6 +120,7 @@ function CreateIdea() {
 								error={touched.description && Boolean(errors.description)}
 								helperText={touched.description && errors.description}
 								fullWidth
+								required
 							/>
 							<Field
 								name="technologies"

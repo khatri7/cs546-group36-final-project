@@ -25,9 +25,12 @@ router
 			user._id = isValidObjectId(user._id);
 			user.username = isValidUsername(user.username);
 			name = isValidIdeaName(name);
-			description = req.body.description
-				? isValidStr(req.body.description, 'idea description')
-				: null;
+			description = isValidStr(
+				req.body.description,
+				'idea description',
+				'min',
+				10
+			);
 			lookingFor = isValidLookingFor(lookingFor);
 			technologies = isValidTechnologies(technologies);
 
@@ -96,9 +99,12 @@ router
 			let { name, description, status, lookingFor, technologies } = req.body;
 
 			name = isValidIdeaName(name);
-			description = req.body.description
-				? isValidStr(req.body.description, 'idea description')
-				: null;
+			description = isValidStr(
+				req.body.description,
+				'idea description',
+				'min',
+				10
+			);
 			lookingFor = isValidLookingFor(lookingFor);
 			status = isValidStatus(status);
 			technologies = isValidTechnologies(technologies);
