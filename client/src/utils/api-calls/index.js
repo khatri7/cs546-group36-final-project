@@ -114,6 +114,10 @@ export const checkUsernameAvailable = async (username) =>
 		username,
 	});
 
+export const createIdeaComment = async (ideaId, commentObj) => {
+	POST(`/ideas/:${ideaId}/comments`, commentObj);
+};
+
 export const initialReq = async () => POST('/auth');
 
 // jQuery AJAX request

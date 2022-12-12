@@ -6,20 +6,18 @@ import {
 	Chip,
 	IconButton,
 	Badge,
-	Button,
 	Avatar,
 	CardHeader,
 	CardMedia,
 	CardContent,
-	TextField,
 	Tooltip,
 	Divider,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
-import React from 'react';
+import { React, useState, useEffect } from 'react';
+import CreateComment from '../CreateComment';
 // import Technologies from 'components/Idea/Technologies';
 // import CommentList from 'components/CommentsList/CommentList';
 
@@ -29,7 +27,9 @@ function IdeaInfo({ idea }) {
 	const technologiesUsed = idea.technologies;
 	let { likes } = idea;
 	likes = likes.length;
-	const { description, createdAt, comments, status, lookingFor } = idea;
+	const { description, createdAt, status, lookingFor } = idea;
+
+	const [comments, setComments] = useState(idea.comments);
 
 	function getFormatterTime(timestamp) {
 		const options = {
@@ -41,6 +41,14 @@ function IdeaInfo({ idea }) {
 
 		return time.toLocaleDateString('en-US', options);
 	}
+
+	const createComment = () => {
+		setComments([newComment, ...comments]);
+	};
+
+	useEffect(() => {
+		setComments(idea.comments);
+	}, [idea.comments]);
 
 	function getSubHeader() {
 		return `Create On: ${getFormatterTime(createdAt)}`;
@@ -147,23 +155,7 @@ function IdeaInfo({ idea }) {
 								>
 									<Grid container spacing={1}>
 										<Grid item xs={10}>
-											<TextField
-												id="inputCommentText"
-												label="Comment here"
-												placeholder="Your comment(s) goes here..."
-												sx={{ height: '100%', width: '100%' }}
-											/>
-										</Grid>
-										<Grid item xs={2}>
-											<Tooltip title="Post your comment" arrow>
-												<Button
-													variant="contained"
-													sx={{ height: '100%', width: '100%' }}
-													endIcon={<SendIcon />}
-												>
-													Comment
-												</Button>
-											</Tooltip>
+											<CreateComment source="idea" />
 										</Grid>
 									</Grid>
 								</form>
