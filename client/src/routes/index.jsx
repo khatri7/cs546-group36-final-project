@@ -14,6 +14,7 @@ import Project from 'pages/Project';
 import CreateProject from 'pages/CreateProject';
 import Ideas from 'pages/Ideas';
 import Idea from 'pages/Idea';
+import Hiring from 'pages/Hiring';
 import { useDispatch, useSelector } from 'react-redux';
 import { infoAlert } from 'store/alert';
 
@@ -45,6 +46,9 @@ function Routes() {
 			<Route path="/ideas">
 				<Route index element={<Ideas />} />
 				<Route path=":ideaId" element={<Idea />} />
+			</Route>
+			<Route path="/hiring">
+				<Route index element={<Hiring />} />
 			</Route>
 		</RRDRoutes>
 	);
