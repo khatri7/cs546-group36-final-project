@@ -99,12 +99,6 @@ const createProject = async (projectObjParam, user) => {
 	return createdProject;
 };
 
-const getTrendingProjects = async () => {
-	const allProjects = await getAllProjects();
-	allProjects.sort((a, b) => b.likes.length - a.likes.length);
-	return allProjects;
-};
-
 const likeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
@@ -252,7 +246,6 @@ module.exports = {
 	updateProject,
 	getProjectById,
 	getAllProjects,
-	getTrendingProjects,
 	createProject,
 	getProjectsByOwnerUsername,
 	likeProject,
