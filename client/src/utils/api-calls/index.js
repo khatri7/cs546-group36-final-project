@@ -161,8 +161,8 @@ export const uploadAvatar = (avatar, userId) =>
 
 export const deleteProject = (projectId) => DELETE(`/projects/${projectId}`);
 
-export const createProjectComment = (projectId) =>
-	POST(`/projects/${projectId}/comments`);
+export const createProjectComment = (projectId, commentObj) =>
+	POST(`/projects/${projectId}/comments`, commentObj);
 export const deleteProjectComment = (projectId, commentId) =>
 	DELETE(`/projects/${projectId}/comments/${commentId}`);
 
@@ -180,6 +180,7 @@ export const unlikeIdea = (ideaId) => DELETE(`/ideas/${ideaId}/likes`);
 
 export const deleteIdea = (ideaId) => DELETE(`/ideas/${ideaId}`);
 
-export const createIdeaComment = (ideaId) => POST(`/ideas/${ideaId}/comments`);
+export const createIdeaComment = (ideaId, commentObj) =>
+	POST(`/ideas/${ideaId}/comments`, commentObj);
 export const deleteIdeaComment = (ideaId, commentId) =>
 	DELETE(`/ideas/${ideaId}/comments/${commentId}`);
