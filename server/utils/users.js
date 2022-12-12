@@ -248,6 +248,7 @@ const isValidUpdateUserObj = (userObjParam) => {
 		updateUserObj.bio =
 			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
 	if (skills) updateUserObj.skills = isValidTechnologies(skills);
+	if (skills.length > 10) throw badRequestErr('You can add up to 10 skills.');
 	if (socials) {
 		updateUserObj.socials = {
 			github: socials.github || null,
