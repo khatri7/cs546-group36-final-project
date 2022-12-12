@@ -47,6 +47,7 @@ const getAllIdeas = async (
 		query.status = { $eq: ideaStatus };
 	}
 	const allIdeas = await ideasCollection.find(query).toArray();
+	allIdeas.sort((a, b) => b.likes.length - a.likes.length);
 	return allIdeas;
 };
 
@@ -108,12 +109,6 @@ const createIdea = async (ideasObjectParam, user) => {
 	);
 
 	return createdIdea;
-};
-
-const getTrendingIdeas = async () => {
-	const allIdeas = await getAllIdeas();
-	allIdeas.sort((a, b) => b.likes.length - a.likes.length);
-	return allIdeas;
 };
 
 const removeIdea = async (id, user) => {
@@ -294,7 +289,6 @@ const removeIdeaComment = async (ideaObj, idObj) => {
 module.exports = {
 	getIdeaById,
 	createIdea,
-	getTrendingIdeas,
 	removeIdea,
 	updateIdea,
 	likeIdea,
