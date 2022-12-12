@@ -23,11 +23,11 @@ import { useDispatch } from 'react-redux';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
 
 const AVAILABILITY = [
-	'Full time',
-	'Part time',
-	'Contract',
-	'Internship',
-	'Code Collab',
+	'full-time',
+	'part-time',
+	'contract',
+	'internship',
+	'code-collab',
 ];
 
 const schema = Yup.object().shape({
