@@ -8,10 +8,9 @@ import {
 	TextField,
 	InputAdornment,
 	Button,
-	FormLabel,
-	RadioGroup,
-	Radio,
-	FormControlLabel,
+	InputLabel,
+	Select,
+	MenuItem,
 } from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import technologyTags from 'utils/data/technologyTags';
@@ -24,8 +23,8 @@ function SearchIdea({ setEndpoint }) {
 	const handleChange = (event, value) => {
 		setTechnologies(value);
 	};
-	const handleStatusChange = (event, value) => {
-		setStatus(value);
+	const handleStatusChange = (event) => {
+		setStatus(event.target.value);
 	};
 
 	const handleDelete = (tech) => {
@@ -86,25 +85,6 @@ function SearchIdea({ setEndpoint }) {
 						renderTags={() => {}}
 						clearIcon={null}
 					/>
-					<FormLabel id="demo-controlled-radio-buttons-group">Status</FormLabel>
-					<RadioGroup
-						aria-labelledby="demo-controlled-radio-buttons-group"
-						name="controlled-radio-buttons-group"
-						value={status}
-						onChange={handleStatusChange}
-					>
-						<FormControlLabel
-							value="inactive"
-							control={<Radio />}
-							label="Inactive"
-						/>
-						<FormControlLabel
-							value="active"
-							control={<Radio />}
-							label="Active"
-						/>
-						<FormControlLabel value="all" control={<Radio />} label="All" />
-					</RadioGroup>
 					<TextField
 						fullWidth
 						value={name}
@@ -121,6 +101,21 @@ function SearchIdea({ setEndpoint }) {
 						name="name"
 						placeholder="Idea Name"
 					/>
+
+					<FormControl fullWidth>
+						<InputLabel id="demo-simple-select-label">Status</InputLabel>
+						<Select
+							labelId="demo-simple-select-label"
+							id="demo-simple-select"
+							value={status}
+							label="status"
+							onChange={handleStatusChange}
+						>
+							<MenuItem value="inactive">inactive</MenuItem>
+							<MenuItem value="active">active</MenuItem>
+							<MenuItem value="all">all</MenuItem>
+						</Select>
+					</FormControl>
 					<Button
 						type="submit"
 						variant="contained"
