@@ -46,6 +46,7 @@ const getAllProjects = async (
 		query.technologies = { $all: technologiesArr };
 	}
 	const allProjects = await projectsCollection.find(query).toArray();
+	allProjects.sort((a, b) => b.likes.length - a.likes.length);
 	return allProjects;
 };
 
