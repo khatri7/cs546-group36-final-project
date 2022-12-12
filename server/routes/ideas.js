@@ -74,6 +74,15 @@ router
 		}
 	});
 
+router.route('/trendingIdeas').get(async (req, res) => {
+	try {
+		const ideas = await ideasData.getTrendingIdeas();
+		res.json({ ideas });
+	} catch (e) {
+		sendErrResp(res, e);
+	}
+});
+
 router
 	.route('/:ideaId')
 	.get(async (req, res) => {
