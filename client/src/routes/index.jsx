@@ -16,6 +16,7 @@ import Ideas from 'pages/Ideas';
 import Idea from 'pages/Idea';
 import { useDispatch, useSelector } from 'react-redux';
 import { infoAlert } from 'store/alert';
+import CreateIdea from 'pages/CreateIdea';
 
 function Routes() {
 	const { pathname } = useLocation();
@@ -45,6 +46,7 @@ function Routes() {
 			<Route path="/ideas">
 				<Route index element={<Ideas />} />
 				<Route path=":ideaId" element={<Idea />} />
+				<Route path="create" element={<CreateIdea />} />
 			</Route>
 		</RRDRoutes>
 	);

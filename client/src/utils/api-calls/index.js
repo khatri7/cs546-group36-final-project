@@ -130,6 +130,8 @@ export const createProject = async (projectObj) => {
 	return result;
 };
 
+export const createIdea = async (ideaObj) => POST('/ideas', ideaObj);
+
 export const uploadMedia = (body = {}) => {
 	const formData = new FormData();
 	Object.entries(body).forEach((item) => {
@@ -148,4 +150,11 @@ export const uploadResume = (resume, userId) =>
 		media: resume,
 		userId,
 		mediaType: 'resume',
+	});
+
+export const uploadAvatar = (avatar, userId) =>
+	uploadMedia({
+		media: avatar,
+		userId,
+		mediaType: 'avatar',
 	});

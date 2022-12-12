@@ -37,7 +37,8 @@ const isValidLookingFor = (lookingForParam) => {
 		throw badRequestErr('Invalid input for looking for');
 	if (lookingForParam <= 0)
 		throw badRequestErr('Invalid input for looking for');
-
+	if (lookingForParam >= 50)
+		throw badRequestErr('Invalid input for looking for: Maximum 50 allowed');
 	return lookingForParam;
 };
 

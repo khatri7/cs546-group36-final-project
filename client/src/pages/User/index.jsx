@@ -111,6 +111,7 @@ function User() {
 						firstName={user.firstName}
 						lastName={user.lastName}
 						username={user.username}
+						avatar={user.avatar}
 						dob={user.dob}
 						socials={user.socials}
 						skills={user.skills}

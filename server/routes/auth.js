@@ -29,6 +29,7 @@ router.route('/').post(async (req, res) => {
 				firstName: dbUser.firstName,
 				lastName: dbUser.lastName,
 				username: dbUser.username,
+				avatar: dbUser.avatar,
 			},
 		});
 	} catch (e) {

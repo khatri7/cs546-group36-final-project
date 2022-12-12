@@ -184,7 +184,7 @@ const udpateResume = async (url, userName, userId) => {
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
 	try {
-		const { _id, firstName, lastName, username, password } =
+		const { _id, firstName, lastName, avatar, username, password } =
 			await getUserByUsername(userLoginObj.username);
 		const doPasswordsMatch = await comparePassword(
 			userLoginObj.password,
@@ -201,7 +201,7 @@ const authenticateUser = async (userLoginObjParam) => {
 			process.env.JWT_SECRET
 		);
 		return {
-			user: { _id, firstName, lastName, username },
+			user: { _id, firstName, lastName, username, avatar },
 			token,
 		};
 	} catch (e) {

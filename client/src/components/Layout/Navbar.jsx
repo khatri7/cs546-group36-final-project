@@ -193,7 +193,14 @@ function Navbar() {
 					<Box sx={{ flexGrow: 0 }}>
 						{isLoggedIn ? (
 							<>
-								<Button type="button" sx={{ mr: 2 }} variant="outlined">
+								<Button
+									type="button"
+									sx={{ mr: 2 }}
+									onClick={() => {
+										navigate('/ideas/create');
+									}}
+									variant="outlined"
+								>
 									Create Idea
 								</Button>
 								<Button
@@ -209,7 +216,7 @@ function Navbar() {
 								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
 									<Avatar
 										alt={`${user.firstName} ${user.lastName}`}
-										src="/static/images/avatar/2.jpg"
+										src={user.avatar}
 									/>
 								</IconButton>
 								<Menu
