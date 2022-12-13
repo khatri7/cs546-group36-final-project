@@ -47,6 +47,7 @@ const getAllIdeas = async (
 		query.status = { $eq: ideaStatus };
 	}
 	const allIdeas = await ideasCollection.find(query).toArray();
+	allIdeas.sort((a, b) => b.likes.length - a.likes.length);
 	return allIdeas;
 };
 
