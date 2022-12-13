@@ -46,6 +46,7 @@ const getAllProjects = async (
 		query.technologies = { $all: technologiesArr };
 	}
 	const allProjects = await projectsCollection.find(query).toArray();
+	allProjects.sort((a, b) => b.likes.length - a.likes.length);
 	return allProjects;
 };
 
@@ -97,6 +98,7 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+
 const likeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
