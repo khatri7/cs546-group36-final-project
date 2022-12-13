@@ -5,6 +5,7 @@ import CommentCard from './CommentCard';
 
 function CommentList({ commentsList = [] }) {
 	const user = useSelector((state) => state.user);
+
 	if (commentsList.length === 0) return <Typography>No comments</Typography>;
 	return (
 		<Stack spacing={2}>

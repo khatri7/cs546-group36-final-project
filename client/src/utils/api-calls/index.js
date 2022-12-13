@@ -114,9 +114,8 @@ export const checkUsernameAvailable = async (username) =>
 		username,
 	});
 
-export const createIdeaComment = async (ideaId, commentObj) => {
-	POST(`/ideas/:${ideaId}/comments`, commentObj);
-};
+export const createIdeaComment = async (comment, ideaId) =>
+	POST(`/ideas/${ideaId}/comments`, comment);
 
 export const initialReq = async () => POST('/auth');
 

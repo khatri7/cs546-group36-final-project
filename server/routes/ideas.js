@@ -198,10 +198,9 @@ router.route('/:ideaId/comments').post(authenticateToken, async (req, res) => {
 			ideaId,
 		};
 
-		const comments = await ideasData.createComment(commentObject, user);
-
+		const newComment = await ideasData.createComment(commentObject, user);
 		res.status(successStatusCodes.CREATED).json({
-			comments,
+			comment: newComment,
 		});
 	} catch (e) {
 		sendErrResp(res, e);
