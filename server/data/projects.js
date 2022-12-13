@@ -218,7 +218,7 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateImageOrResume = async (url, pos, projectId) => {
+const updateProjectImages = async (url, pos, projectId) => {
 	try {
 		const project = await getProjectById(projectId);
 		const imageArray = project.media;
@@ -234,7 +234,7 @@ const updateImageOrResume = async (url, pos, projectId) => {
 		return updatedProject;
 	} catch (e) {
 		throw badRequestErr(
-			'Invalid AWS request/ AWS unable to process your request right now'
+			'Invalid AWS request/AWS unable to process your request right now'
 		);
 	}
 };
@@ -248,6 +248,6 @@ module.exports = {
 	getProjectsByOwnerUsername,
 	likeProject,
 	getSavedProjects,
-	updateImageOrResume,
+	updateProjectImages,
 	unlikeProject,
 };

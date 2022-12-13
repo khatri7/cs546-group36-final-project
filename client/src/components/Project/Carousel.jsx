@@ -19,6 +19,7 @@ function Carousel({ projectMedia }) {
 					height: 280,
 					width: '100%',
 					maxWidth: 550,
+					objectFit: 'cover',
 				}}
 				src={projectMedia[activeStep]}
 				alt={projectMedia[activeStep]}
