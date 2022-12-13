@@ -5,7 +5,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { errorAlert, successAlert } from 'store/alert';
-import { createIdea } from 'utils/api-calls';
+import { createIdea, handleError } from 'utils/api-calls';
 import { isValidSkills } from 'utils/helpers';
 import * as Yup from 'yup';
 
@@ -49,8 +49,8 @@ function CreateIdea() {
 					const errors = {};
 					if (values.name.trim().length < 3)
 						errors.name = 'Idea name should be at least 3 characters';
-					if (values.description.trim().length < 5)
-						errors.description = 'Description should be at least 5 characters';
+					if (values.description.trim().length < 10)
+						errors.description = 'Description should be at least 10 characters';
 					if (!values.technologies || values.technologies.length < 1)
 						errors.technologies =
 							'Need to mention at least one technology going to be used';
@@ -73,10 +73,8 @@ function CreateIdea() {
 						navigate(`/ideas/${resp.idea._id}`);
 						dispatch(successAlert('Idea created successfully'));
 					} catch (e) {
-						let error = 'Unexpected error occured';
-						if (typeof e.responseJSON?.message === 'string') {
-							error = e.responseJSON.message;
-						} else if (typeof e.statusText === 'string') error = e.statusText;
+						let error = 'Unexpected error occurred';
+						if (typeof handleError(e) === 'string') error = handleError(e);
 						dispatch(errorAlert(error));
 					}
 				}}
