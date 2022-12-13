@@ -16,6 +16,7 @@ const {
 	checkuseraccess,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
+const { deleteFile } = require('../utils/aws');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -222,6 +223,12 @@ const updateProjectImages = async (url, pos, projectId) => {
 	try {
 		const project = await getProjectById(projectId);
 		const imageArray = project.media;
+		if (imageArray[pos]) {
+			const existingPhotoKey = imageArray[pos].substr(
+				imageArray[pos].indexOf('.com/') + 5
+			);
+			await deleteFile(existingPhotoKey);
+		}
 		imageArray[pos] = url;
 		const projectCollection = await projects();
 		const updateInfo = await projectCollection.updateOne(
