@@ -29,7 +29,7 @@ router
 				req.body.description,
 				'idea description',
 				'min',
-				10
+				5
 			);
 			lookingFor = isValidLookingFor(lookingFor);
 			technologies = isValidTechnologies(technologies);
@@ -103,7 +103,7 @@ router
 				req.body.description,
 				'idea description',
 				'min',
-				10
+				5
 			);
 			lookingFor = isValidLookingFor(lookingFor);
 			status = isValidStatus(status);

@@ -77,7 +77,7 @@ const createIdea = async (ideasObjectParam, user) => {
 		ideasObjectParam.description,
 		'idea description',
 		'min',
-		10
+		5
 	);
 	technologies = isValidTechnologies(technologies);
 	lookingFor = isValidLookingFor(lookingFor);
@@ -150,7 +150,7 @@ const updateIdea = async (ideaObj, id, user) => {
 	let { name, description, status, lookingFor, technologies } = ideaObj;
 
 	name = isValidProjectName(name);
-	description = isValidStr(ideaObj.description, 'idea description', 'min', 10);
+	description = isValidStr(ideaObj.description, 'idea description', 'min', 5);
 	status = isValidStatus(status);
 	lookingFor = isValidLookingFor(lookingFor);
 	technologies = isValidTechnologies(technologies);

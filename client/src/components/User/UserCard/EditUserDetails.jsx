@@ -77,6 +77,8 @@ function EditUserDetails({
 				if (!values.skills || values.skills.length < 1)
 					errors.skills = 'Need to mention at least one skill';
 				if (!isValidSkills(values.skills)) errors.skills = 'Invalid skills';
+				if (values.skills.length > 10)
+					errors.skills = 'You can add upto 10 skills';
 				if (values.isAvailable && values.availability.length < 1)
 					errors.availability = 'You need to select at least one';
 				return errors;

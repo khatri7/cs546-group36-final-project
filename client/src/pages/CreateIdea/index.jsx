@@ -56,6 +56,8 @@ function CreateIdea() {
 							'Need to mention at least one technology going to be used';
 					if (!isValidSkills(values.technologies))
 						errors.skills = 'Invalid Technologies';
+					if (values.technologies.length > 10)
+						errors.technologies = 'You can add upto 10 skills';
 					if (
 						!Number.isFinite(parseInt(values.lookingFor, 10)) ||
 						values.lookingFor < 1 ||

@@ -49,6 +49,8 @@ function CreateProject() {
 							'Need to mention at least one technology used';
 					if (!isValidSkills(values.technologies))
 						errors.skills = 'Invalid Technologies';
+					if (values.technologies.length > 10)
+						errors.technologies = 'You can add upto 10 skills';
 					return errors;
 				}}
 				onSubmit={async (values) => {
