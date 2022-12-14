@@ -32,13 +32,14 @@ function CreateComment({ ideaId, handleNewComment = () => {} }) {
 						errors.comment = 'Comment should be at least 3 characters';
 					return errors;
 				}}
-				onSubmit={async (values) => {
+				onSubmit={async (values, { resetForm }) => {
 					const commentObj = {
 						comment: values.comment.trim(),
 					};
 					const resp = await createIdeaComment(commentObj, ideaId);
 					if (!resp.comment) throw new Error();
 					handleNewComment(resp.comment);
+					resetForm();
 				}}
 			>
 				{({

@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import { Stack, Chip } from '@mui/material';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function UserCard({ user }) {
 	const navigate = useNavigate();
@@ -17,7 +17,10 @@ export default function UserCard({ user }) {
 					{firstName} {lastName}
 				</Typography>
 				<Typography sx={{ mb: 1.5 }} color="text.secondary">
-					@{username}
+					<Link
+						to={`/users/${username}`}
+						style={{ textDecoration: 'none' }}
+					>{`@${username}`}</Link>
 				</Typography>
 				<Typography variant="body2">
 					{availability.map((singleAvailability) => (
