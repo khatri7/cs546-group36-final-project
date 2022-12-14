@@ -248,6 +248,43 @@ const updateProjectImages = async (url, pos, projectId) => {
 	}
 };
 
+const removeProjectMedia = async (
+	projectIdParam,
+	imagePos,
+	currentUserParam
+) => {
+	const projectId = isValidObjectId(projectIdParam);
+	if (![0, 1, 2, 3, 4].includes(imagePos))
+		throw badRequestErr('Invalid image position');
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	const project = await getProjectById(projectId);
+	if (
+		project.owner._id.toString() !== currentUser._id ||
+		project.owner.username.toLowerCase() !== currentUser.username.toLowerCase()
+	)
+		throw unauthorizedErr("You cannot remove media of another user's project");
+	if (!project.media[imagePos])
+		throw badRequestErr('No media exists for the specified position');
+	const existingPhotoKey = project.media[imagePos].substr(
+		project.media[imagePos].indexOf('.com/') + 5
+	);
+	await deleteFile(existingPhotoKey);
+	const updatedProjectMedia = project.media;
+	updatedProjectMedia[imagePos] = null;
+	const projectCollection = await projects();
+	const updateInfo = await projectCollection.updateOne(
+		{ _id: ObjectId(projectId) },
+		{ $set: { media: updatedProjectMedia } }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the project. Please try again.');
+	const updatedProject = await getProjectById(projectId);
+	return updatedProject;
+};
+
 module.exports = {
 	removeProject,
 	updateProject,
@@ -259,4 +296,5 @@ module.exports = {
 	getSavedProjects,
 	updateProjectImages,
 	unlikeProject,
+	removeProjectMedia,
 };

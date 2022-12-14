@@ -60,8 +60,14 @@ export const PUT = async (endpoint, body = {}, params = {}, headers = {}) => {
  * @param {object} params query parameters
  * @returns
  */
-export const DELETE = async (endpoint, params = {}, headers = {}) => {
+export const DELETE = async (
+	endpoint,
+	body = {},
+	params = {},
+	headers = {}
+) => {
 	const { data } = await axios.delete(endpoint, {
+		data: body,
 		params,
 		headers,
 	});
@@ -159,6 +165,14 @@ export const uploadAvatar = (avatar, userId) =>
 		mediaType: 'avatar',
 	});
 
+export const uploadProjectImage = (media, imagePos, projectId) =>
+	uploadMedia({
+		media,
+		projectId,
+		imagePos,
+		mediaType: 'image',
+	});
+
 export const deleteProject = (projectId) => DELETE(`/projects/${projectId}`);
 
 export const likeProject = (projectId) => POST(`/projects/${projectId}/likes`);
@@ -177,3 +191,10 @@ export const deleteIdea = (ideaId) => DELETE(`/ideas/${ideaId}`);
 
 export const updateProject = (projectId, projectObj) =>
 	PUT(`/projects/${projectId}`, projectObj);
+
+export const removeProjectMedia = (imagePos, projectId) =>
+	DELETE('/media', {
+		imagePos,
+		projectId,
+		mediaType: 'image',
+	});
