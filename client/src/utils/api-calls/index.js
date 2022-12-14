@@ -204,6 +204,8 @@ export const deleteIdea = (ideaId) => DELETE(`/ideas/${ideaId}`);
 export const updateProject = (projectId, projectObj) =>
 	PUT(`/projects/${projectId}`, projectObj);
 
+export const updateIdea = (ideaId, ideaObj) => PUT(`/ideas/${ideaId}`, ideaObj);
+
 export const removeProjectMedia = (imagePos, projectId) =>
 	DELETE('/media', {
 		imagePos,

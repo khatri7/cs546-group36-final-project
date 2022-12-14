@@ -114,7 +114,6 @@ router
 				ideaId,
 				user
 			);
-
 			res.status(successStatusCodes.OK).json({
 				idea,
 				message: 'Idea updated successfully',

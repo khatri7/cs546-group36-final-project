@@ -18,6 +18,7 @@ import {
 	handleError,
 	likeIdea,
 	unlikeIdea,
+	updateIdea,
 } from 'utils/api-calls';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,22 +27,29 @@ import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
 import { errorAlert, warningAlert } from 'store/alert';
 import CommentsSection from '../CommentsSection';
+import CreateIdea from './CreateIdea';
 
-function IdeaInfo({ idea }) {
+function IdeaInfo({ idea: ideaProp }) {
 	const user = useSelector((state) => state.user);
 	const dispatch = useDispatch();
 
-	const [likes, setLikes] = useState(idea.likes);
+	const [idea, setIdea] = useState(ideaProp);
+	const [isEditing, setIsEditing] = useState(false);
 
 	useEffect(() => {
-		setLikes(idea.likes);
-	}, [idea.likes]);
+		setIdea(ideaProp);
+	}, [ideaProp]);
+
+	const handleUpdate = (updatedIdea) => {
+		setIdea(updatedIdea);
+		setIsEditing(false);
+	};
 
 	const ideaName = idea.name;
 	const ideaId = idea._id;
 	const ideaOwner = idea.owner;
 	const technologiesUsed = idea.technologies;
-	const { description, createdAt, comments, status, lookingFor } = idea;
+	const { description, createdAt, comments, status, lookingFor, likes } = idea;
 
 	const isCurrentUsersIdea = user?._id === ideaOwner._id;
 
@@ -71,7 +79,10 @@ function IdeaInfo({ idea }) {
 				if (e.target.checked) res = await likeIdea(ideaId);
 				else res = await unlikeIdea(ideaId);
 				if (!res.likes) throw new Error();
-				setLikes(res.likes);
+				setIdea({
+					...idea,
+					likes: res.likes,
+				});
 			} catch (err) {
 				let error = 'Unexpected error occurred';
 				if (typeof handleError(err) === 'string') error = handleError(err);
@@ -139,7 +150,7 @@ function IdeaInfo({ idea }) {
 							<Button
 								variant="outlined"
 								onClick={() => {
-									// setIsEditing(!isEditing);
+									setIsEditing(!isEditing);
 								}}
 								startIcon={<EditRoundedIcon />}
 							>
@@ -157,13 +168,42 @@ function IdeaInfo({ idea }) {
 					)}
 				</Box>
 			</Stack>
-			<Stack direction="row" spacing={1} alignItems="center">
-				<PeopleAltRoundedIcon />
-				<Typography variant="h6">Looking For: {lookingFor}</Typography>
-			</Stack>
-			<Box sx={{ py: 2 }}>
-				<Typography>{description}</Typography>
-			</Box>
+			{isEditing ? (
+				<CreateIdea
+					name={ideaName}
+					description={description}
+					technologies={technologiesUsed}
+					lookingFor={lookingFor}
+					submitLabel="Save"
+					requestFn={(ideaObj) => updateIdea(ideaId, ideaObj)}
+					onSuccessMsg="Idea updated successfully"
+					onSuccessFn={handleUpdate}
+					showEditStatusField
+					status={status}
+					cancelComponent={
+						<Button
+							variant="outlined"
+							type="button"
+							onClick={() => {
+								setIsEditing(false);
+							}}
+						>
+							Cancel
+						</Button>
+					}
+				/>
+			) : (
+				<>
+					<Stack direction="row" spacing={1} alignItems="center">
+						<PeopleAltRoundedIcon />
+						<Typography variant="h6">Looking For: {lookingFor}</Typography>
+					</Stack>
+					<Box sx={{ py: 2 }}>
+						<Typography>{description}</Typography>
+					</Box>
+				</>
+			)}
+
 			<Box sx={{ p: 1 }}>
 				<FormControlLabel
 					control={

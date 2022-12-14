@@ -20,7 +20,8 @@ const isValidIdeaName = (ideaNameParam) => {
 	return ideaName;
 };
 
-const isValidStatus = (status) => {
+const isValidStatus = (statusParam) => {
+	const status = isValidStr(statusParam, 'Idea status');
 	const statusValue = status.toLowerCase();
 	if (statusValue !== 'active' && statusValue !== 'inactive') {
 		throw badRequestErr('Invalid Status');
