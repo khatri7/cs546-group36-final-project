@@ -226,9 +226,9 @@ router
 				commentId,
 			};
 
-			const removeResp = await ideasData.removeIdeaComment(ideaObj, idObj);
-			res.status(successStatusCodes.DELETED).json({
-				removeResp,
+			const comments = await ideasData.removeIdeaComment(ideaObj, idObj);
+			res.status(successStatusCodes.OK).json({
+				comments,
 			});
 		} catch (e) {
 			sendErrResp(res, e);

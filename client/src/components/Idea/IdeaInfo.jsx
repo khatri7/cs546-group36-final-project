@@ -22,7 +22,7 @@ import CommentsSection from '../CommentsSection';
 // import Technologies from 'components/Idea/Technologies';
 // import CommentList from 'components/CommentsList/CommentList';
 
-function IdeaInfo({ idea }) {
+function IdeaInfo({ idea, isOwner = false }) {
 	const ideaName = idea.name;
 	const ideaId = idea._id;
 	const ownerName = idea.owner.username;
@@ -147,7 +147,11 @@ function IdeaInfo({ idea }) {
 						</Grid>
 						<Grid container spacing={1}>
 							<Grid item xs={12}>
-								<CommentsSection ideaId={ideaId} comments={comments} />
+								<CommentsSection
+									ideaId={ideaId}
+									comments={comments}
+									isOwner={isOwner}
+								/>
 							</Grid>
 						</Grid>
 					</Grid>
