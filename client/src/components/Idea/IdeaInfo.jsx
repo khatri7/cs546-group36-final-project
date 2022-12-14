@@ -145,7 +145,10 @@ function IdeaInfo({ idea: ideaProp }) {
 						<Typography variant="h4" component="h1">
 							{ideaName}
 						</Typography>
-						<Chip label={status} color={status === 'active' && 'success'} />
+						<Chip
+							label={status}
+							color={status === 'active' ? 'success' : 'default'}
+						/>
 					</Stack>
 					{technologiesUsed.map((tech) => (
 						<Chip label={tech} key={tech} sx={{ mr: 1 }} />

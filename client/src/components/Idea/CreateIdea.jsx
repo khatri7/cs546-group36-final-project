@@ -181,7 +181,7 @@ function CreateIdea({
 										onChange={(e) => {
 											setFieldValue(
 												'status',
-												e.target.checked ? 'active' : 'inacitve'
+												e.target.checked ? 'active' : 'inactive'
 											);
 										}}
 									/>
