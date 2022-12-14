@@ -7,7 +7,7 @@ import { createIdeaComment } from 'utils/api-calls';
 const schema = Yup.object().shape({
 	comment: Yup.string()
 		.required('comment data required')
-		.min(3, 'comment should be atleast 3 cahracters'),
+		.min(3, 'comment should be at least 3 characters'),
 });
 
 function CreateComment({ ideaId, handleNewComment = () => {} }) {
