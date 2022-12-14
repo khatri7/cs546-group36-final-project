@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 const successStatusCodes = {
 	OK: 200,
@@ -6,6 +7,11 @@ const successStatusCodes = {
 	DELETED: 204,
 };
 Object.freeze(successStatusCodes);
+
+// Taken from Yup: https://github.com/jquense/yup/blob/master/src/string.ts
+const rUrl =
+	// eslint-disable-next-line
+	/^((https?|ftp):)?\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
 
 const error = {
 	BAD_REQUEST: {
@@ -49,7 +55,7 @@ const internalServerErr = (message) =>
 
 const sendErrResp = (res, { status, message }) =>
 	res
-		.status(status || error.INTERNAL_SERVER_ERROR)
+		.status(status || error.INTERNAL_SERVER_ERROR.status)
 		.json(message ? { message } : '');
 
 /**
@@ -66,6 +72,10 @@ const isLetterChar = (char) =>
  * @returns {boolean} if the character provided is a number
  */
 const isNumberChar = (char) => char >= '0' && char <= '9';
+
+const isBoolean = (param) => {
+	return typeof param === 'boolean';
+};
 
 /**
  *
@@ -140,6 +150,7 @@ const isValidArray = (arr, arrName, compareOp, compareVal) => {
 				break;
 		}
 	}
+	return arr;
 };
 
 /**
@@ -153,12 +164,27 @@ const isValidObj = (obj) =>
 /**
  *
  * @param {string} id
- * @returns {ObjectId} the object id if it is valid otherwise throws an error
+ * @returns {ObjectId} the object id string if it is valid otherwise throws an error
  */
 const isValidObjectId = (idParam) => {
 	const id = isValidStr(idParam, 'Id');
 	if (!ObjectId.isValid(id)) throw badRequestErr('Invalid Object Id');
-	return ObjectId(id);
+	return id;
+};
+
+const isValidJwtString = (tokenParam) => {
+	const token = isValidStr(tokenParam, 'JWT');
+	try {
+		jwt.verify(token, process.env.JWT_SECRET);
+	} catch (e) {
+		throw badRequestErr('Invalid JWT');
+	}
+};
+
+const isValidUrl = (urlParam, varName) => {
+	const url = isValidStr(urlParam, varName);
+	if (!rUrl.test(url)) throw badRequestErr(`Invalid ${varName}`);
+	return url;
 };
 
 module.exports = {
@@ -171,8 +197,11 @@ module.exports = {
 	sendErrResp,
 	isLetterChar,
 	isNumberChar,
+	isBoolean,
 	isValidStr,
 	isValidArray,
 	isValidObj,
 	isValidObjectId,
+	isValidJwtString,
+	isValidUrl,
 };

@@ -9,14 +9,29 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
-import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { handleError, logout } from 'utils/api-calls';
+import { unsetUser } from 'store/user';
+import { errorAlert } from 'store/alert';
+import FavIcon from './favicon.png';
 
-const pages = ['Projects', 'Ideas', 'Hire Talent'];
-const settings = ['Profile', 'Logout'];
+const pages = [
+	{
+		title: 'Projects',
+		route: '/projects',
+	},
+	{
+		title: 'Ideas',
+		route: '/ideas',
+	},
+	{
+		title: 'Hire Talent',
+		route: '/hiring',
+	},
+];
 
 function Navbar() {
 	const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -24,7 +39,10 @@ function Navbar() {
 
 	const user = useSelector((state) => state.user);
 
+	const dispatch = useDispatch();
+
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const isLoggedIn = React.useMemo(() => {
 		return user !== null;
@@ -56,27 +74,27 @@ function Navbar() {
 			<Container>
 				<Toolbar disableGutters>
 					{/* Desktop Icon */}
-
-					<Typography
-						variant="h6"
-						noWrap
+					<Box
 						sx={{
 							display: { xs: 'none', md: 'flex' },
-							fontFamily: 'monospace',
-							fontWeight: 700,
-							letterSpacing: '.3rem',
-							textDecoration: 'none',
 						}}
 					>
 						<Link
 							style={{
 								textDecoration: 'none',
+								lineHeight: 0,
 							}}
-							to="/"
+							to="/projects"
 						>
-							LOGO
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
 						</Link>
-					</Typography>
+					</Box>
 					{/* Mobile Hamburger Icon */}
 					<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
 						<IconButton
@@ -107,33 +125,41 @@ function Navbar() {
 							}}
 						>
 							{pages.map((page) => (
-								<MenuItem key={page} onClick={handleCloseNavMenu}>
-									<Typography textAlign="center">{page}</Typography>
+								<MenuItem key={page.title} onClick={handleCloseNavMenu}>
+									<Typography textAlign="center">{page.title}</Typography>
 								</MenuItem>
 							))}
 						</Menu>
 					</Box>
 					{/* Mobile Logo */}
-					<Typography
-						variant="h5"
-						noWrap
-						component="a"
-						href=""
+					<Box
 						sx={{
 							display: { xs: 'flex', md: 'none' },
-							flexGrow: 1,
-							fontFamily: 'monospace',
-							fontWeight: 700,
-							letterSpacing: '.3rem',
-							textDecoration: 'none',
+							width: '100%',
+							justifyContent: 'center',
 						}}
 					>
-						LOGO
-					</Typography>
+						<Link
+							style={{
+								textDecoration: 'none',
+								lineHeight: 0,
+							}}
+							to="/projects"
+						>
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
+						</Link>
+					</Box>
 					{/* Desktop Menu */}
 					<Box
 						sx={{
 							flexGrow: 1,
+							minHeight: 64,
 							display: { xs: 'none', md: 'flex' },
 							justifyContent: 'center',
 							gap: 4,
@@ -141,11 +167,25 @@ function Navbar() {
 					>
 						{pages.map((page) => (
 							<Button
-								key={page}
-								onClick={handleCloseNavMenu}
-								sx={{ my: 2, display: 'block' }}
+								key={page.title}
+								onClick={() => {
+									navigate(page.route);
+								}}
+								sx={{
+									py: 2,
+									display: 'block',
+									borderRadius: 0,
+									color: 'black',
+									'&:disabled': {
+										borderTop: (theme) =>
+											`3px solid ${theme.palette.primary.main}`,
+										color: (theme) => theme.palette.primary.main,
+										pt: '13px',
+									},
+								}}
+								disabled={Boolean(location.pathname === page.route)}
 							>
-								{page}
+								{page.title}
 							</Button>
 						))}
 					</Box>
@@ -153,14 +193,32 @@ function Navbar() {
 					<Box sx={{ flexGrow: 0 }}>
 						{isLoggedIn ? (
 							<>
-								<Tooltip title="Open settings">
-									<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-										<Avatar
-											alt={`${user.firstName} ${user.lastName}`}
-											src="/static/images/avatar/2.jpg"
-										/>
-									</IconButton>
-								</Tooltip>
+								<Button
+									type="button"
+									sx={{ mr: 2 }}
+									onClick={() => {
+										navigate('/ideas/create');
+									}}
+									variant="outlined"
+								>
+									Create Idea
+								</Button>
+								<Button
+									type="button"
+									sx={{ mr: 2 }}
+									variant="outlined"
+									onClick={() => {
+										navigate('/projects/create');
+									}}
+								>
+									Create Project
+								</Button>
+								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+									<Avatar
+										alt={`${user.firstName} ${user.lastName}`}
+										src={user.avatar}
+									/>
+								</IconButton>
 								<Menu
 									sx={{ mt: '45px' }}
 									id="menu-appbar"
@@ -177,11 +235,30 @@ function Navbar() {
 									open={Boolean(anchorElUser)}
 									onClose={handleCloseUserMenu}
 								>
-									{settings.map((setting) => (
-										<MenuItem key={setting} onClick={handleCloseUserMenu}>
-											<Typography textAlign="center">{setting}</Typography>
-										</MenuItem>
-									))}
+									<MenuItem
+										onClick={() => {
+											navigate(`/users/${user.username}`);
+											handleCloseUserMenu();
+										}}
+									>
+										<Typography textAlign="center">Profile</Typography>
+									</MenuItem>
+									<MenuItem
+										onClick={async () => {
+											handleCloseUserMenu();
+											try {
+												await logout();
+												dispatch(unsetUser());
+											} catch (e) {
+												let error = 'Unexpected error occurred';
+												if (typeof handleError(e) === 'string')
+													error = handleError(e);
+												dispatch(errorAlert(error));
+											}
+										}}
+									>
+										<Typography textAlign="center">Log Out</Typography>
+									</MenuItem>
 								</Menu>
 							</>
 						) : (
