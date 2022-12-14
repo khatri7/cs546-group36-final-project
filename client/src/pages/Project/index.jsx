@@ -42,6 +42,7 @@ import {
 } from 'utils/api-calls';
 import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import Carousel from 'components/Project/Carousel';
+import UploadProjectMedia from 'components/Project/UploadProjectMedia';
 
 export default function Project() {
 	const { projectId } = useParams();
@@ -63,7 +64,7 @@ export default function Project() {
 	const projectName = project.name;
 	const projectDescription = project.description;
 	const projectGithub = project.github;
-	let projectMedia = project.media;
+	const projectMedia = project.media;
 	const projectDeploymentLink = project.deploymentLink;
 	const projectSavedBy = project.savedBy;
 	const projectComments = project.comments;
@@ -156,12 +157,12 @@ export default function Project() {
 		return initials;
 	}
 
-	if (projectMedia.length === 0) {
-		projectMedia = [
-			'https://freelancingjournal.com/wp-content/uploads/2020/05/home-office-accessories-1024x652.jpeg',
-			'https://freelancingjournal.com/wp-content/uploads/2020/05/start-a-blog-freelancer-1024x683.jpeg',
-		];
-	}
+	// if (projectMedia.length === 0) {
+	// 	projectMedia = [
+	// 		'https://freelancingjournal.com/wp-content/uploads/2020/05/home-office-accessories-1024x652.jpeg',
+	// 		'https://freelancingjournal.com/wp-content/uploads/2020/05/start-a-blog-freelancer-1024x683.jpeg',
+	// 	];
+	// }
 
 	return (
 		<Box>
@@ -282,8 +283,11 @@ export default function Project() {
 			) : (
 				<Grid container spacing={3} sx={{ mt: 2 }}>
 					<Grid item xs={6}>
+						<UploadProjectMedia projectMedia={projectMedia} />
 						{Boolean(projectMedia.length > 0) && (
-							<Carousel projectMedia={projectMedia} />
+							<Carousel
+								projectMedia={projectMedia.filter((item) => item !== null)}
+							/>
 						)}
 						{isCurrentUsersProject && (
 							<Stack alignItems="center">
