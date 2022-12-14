@@ -58,6 +58,8 @@ const isValidTechnologies = (technologiesParam) => {
 	);
 	const technologiesSet = new Set(technologies);
 	const technologiesArr = Array.from(technologiesSet);
+	if (technologiesArr.length > 10)
+		throw badRequestErr('You can add up to 10 technologies.');
 	technologiesArr.map((tech, index) => {
 		if (
 			!isValidStr(tech, `Technology at index ${index}`) ||

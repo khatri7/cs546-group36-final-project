@@ -98,6 +98,8 @@ function SignupForm() {
 					if (!values.skills || values.skills.length < 1)
 						errors.skills = 'Need to mention at least one skill';
 					if (!isValidSkills(values.skills)) errors.skills = 'Invalid skills';
+					if (values.skills.length > 10)
+						errors.skills = 'You can add up to 10 skills';
 					return errors;
 				}}
 				onSubmit={async (values, { setSubmitting, setFieldError }) => {
