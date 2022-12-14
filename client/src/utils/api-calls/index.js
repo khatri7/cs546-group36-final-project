@@ -174,3 +174,6 @@ export const likeIdea = (ideaId) => POST(`/ideas/${ideaId}/likes`);
 export const unlikeIdea = (ideaId) => DELETE(`/ideas/${ideaId}/likes`);
 
 export const deleteIdea = (ideaId) => DELETE(`/ideas/${ideaId}`);
+
+export const updateProject = (projectId, projectObj) =>
+	PUT(`/projects/${projectId}`, projectObj);

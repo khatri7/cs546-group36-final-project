@@ -16,6 +16,7 @@ const {
 	checkuseraccess,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
+const { deleteFile } = require('../utils/aws');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -46,6 +47,7 @@ const getAllProjects = async (
 		query.technologies = { $all: technologiesArr };
 	}
 	const allProjects = await projectsCollection.find(query).toArray();
+	allProjects.sort((a, b) => b.likes.length - a.likes.length);
 	return allProjects;
 };
 
@@ -97,6 +99,7 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+
 const likeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
@@ -218,10 +221,16 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateImageOrResume = async (url, pos, projectId) => {
+const updateProjectImages = async (url, pos, projectId) => {
 	try {
 		const project = await getProjectById(projectId);
 		const imageArray = project.media;
+		if (imageArray[pos]) {
+			const existingPhotoKey = imageArray[pos].substr(
+				imageArray[pos].indexOf('.com/') + 5
+			);
+			await deleteFile(existingPhotoKey);
+		}
 		imageArray[pos] = url;
 		const projectCollection = await projects();
 		const updateInfo = await projectCollection.updateOne(
@@ -234,7 +243,7 @@ const updateImageOrResume = async (url, pos, projectId) => {
 		return updatedProject;
 	} catch (e) {
 		throw badRequestErr(
-			'Invalid AWS request/ AWS unable to process your request right now'
+			'Invalid AWS request/AWS unable to process your request right now'
 		);
 	}
 };
@@ -248,6 +257,6 @@ module.exports = {
 	getProjectsByOwnerUsername,
 	likeProject,
 	getSavedProjects,
-	updateImageOrResume,
+	updateProjectImages,
 	unlikeProject,
 };

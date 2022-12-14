@@ -45,69 +45,62 @@ function UserCard({
 	const resumeRef = useRef(null);
 	const avatarRef = useRef(null);
 	const dispatch = useDispatch();
-	const handleResumeUpload = useCallback(
-		async (e) => {
-			setSubmittingResume(true);
-			const resumeFile = e.target.files[0];
-			if (resumeFile) {
-				if (resumeFile.type !== 'application/pdf') {
-					e.target.value = '';
-					dispatch(errorAlert('Resume needs to be of type pdf'));
-				} else if (resumeFile.size > 5000000) {
-					e.target.value = '';
-					return dispatch(errorAlert('File size cannot be greater than 5MB'));
-				} else {
-					try {
-						const res = await uploadResume(e.target.files[0], _id);
-						if (!res.user) throw new Error();
-						handleUpdateUser(res.user);
-						dispatch(successAlert('Resume uploaded successfully'));
-					} catch (err) {
-						let error = 'Unexpected error occurred';
-						if (typeof handleError(err) === 'string') error = handleError(err);
-						dispatch(errorAlert(error));
-					}
+	const handleResumeUpload = useCallback(async (e) => {
+		setSubmittingResume(true);
+		const resumeFile = e.target.files[0];
+		if (resumeFile) {
+			if (resumeFile.type !== 'application/pdf') {
+				e.target.value = '';
+				dispatch(errorAlert('Resume needs to be of type pdf'));
+			} else if (resumeFile.size > 5000000) {
+				e.target.value = '';
+				return dispatch(errorAlert('File size cannot be greater than 5MB'));
+			} else {
+				try {
+					const res = await uploadResume(e.target.files[0], _id);
+					if (!res.user) throw new Error();
+					handleUpdateUser(res.user);
+					dispatch(successAlert('Resume uploaded successfully'));
+				} catch (err) {
+					let error = 'Unexpected error occurred';
+					if (typeof handleError(err) === 'string') error = handleError(err);
+					dispatch(errorAlert(error));
 				}
 			}
-			e.target.value = '';
-			setSubmittingResume(false);
-			return true;
-		},
-		[dispatch, _id, handleUpdateUser]
-	);
-	const handleAvatarUpload = useCallback(
-		async (e) => {
-			setSubmittingAvatar(true);
-			const avatarFile = e.target.files[0];
-			if (avatarFile) {
-				if (
-					avatarFile.type !== 'image/jpeg' &&
-					avatarFile.type !== 'image/png'
-				) {
-					e.target.value = '';
-					dispatch(errorAlert('Avatar needs to be of type jpeg/png'));
-				} else if (avatarFile.size > 5000000) {
-					e.target.value = '';
-					return dispatch(errorAlert('File size cannot be greater than 5MB'));
-				} else {
-					try {
-						const res = await uploadAvatar(e.target.files[0], _id);
-						if (!res.user) throw new Error();
-						handleUpdateUser(res.user);
-						dispatch(successAlert('Avatar uploaded successfully'));
-					} catch (err) {
-						let error = 'Unexpected error occurred';
-						if (typeof handleError(err) === 'string') error = handleError(err);
-						dispatch(errorAlert(error));
-					}
+		}
+		e.target.value = '';
+		setSubmittingResume(false);
+		return true;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+	const handleAvatarUpload = useCallback(async (e) => {
+		setSubmittingAvatar(true);
+		const avatarFile = e.target.files[0];
+		if (avatarFile) {
+			if (avatarFile.type !== 'image/jpeg' && avatarFile.type !== 'image/png') {
+				e.target.value = '';
+				dispatch(errorAlert('Avatar needs to be of type jpeg/png'));
+			} else if (avatarFile.size > 5000000) {
+				e.target.value = '';
+				return dispatch(errorAlert('File size cannot be greater than 5MB'));
+			} else {
+				try {
+					const res = await uploadAvatar(e.target.files[0], _id);
+					if (!res.user) throw new Error();
+					handleUpdateUser(res.user);
+					dispatch(successAlert('Avatar uploaded successfully'));
+				} catch (err) {
+					let error = 'Unexpected error occurred';
+					if (typeof handleError(err) === 'string') error = handleError(err);
+					dispatch(errorAlert(error));
 				}
 			}
-			e.target.value = '';
-			setSubmittingAvatar(false);
-			return true;
-		},
-		[dispatch, _id, handleUpdateUser]
-	);
+		}
+		e.target.value = '';
+		setSubmittingAvatar(false);
+		return true;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	useEffect(() => {
 		if (resumeRef.current)
 			resumeRef.current.addEventListener('change', handleResumeUpload);

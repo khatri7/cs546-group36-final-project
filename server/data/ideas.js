@@ -47,6 +47,7 @@ const getAllIdeas = async (
 		query.status = { $eq: ideaStatus };
 	}
 	const allIdeas = await ideasCollection.find(query).toArray();
+	allIdeas.sort((a, b) => b.likes.length - a.likes.length);
 	return allIdeas;
 };
 
@@ -139,9 +140,8 @@ const updateIdea = async (ideaObj, id, user) => {
 	const ideaCheck = await getIdeaById(ideaId);
 
 	const userInfo = user;
-	userInfo._id = ObjectId(isValidObjectId(userInfo._id));
+	userInfo._id = isValidObjectId(userInfo._id);
 	userInfo.name = isValidUsername(userInfo.username);
-
 	if (!checkUserAccess(userInfo, ideaCheck.owner))
 		throw forbiddenErr(
 			`Not Authorized to update this project. Not Project Owner`

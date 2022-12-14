@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useQuery from 'hooks/useQuery';
-import { useTheme } from '@mui/material/styles';
-import { useParams } from 'react-router-dom';
+import { Link as RRDLink, useNavigate, useParams } from 'react-router-dom';
 import {
 	Typography,
 	Grid,
@@ -10,51 +9,75 @@ import {
 	IconButton,
 	Box,
 	Badge,
-	MobileStepper,
 	Button,
 	Avatar,
-	CardHeader,
-	CardMedia,
-	CardContent,
 	TextField,
 	Tooltip,
 	Divider,
 	Link,
+	Stack,
+	FormControlLabel,
+	Checkbox,
 } from '@mui/material';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import ChatIcon from '@mui/icons-material/Chat';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SendIcon from '@mui/icons-material/Send';
-import { isEmptyArray } from 'formik';
-import BuildCircleIcon from '@mui/icons-material/BuildCircle';
+import InsertLinkRoundedIcon from '@mui/icons-material/InsertLinkRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch, useSelector } from 'react-redux';
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
+import Favorite from '@mui/icons-material/Favorite';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import CreateProject from 'components/Project/CreateProject';
+import {
+	bookmarkProject,
+	deleteProject,
+	handleError,
+	likeProject,
+	removeProjectBookmark,
+	unlikeProject,
+	updateProject,
+} from 'utils/api-calls';
+import { errorAlert, successAlert, warningAlert } from 'store/alert';
+import Carousel from 'components/Project/Carousel';
 
 export default function Project() {
-	const theme = useTheme();
 	const { projectId } = useParams();
-	const { data, loading, error } = useQuery(`/projects/${projectId}`); // GetProjectByID API CAll
-	// const rawUserData = useQuery(`/users/${data.project.owner.username}`); // GetUserByUsername API CAll
-	const [activeStep, setActiveStep] = useState(0);
+	const { data, loading, error } = useQuery(`/projects/${projectId}`);
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const [isEditing, setIsEditing] = useState(false);
+	const [project, setProject] = useState(data?.project ?? null);
+	const user = useSelector((state) => state.user);
+
+	useEffect(() => {
+		if (data?.project) setProject(data.project);
+	}, [data]);
 
 	if (error) return <Typography>{error}</Typography>;
 	if (loading) return <Typography>Loading...</Typography>;
-	if (!data) return <Typography>Error getting Project details!</Typography>;
+	if (!project) return <Typography>Error getting Project details!</Typography>;
 
-	const projectName = data.project.name;
-	const projectDescription = data.project.description;
-	const projectGithub = data.project.github;
-	let projectMedia = data.project.media;
-	const projectDeploymentLink = data.project.deploymentLink;
-	let projectSavedBy = data.project.savedBy.length;
-	const projectComments = data.project.comments;
-	let projectLikes = data.project.likes.length;
-	const projectCreatedAt = data.project.createdAt;
-	const projectUpdatedAt = data.project.updatedAt;
-	const projectTechnologies = data.project.technologies;
-	const projectOwner = data.project.owner.username;
+	const projectName = project.name;
+	const projectDescription = project.description;
+	const projectGithub = project.github;
+	let projectMedia = project.media;
+	const projectDeploymentLink = project.deploymentLink;
+	const projectSavedBy = project.savedBy;
+	const projectComments = project.comments;
+	const projectLikes = project.likes;
+	const projectCreatedAt = project.createdAt;
+	const projectTechnologies = project.technologies;
+	const projectOwner = project.owner;
+
+	const isCurrentUsersProject = user?._id === projectOwner._id;
+
+	const handleUpdate = (updatedProject) => {
+		setProject(updatedProject);
+		setIsEditing(false);
+	};
 
 	function getFormatterTime(timestamp) {
 		const options = {
@@ -68,264 +91,320 @@ export default function Project() {
 	}
 
 	function getSubHeader() {
-		return `Create On: ${getFormatterTime(
-			projectCreatedAt
-		)} | Last Updated On: ${getFormatterTime(projectUpdatedAt)}`;
+		return `Created On: ${getFormatterTime(projectCreatedAt)}`;
 	}
 
-	function handleProjectLikes() {
-		projectLikes += 1;
-	}
-
-	function handleProjectSaves() {
-		projectSavedBy += 1;
-	}
-
-	function handleDeleteProject() {}
-
-	function getAvatarInitials(name) {
-		let initials = 'AB';
-		if (name) {
-			const _owner = name.split();
-			if (_owner.length === 2) {
-				initials =
-					_owner[0].charAt(0).toUpperCase() + _owner[1].charAt(0).toUpperCase();
-			} else {
-				initials = name.charAt(0).toUpperCase();
+	const handleAction = async (action, endpoint) => {
+		if (!user)
+			dispatch(warningAlert('You need to login before performing this action'));
+		else {
+			try {
+				let res;
+				if (endpoint === 'likes') {
+					if (action) res = await likeProject(project._id);
+					else res = await unlikeProject(project._id);
+					if (!res.likes) throw new Error();
+					setProject({
+						...project,
+						likes: res.likes,
+					});
+				}
+				if (endpoint === 'bookmark') {
+					if (action) res = await bookmarkProject(project._id);
+					else res = await removeProjectBookmark(project._id);
+					if (!res.savedBy) throw new Error();
+					setProject({
+						...project,
+						savedBy: res.savedBy,
+					});
+				}
+			} catch (e) {
+				let errorMsg = 'Unexpected error occurred';
+				if (typeof handleError(e) === 'string') errorMsg = handleError(e);
+				dispatch(errorAlert(errorMsg));
 			}
+		}
+	};
+
+	const handleLike = (e) => {
+		handleAction(e.target.checked, 'likes');
+	};
+
+	const handleBookmark = (e) => {
+		handleAction(e.target.checked, 'bookmark');
+	};
+
+	const handleDeleteProject = async () => {
+		try {
+			await deleteProject(project._id);
+			navigate('/projects');
+			dispatch(successAlert('Project deleted successfully'));
+		} catch (e) {
+			let errorMsg = 'Unexpected error occurred';
+			if (typeof handleError(e) === 'string') errorMsg = handleError(e);
+			dispatch(errorAlert(errorMsg));
+		}
+	};
+
+	function getAvatarInitials(owner) {
+		let initials;
+		if (owner.firstName && owner.lastName) {
+			initials = `${owner.firstName.charAt(0)}${owner.lastName.charAt(
+				0
+			)}`.toUpperCase();
 		}
 		return initials;
 	}
 
-	function notificationsLabel(count) {
-		if (count === 0) {
-			return 'no notifications';
-		}
-		if (count > 99) {
-			return 'more than 99 notifications';
-		}
-		return `${count} notifications`;
-	}
-
-	if (isEmptyArray(projectMedia) || projectMedia.length === 0) {
+	if (projectMedia.length === 0) {
 		projectMedia = [
 			'https://freelancingjournal.com/wp-content/uploads/2020/05/home-office-accessories-1024x652.jpeg',
 			'https://freelancingjournal.com/wp-content/uploads/2020/05/start-a-blog-freelancer-1024x683.jpeg',
 		];
 	}
 
-	const handleNext = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep + 1);
-	};
-
-	const handleBack = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep - 1);
-	};
-
 	return (
-		<Grid item xs={12}>
-			<Card raised sx={{ height: '100%', p: 0 }}>
-				<CardMedia
-					component="img"
-					height="100%"
-					image="https://resumespice.com/wp-content/uploads/2021/03/1-980x245.png"
-					alt="Coffee Mug"
+		<Box>
+			<Stack direction="row" spacing={2}>
+				<Avatar
+					src={projectOwner.avatar}
+					sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}
+				>
+					{getAvatarInitials(projectOwner)}
+				</Avatar>
+				<Box>
+					<RRDLink
+						to={`/users/${projectOwner.username}`}
+						style={{
+							all: 'unset',
+							cursor: 'pointer',
+						}}
+					>
+						<Typography variant="h5">{projectOwner.username}</Typography>
+					</RRDLink>
+					<Typography variant="body2">{getSubHeader()}</Typography>
+				</Box>
+			</Stack>
+			<Divider variant="middle" sx={{ my: 2 }} />
+			<Stack
+				direction="row"
+				justifyContent="space-between"
+				alignItems="flex-start"
+				sx={{
+					mb: 2,
+				}}
+			>
+				<Box>
+					<Typography
+						variant="h4"
+						component="h1"
+						sx={{
+							mb: 1,
+						}}
+					>
+						{projectName}
+					</Typography>
+					{projectTechnologies.slice(0, 6).map((tech) => (
+						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
+					))}
+				</Box>
+				<Box
+					display="flex"
+					justifyContent="flex-end"
+					sx={{
+						gap: 2,
+					}}
+				>
+					{projectDeploymentLink && (
+						<Tooltip title="Deployment Link" arrow>
+							<Link href={projectDeploymentLink} target="_blank">
+								<IconButton>
+									<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
+								</IconButton>
+							</Link>
+						</Tooltip>
+					)}
+					{projectGithub && (
+						<Tooltip title="GitHub" arrow>
+							<Link href={projectGithub} target="_blank">
+								<IconButton>
+									<GitHubIcon sx={{ width: 35, height: 35 }} />
+								</IconButton>
+							</Link>
+						</Tooltip>
+					)}
+					{isCurrentUsersProject && (
+						<Stack direction="row" spacing={2}>
+							<Button
+								variant="outlined"
+								onClick={() => {
+									setIsEditing(!isEditing);
+								}}
+								startIcon={<EditRoundedIcon />}
+							>
+								Edit
+							</Button>
+							<Button
+								variant="contained"
+								color="error"
+								onClick={handleDeleteProject}
+								startIcon={<DeleteIcon />}
+							>
+								Delete
+							</Button>
+						</Stack>
+					)}
+				</Box>
+			</Stack>
+			{isEditing ? (
+				<CreateProject
+					name={projectName}
+					description={projectDescription}
+					github={projectGithub}
+					deploymentLink={projectDeploymentLink}
+					technologies={projectTechnologies}
+					submitLabel="Save"
+					onSuccess={handleUpdate}
+					requestFn={(projectObj) => updateProject(project._id, projectObj)}
+					onSuccessMsg="Project updated successfully"
+					cancelComponent={
+						<Button
+							variant="outlined"
+							type="button"
+							onClick={() => {
+								setIsEditing(false);
+							}}
+						>
+							Cancel
+						</Button>
+					}
 				/>
-				<CardHeader
-					avatar={
-						<Avatar sx={{ width: 50, height: 50, bgcolor: '#1976d2' }}>
+			) : (
+				<Grid container spacing={3} sx={{ mt: 2 }}>
+					<Grid item xs={6}>
+						{Boolean(projectMedia.length > 0) && (
+							<Carousel projectMedia={projectMedia} />
+						)}
+						{isCurrentUsersProject && (
+							<Stack alignItems="center">
+								<Button type="button" size="small">
+									Update Images
+								</Button>
+							</Stack>
+						)}
+					</Grid>
+					<Grid item xs={6}>
+						<Typography variant="body2">{projectDescription}</Typography>
+					</Grid>
+				</Grid>
+			)}
+			<Box sx={{ mt: 2, p: 1 }}>
+				<Stack
+					direction="row"
+					gap={1}
+					sx={{
+						mb: 1,
+					}}
+				>
+					<FormControlLabel
+						control={
+							<Checkbox
+								inputProps={{ 'aria-label': 'Like' }}
+								icon={<FavoriteBorder />}
+								checkedIcon={<Favorite />}
+								checked={projectLikes.includes(user?._id)}
+								onClick={handleLike}
+							/>
+						}
+						label={projectLikes.length}
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								inputProps={{ 'aria-label': 'Save' }}
+								icon={<BookmarkBorderIcon />}
+								checkedIcon={<BookmarkIcon />}
+								checked={projectSavedBy.includes(user?._id)}
+								onClick={handleBookmark}
+							/>
+						}
+						label={projectSavedBy.length}
+					/>
+				</Stack>
+				<Divider variant="middle" />
+				<Typography variant="h5" sx={{ mb: 2, mt: 2 }}>
+					<Badge color="primary">
+						<Tooltip title="Total comments count" arrow>
+							<ChatIcon sx={{ mr: 1, width: 30, height: 30 }} />
+						</Tooltip>
+						Comments ({projectComments.length})
+					</Badge>
+				</Typography>
+				<Grid container wrap="nowrap" spacing={2}>
+					<Grid item>
+						<Avatar
+							src={projectOwner.avatar}
+							alt={`${projectOwner.firstName} ${projectOwner.lastName}`}
+							sx={{ bgcolor: '#1976d2' }}
+						>
 							{getAvatarInitials(projectOwner)}
 						</Avatar>
-					}
-					title={<Typography variant="h5">{projectOwner}</Typography>}
-					subheader={<Typography variant="body2">{getSubHeader()}</Typography>}
-					action={
-						<IconButton aria-label="settings">
-							<AccountCircleIcon />
-						</IconButton>
-					}
-				/>
-				<Divider variant="middle" />
-				<CardContent sx={{ p: 2 }}>
-					<Grid container spacing={3}>
-						<Grid item xs={8}>
-							<Typography variant="h4" component="div">
-								{projectName}
-							</Typography>
-							{projectTechnologies.slice(0, 6).map((tech) => (
-								<Chip label={tech} key={tech} sx={{ mr: 1 }} />
-							))}
-						</Grid>
-						<Grid item xs={4}>
-							<Box display="flex" justifyContent="flex-end">
-								<Tooltip title="Deployment Link" arrow>
-									<Link href={projectDeploymentLink}>
-										<IconButton color="primary">
-											<BuildCircleIcon sx={{ width: 35, height: 35 }} />
-										</IconButton>
-									</Link>
-								</Tooltip>
-								<Tooltip title="GitHub Link" arrow>
-									<Link href={projectGithub}>
-										<IconButton color="primary">
-											<GitHubIcon sx={{ width: 35, height: 35 }} />
-										</IconButton>
-									</Link>
-								</Tooltip>
-								<Tooltip title="Total Bookmarks" arrow>
-									<IconButton
-										onClick={handleProjectSaves()}
-										aria-label={notificationsLabel({ projectSavedBy })}
-									>
-										<Badge color="primary" badgeContent={projectSavedBy}>
-											<BookmarkIcon sx={{ width: 35, height: 35 }} />
-										</Badge>
-									</IconButton>
-								</Tooltip>
-								<Tooltip title="Likes count" arrow>
-									<IconButton
-										onClick={handleProjectLikes()}
-										aria-label={notificationsLabel({ projectLikes })}
-									>
-										<Badge color="primary" badgeContent={projectLikes}>
-											<FavoriteIcon sx={{ width: 35, height: 35 }} />
-										</Badge>
-									</IconButton>
-								</Tooltip>
-								<Tooltip title="Delete Project?" arrow>
-									<IconButton onClick={handleDeleteProject()} color="error">
-										<DeleteIcon sx={{ width: 35, height: 35 }} />
-									</IconButton>
-								</Tooltip>
-							</Box>
-						</Grid>
-						<Grid item xs={6}>
-							<img
-								style={{
-									borderRadius: 15,
-									height: 280,
-									width: '100%',
-									maxWidth: 550,
-								}}
-								src={projectMedia[activeStep]}
-								alt={projectMedia[activeStep]}
-							/>
-							<MobileStepper
-								index={activeStep}
-								steps={projectMedia.length}
-								position="static"
-								activeStep={activeStep}
-								nextButton={
-									<Button
-										size="small"
-										onClick={handleNext}
-										disabled={activeStep === projectMedia.length - 1}
-									>
-										Next
-										{theme.direction === 'rtl' ? (
-											<KeyboardArrowLeft />
-										) : (
-											<KeyboardArrowRight />
-										)}
-									</Button>
-								}
-								backButton={
-									<Button
-										size="small"
-										onClick={handleBack}
-										disabled={activeStep === 0}
-									>
-										{theme.direction === 'rtl' ? (
-											<KeyboardArrowRight />
-										) : (
-											<KeyboardArrowLeft />
-										)}
-										Back
-									</Button>
-								}
-							/>
-						</Grid>
-						<Grid item xs={6}>
-							<Typography variant="body2">{projectDescription}</Typography>
-						</Grid>
 					</Grid>
-					<Grid item xs={12} sx={{ mt: 6, p: 1 }}>
-						<Divider variant="middle" />
-						<Typography variant="h5" sx={{ mb: 2, mt: 2 }}>
-							<Badge color="primary" badgeContent={projectSavedBy}>
-								Top Comments
-								<Tooltip title="Total comments count" arrow>
-									<ChatIcon sx={{ ml: 1, width: 35, height: 35 }} />
-								</Tooltip>
-							</Badge>
-						</Typography>
-						<Grid container wrap="nowrap" spacing={2}>
-							<Grid item>
-								<Avatar alt={projectOwner} sx={{ bgcolor: '#1976d2' }}>
-									{getAvatarInitials(projectOwner)}
-								</Avatar>
-							</Grid>
-							<Card raised sx={{ height: '100%', width: '100%', p: 1, m: 2 }}>
-								<form
-									onSubmit={(event) => {
-										event.preventDefault();
-									}}
-								>
-									<Grid container spacing={1}>
-										<Grid item xs={10}>
-											<TextField
-												id="inputCommentText"
-												label="Comment here"
-												placeholder="Your comment(s) goes here..."
-												sx={{ height: '100%', width: '100%' }}
-											/>
-										</Grid>
-										<Grid item xs={2}>
-											<Tooltip title="Post your comment" arrow>
-												<Button
-													variant="contained"
-													sx={{ height: '100%', width: '100%' }}
-													endIcon={<SendIcon />}
-												>
-													Comment
-												</Button>
-											</Tooltip>
-										</Grid>
-									</Grid>
-								</form>
-							</Card>
-						</Grid>
-						{projectComments.map((comment) => (
-							<Grid container wrap="nowrap" spacing={2}>
-								<Grid item>
-									<Avatar alt={comment.owner.username}>
-										{getAvatarInitials(comment.owner.username)}
-									</Avatar>
+					<Card raised sx={{ height: '100%', width: '100%', p: 1, m: 2 }}>
+						<form
+							onSubmit={(event) => {
+								event.preventDefault();
+							}}
+						>
+							<Grid container spacing={1}>
+								<Grid item xs={10}>
+									<TextField
+										id="inputCommentText"
+										label="Comment here"
+										placeholder="Your comment(s) goes here..."
+										sx={{ height: '100%', width: '100%' }}
+									/>
 								</Grid>
-								<Card raised sx={{ height: 'auto', width: '100%', p: 1, m: 2 }}>
-									<Typography variant="h6" sx={{ mb: 1 }}>
-										{comment.owner.username}
-									</Typography>
-									<Typography
-										variant="body2"
-										color="text.secondary"
-										sx={{ mb: 1 }}
-									>
-										{comment.comment}
-									</Typography>
-									<Tooltip title="Date posted on" arrow placement="right">
-										<Chip
-											label={getFormatterTime(comment.timestamp)}
-											key={getFormatterTime(comment.timestamp)}
-											sx={{ mr: 1 }}
-										/>
+								<Grid item xs={2}>
+									<Tooltip title="Post your comment" arrow>
+										<Button
+											variant="contained"
+											sx={{ height: '100%', width: '100%' }}
+											endIcon={<SendIcon />}
+										>
+											Comment
+										</Button>
 									</Tooltip>
-								</Card>
+								</Grid>
 							</Grid>
-						))}
+						</form>
+					</Card>
+				</Grid>
+				{projectComments.map((comment) => (
+					<Grid container wrap="nowrap" spacing={2}>
+						<Grid item>
+							<Avatar alt={comment.owner.username}>
+								{getAvatarInitials(comment.owner.username)}
+							</Avatar>
+						</Grid>
+						<Card raised sx={{ height: 'auto', width: '100%', p: 1, m: 2 }}>
+							<Typography variant="h6" sx={{ mb: 1 }}>
+								{comment.owner.username}
+							</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+								{comment.comment}
+							</Typography>
+							<Tooltip title="Date posted on" arrow placement="right">
+								<Chip
+									label={getFormatterTime(comment.timestamp)}
+									key={getFormatterTime(comment.timestamp)}
+									sx={{ mr: 1 }}
+								/>
+							</Tooltip>
+						</Card>
 					</Grid>
-				</CardContent>
-			</Card>
-		</Grid>
+				))}
+			</Box>
+		</Box>
 	);
 }
