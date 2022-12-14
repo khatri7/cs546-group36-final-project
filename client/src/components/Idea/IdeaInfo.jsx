@@ -11,9 +11,10 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
 	createIdeaComment,
+	deleteIdea,
 	deleteIdeaComment,
 	handleError,
 	likeIdea,
@@ -25,12 +26,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
-import { errorAlert, warningAlert } from 'store/alert';
+import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import CommentsSection from '../CommentsSection';
 import CreateIdea from './CreateIdea';
 
 function IdeaInfo({ idea: ideaProp }) {
 	const user = useSelector((state) => state.user);
+	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
 	const [idea, setIdea] = useState(ideaProp);
@@ -90,7 +92,18 @@ function IdeaInfo({ idea: ideaProp }) {
 			}
 		}
 	};
-	// function handleDeleteIdea() {}
+
+	const handleDeleteIdea = async () => {
+		try {
+			await deleteIdea(ideaId);
+			navigate('/ideas');
+			dispatch(successAlert('Idea deleted successfully'));
+		} catch (e) {
+			let errorMsg = 'Unexpected error occurred';
+			if (typeof handleError(e) === 'string') errorMsg = handleError(e);
+			dispatch(errorAlert(errorMsg));
+		}
+	};
 
 	return (
 		<Box>
@@ -159,7 +172,7 @@ function IdeaInfo({ idea: ideaProp }) {
 							<Button
 								variant="contained"
 								color="error"
-								// onClick={handleDeleteProject}
+								onClick={handleDeleteIdea}
 								startIcon={<DeleteIcon />}
 							>
 								Delete
