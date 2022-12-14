@@ -16,6 +16,7 @@ const {
 	checkuseraccess,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
+const { deleteFile } = require('../utils/aws');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -46,6 +47,7 @@ const getAllProjects = async (
 		query.technologies = { $all: technologiesArr };
 	}
 	const allProjects = await projectsCollection.find(query).toArray();
+	allProjects.sort((a, b) => b.likes.length - a.likes.length);
 	return allProjects;
 };
 
@@ -97,6 +99,7 @@ const createProject = async (projectObjParam, user) => {
 	);
 	return createdProject;
 };
+
 const likeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
@@ -218,10 +221,16 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateImageOrResume = async (url, pos, projectId) => {
+const updateProjectImages = async (url, pos, projectId) => {
 	try {
 		const project = await getProjectById(projectId);
 		const imageArray = project.media;
+		if (imageArray[pos]) {
+			const existingPhotoKey = imageArray[pos].substr(
+				imageArray[pos].indexOf('.com/') + 5
+			);
+			await deleteFile(existingPhotoKey);
+		}
 		imageArray[pos] = url;
 		const projectCollection = await projects();
 		const updateInfo = await projectCollection.updateOne(
@@ -234,9 +243,46 @@ const updateImageOrResume = async (url, pos, projectId) => {
 		return updatedProject;
 	} catch (e) {
 		throw badRequestErr(
-			'Invalid AWS request/ AWS unable to process your request right now'
+			'Invalid AWS request/AWS unable to process your request right now'
 		);
 	}
+};
+
+const removeProjectMedia = async (
+	projectIdParam,
+	imagePos,
+	currentUserParam
+) => {
+	const projectId = isValidObjectId(projectIdParam);
+	if (![0, 1, 2, 3, 4].includes(imagePos))
+		throw badRequestErr('Invalid image position');
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	const project = await getProjectById(projectId);
+	if (
+		project.owner._id.toString() !== currentUser._id ||
+		project.owner.username.toLowerCase() !== currentUser.username.toLowerCase()
+	)
+		throw unauthorizedErr("You cannot remove media of another user's project");
+	if (!project.media[imagePos])
+		throw badRequestErr('No media exists for the specified position');
+	const existingPhotoKey = project.media[imagePos].substr(
+		project.media[imagePos].indexOf('.com/') + 5
+	);
+	await deleteFile(existingPhotoKey);
+	const updatedProjectMedia = project.media;
+	updatedProjectMedia[imagePos] = null;
+	const projectCollection = await projects();
+	const updateInfo = await projectCollection.updateOne(
+		{ _id: ObjectId(projectId) },
+		{ $set: { media: updatedProjectMedia } }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the project. Please try again.');
+	const updatedProject = await getProjectById(projectId);
+	return updatedProject;
 };
 
 module.exports = {
@@ -248,6 +294,7 @@ module.exports = {
 	getProjectsByOwnerUsername,
 	likeProject,
 	getSavedProjects,
-	updateImageOrResume,
+	updateProjectImages,
 	unlikeProject,
+	removeProjectMedia,
 };

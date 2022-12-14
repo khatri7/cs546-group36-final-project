@@ -5,7 +5,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { errorAlert, successAlert } from 'store/alert';
-import { createIdea } from 'utils/api-calls';
+import { createIdea, handleError } from 'utils/api-calls';
 import { isValidSkills } from 'utils/helpers';
 import * as Yup from 'yup';
 
@@ -16,7 +16,7 @@ const schema = Yup.object().shape({
 		.min(3, 'Idea name should be atleast 3 cahracters'),
 	description: Yup.string()
 		.required('Description is required')
-		.min(5, 'Description length should be atleast 5 characters'),
+		.min(10, 'Description should be at least 10 characters'),
 	lookingFor: Yup.number('Number of people should be a number')
 		.required('Number of people you are looking for is required')
 		.min(1, 'Number of people you are looking for should be at least 1')
@@ -49,11 +49,15 @@ function CreateIdea() {
 					const errors = {};
 					if (values.name.trim().length < 3)
 						errors.name = 'Idea name should be at least 3 characters';
+					if (values.description.trim().length < 10)
+						errors.description = 'Description should be at least 10 characters';
 					if (!values.technologies || values.technologies.length < 1)
 						errors.technologies =
 							'Need to mention at least one technology going to be used';
 					if (!isValidSkills(values.technologies))
 						errors.skills = 'Invalid Technologies';
+					if (values.technologies.length > 10)
+						errors.technologies = 'You can add upto 10 skills';
 					if (
 						!Number.isFinite(parseInt(values.lookingFor, 10)) ||
 						values.lookingFor < 1 ||
@@ -71,10 +75,8 @@ function CreateIdea() {
 						navigate(`/ideas/${resp.idea._id}`);
 						dispatch(successAlert('Idea created successfully'));
 					} catch (e) {
-						let error = 'Unexpected error occured';
-						if (typeof e.responseJSON?.message === 'string') {
-							error = e.responseJSON.message;
-						} else if (typeof e.statusText === 'string') error = e.statusText;
+						let error = 'Unexpected error occurred';
+						if (typeof handleError(e) === 'string') error = handleError(e);
 						dispatch(errorAlert(error));
 					}
 				}}

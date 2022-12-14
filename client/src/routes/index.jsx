@@ -5,7 +5,6 @@ import {
 	useLocation,
 	Navigate,
 } from 'react-router-dom';
-import Home from 'pages';
 import Login from 'pages/Login';
 import Signup from 'pages/Signup';
 import User from 'pages/User';
@@ -19,6 +18,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { infoAlert } from 'store/alert';
 import CreateIdea from 'pages/CreateIdea';
 
+const protectedRoutes = ['/projects/create', '/ideas/create'];
+
 function Routes() {
 	const { pathname } = useLocation();
 	const user = useSelector((state) => state.user);
@@ -27,13 +28,13 @@ function Routes() {
 		user !== null && Boolean(user._id) && Boolean(user.username);
 	if (isLoggedIn && ['/login', '/signup'].includes(pathname))
 		return <Navigate to={`/users/${user.username}`} />;
-	if (!isLoggedIn && pathname === '/projects/create') {
+	if (!isLoggedIn && protectedRoutes.includes(pathname)) {
 		dispatch(infoAlert('Please login'));
 		return <Navigate to="/login" />;
 	}
 	return (
 		<RRDRoutes>
-			<Route index element={<Home />} />
+			<Route index element={<Navigate to="/projects" />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/signup" element={<Signup />} />
 			<Route path="/users">

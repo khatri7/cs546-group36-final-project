@@ -25,17 +25,17 @@ const isValidProjectName = (projectNameParam) => {
 };
 
 // taken from https://github.com/jonschlinkert/is-git-url.git check it out for more info
-const githubUrlValidation = (inputLink) => {
-	const regex =
-		// eslint-disable-next-line no-useless-escape
-		/(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-	const output = regex.test(inputLink);
-	if (output === false) throw badRequestErr('Github URL invalid');
-};
+// const githubUrlValidation = (inputLink) => {
+// 	const regex =
+// 		// eslint-disable-next-line no-useless-escape
+// 		/(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
+// 	const output = regex.test(inputLink);
+// 	if (output === false) throw badRequestErr('Github URL invalid');
+// };
 
 const isValidGithub = (inputLinkParam) => {
 	const inputLink = isValidStr(inputLinkParam);
-	githubUrlValidation(inputLink);
+	// githubUrlValidation(inputLink);
 	return inputLink;
 };
 
@@ -58,6 +58,8 @@ const isValidTechnologies = (technologiesParam) => {
 	);
 	const technologiesSet = new Set(technologies);
 	const technologiesArr = Array.from(technologiesSet);
+	if (technologiesArr.length > 10)
+		throw badRequestErr('You can add up to 10 technologies.');
 	technologiesArr.map((tech, index) => {
 		if (
 			!isValidStr(tech, `Technology at index ${index}`) ||

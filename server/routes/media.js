@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require('multer');
 const imageUpload = require('../utils/aws/image');
 const resumeUpload = require('../utils/aws/resume');
 const avatarUpload = require('../utils/aws/avatar');
@@ -11,15 +10,16 @@ const {
 	isValidObjectId,
 	successStatusCodes,
 } = require('../utils');
-const { getProjectById } = require('../data/projects');
+const { getProjectById, removeProjectMedia } = require('../data/projects');
 const { getUserById } = require('../data/users');
+const uploadMedia = require('../middleware/uploadMedia');
+const { isValidUsername } = require('../utils/users');
 
-const upload = multer();
 const router = express.Router();
 
 router
 	.route('/')
-	.post(authenticateToken, upload.single('media'), async (req, res) => {
+	.post(authenticateToken, uploadMedia, async (req, res) => {
 		try {
 			if (req.body.mediaType === 'resume') {
 				if (!req.file) {
@@ -91,7 +91,34 @@ router
 				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
 			} else {
 				throw badRequestErr(
-					'Invald Entry, mediaType needs to be of resume or image'
+					'Invald Entry, mediaType needs to be of resume, avatar, or image'
+				);
+			}
+		} catch (e) {
+			sendErrResp(res, e);
+		}
+	})
+	.delete(authenticateToken, async (req, res) => {
+		try {
+			if (req.body.mediaType === 'image') {
+				const projectId = isValidObjectId(req.body.projectId);
+				await getProjectById(projectId);
+				const { imagePos } = req.body;
+				if (![0, 1, 2, 3, 4].includes(imagePos))
+					throw badRequestErr('Invalid image position');
+				const currentUser = {
+					_id: isValidObjectId(req.user._id),
+					username: isValidUsername(req.user.username),
+				};
+				const project = await removeProjectMedia(
+					projectId,
+					imagePos,
+					currentUser
+				);
+				res.status(successStatusCodes.OK).json({ project });
+			} else {
+				throw badRequestErr(
+					'Invald Entry, mediaType needs to be of resume, avatar, or image'
 				);
 			}
 		} catch (e) {
