@@ -42,6 +42,7 @@ import {
 } from 'utils/api-calls';
 import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import Carousel from 'components/Project/Carousel';
+import UploadProjectMedia from 'components/Project/UploadProjectMedia';
 
 export default function Project() {
 	const { projectId } = useParams();
@@ -50,6 +51,7 @@ export default function Project() {
 	const dispatch = useDispatch();
 	const [isEditing, setIsEditing] = useState(false);
 	const [project, setProject] = useState(data?.project ?? null);
+	const [showUpdateMediaForm, setShowUpdateMediaForm] = useState(false);
 	const user = useSelector((state) => state.user);
 
 	useEffect(() => {
@@ -63,7 +65,7 @@ export default function Project() {
 	const projectName = project.name;
 	const projectDescription = project.description;
 	const projectGithub = project.github;
-	let projectMedia = project.media;
+	const projectMedia = project.media;
 	const projectDeploymentLink = project.deploymentLink;
 	const projectSavedBy = project.savedBy;
 	const projectComments = project.comments;
@@ -146,31 +148,11 @@ export default function Project() {
 		}
 	};
 
-	function getAvatarInitials(owner) {
-		let initials;
-		if (owner.firstName && owner.lastName) {
-			initials = `${owner.firstName.charAt(0)}${owner.lastName.charAt(
-				0
-			)}`.toUpperCase();
-		}
-		return initials;
-	}
-
-	if (projectMedia.length === 0) {
-		projectMedia = [
-			'https://freelancingjournal.com/wp-content/uploads/2020/05/home-office-accessories-1024x652.jpeg',
-			'https://freelancingjournal.com/wp-content/uploads/2020/05/start-a-blog-freelancer-1024x683.jpeg',
-		];
-	}
-
 	return (
 		<Box>
 			<Stack direction="row" spacing={2}>
-				<Avatar
-					src={projectOwner.avatar}
-					sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}
-				>
-					{getAvatarInitials(projectOwner)}
+				<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
+					{projectOwner.username.charAt(0).toUpperCase()}
 				</Avatar>
 				<Box>
 					<RRDLink
@@ -212,7 +194,7 @@ export default function Project() {
 					display="flex"
 					justifyContent="flex-end"
 					sx={{
-						gap: 2,
+						gap: 1,
 					}}
 				>
 					{projectDeploymentLink && (
@@ -282,15 +264,36 @@ export default function Project() {
 			) : (
 				<Grid container spacing={3} sx={{ mt: 2 }}>
 					<Grid item xs={6}>
-						{Boolean(projectMedia.length > 0) && (
-							<Carousel projectMedia={projectMedia} />
-						)}
-						{isCurrentUsersProject && (
-							<Stack alignItems="center">
-								<Button type="button" size="small">
-									Update Images
-								</Button>
-							</Stack>
+						{showUpdateMediaForm ? (
+							<UploadProjectMedia
+								projectMedia={projectMedia}
+								projectId={projectId}
+								handleUpdate={handleUpdate}
+								close={() => {
+									setShowUpdateMediaForm(false);
+								}}
+							/>
+						) : (
+							<>
+								{Boolean(projectMedia.length > 0) && (
+									<Carousel
+										projectMedia={projectMedia.filter((item) => item !== null)}
+									/>
+								)}
+								{isCurrentUsersProject && (
+									<Stack alignItems="center">
+										<Button
+											type="button"
+											size="small"
+											onClick={() => {
+												setShowUpdateMediaForm(true);
+											}}
+										>
+											Update Images
+										</Button>
+									</Stack>
+								)}
+							</>
 						)}
 					</Grid>
 					<Grid item xs={6}>
@@ -343,11 +346,11 @@ export default function Project() {
 				<Grid container wrap="nowrap" spacing={2}>
 					<Grid item>
 						<Avatar
-							src={projectOwner.avatar}
+							src={user.avatar}
 							alt={`${projectOwner.firstName} ${projectOwner.lastName}`}
 							sx={{ bgcolor: '#1976d2' }}
 						>
-							{getAvatarInitials(projectOwner)}
+							{user.firstName} {user.lastName}
 						</Avatar>
 					</Grid>
 					<Card raised sx={{ height: '100%', width: '100%', p: 1, m: 2 }}>
@@ -383,9 +386,7 @@ export default function Project() {
 				{projectComments.map((comment) => (
 					<Grid container wrap="nowrap" spacing={2}>
 						<Grid item>
-							<Avatar alt={comment.owner.username}>
-								{getAvatarInitials(comment.owner.username)}
-							</Avatar>
+							<Avatar>{comment.owner.username.charAt(0).toUpperCase()}</Avatar>
 						</Grid>
 						<Card raised sx={{ height: 'auto', width: '100%', p: 1, m: 2 }}>
 							<Typography variant="h6" sx={{ mb: 1 }}>

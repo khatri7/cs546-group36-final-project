@@ -198,7 +198,10 @@ function ProjectCard({
 				/>
 				<CardMedia
 					component="img"
-					image="https://www.wikihow.com/images/thumb/d/d5/Be-Random-Step-8.jpg/v4-460px-Be-Random-Step-8.jpg.webp"
+					image={
+						project.media.filter((item) => item !== null)[0] ||
+						'https://www.stockvault.net/data/2019/10/07/269936/thumb16.jpg'
+					}
 					alt={project.name}
 					height={180}
 				/>
@@ -210,7 +213,8 @@ function ProjectCard({
 					}}
 				>
 					<Typography variant="body2" color="text.secondary">
-						{project.description}
+						{project.description?.substring(0, 100)}
+						{project.description?.length > 100 && '...'}
 					</Typography>
 					<Stack direction="row" gap={1} mt={1}>
 						{project.technologies.slice(0, 4).map((tech) => (
