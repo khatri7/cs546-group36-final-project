@@ -16,7 +16,7 @@ const schema = Yup.object().shape({
 		.min(3, 'Idea name should be atleast 3 cahracters'),
 	description: Yup.string()
 		.required('Description is required')
-		.min(5, 'Description should be at least 5 characters'),
+		.min(10, 'Description should be at least 10 characters'),
 	lookingFor: Yup.number('Number of people should be a number')
 		.required('Number of people you are looking for is required')
 		.min(1, 'Number of people you are looking for should be at least 1')
