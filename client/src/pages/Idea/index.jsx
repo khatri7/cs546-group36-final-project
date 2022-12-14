@@ -12,7 +12,6 @@ function Idea() {
 	const { idea } = data;
 	if (!idea) return <Typography>Error getting idea</Typography>;
 
-	// checkout pages/user/index.jsx to see how data is being loaded
 	return (
 		<div>
 			<IdeaInfo idea={idea} />

@@ -1,30 +1,36 @@
-import { Divider, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import CommentCard from './CommentCard';
 
 function CommentList({
 	commentsList = [],
-	ideaId,
+	reqFn,
 	handleDeleteComment = () => {},
 }) {
 	const user = useSelector((state) => state.user);
 
-	if (commentsList.length === 0) return <Typography>No comments</Typography>;
+	if (commentsList.length === 0)
+		return (
+			<Box sx={{ py: 4 }}>
+				<Typography>No comments</Typography>
+			</Box>
+		);
+
 	return (
-		<Stack spacing={2}>
-			{commentsList.map((comment, index) => (
-				<div key={comment._id}>
+		<Box sx={{ py: 4 }}>
+			<Stack spacing={3}>
+				{commentsList.map((comment) => (
 					<CommentCard
-						ideaId={ideaId}
+						reqFn={reqFn}
 						handleDeleteComment={handleDeleteComment}
 						comment={comment}
 						isOwner={Boolean(user?._id && user._id === comment.owner._id)}
+						key={comment._id}
 					/>
-					{index < commentsList.length - 1 && <Divider />}
-				</div>
-			))}
-		</Stack>
+				))}
+			</Stack>
+		</Box>
 	);
 }
 

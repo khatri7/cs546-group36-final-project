@@ -5,13 +5,10 @@ import {
 	Typography,
 	Grid,
 	Chip,
-	Card,
 	IconButton,
 	Box,
-	Badge,
 	Button,
 	Avatar,
-	TextField,
 	Tooltip,
 	Divider,
 	Link,
@@ -21,8 +18,6 @@ import {
 } from '@mui/material';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import ChatIcon from '@mui/icons-material/Chat';
-import SendIcon from '@mui/icons-material/Send';
 import InsertLinkRoundedIcon from '@mui/icons-material/InsertLinkRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,7 +28,9 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import CreateProject from 'components/Project/CreateProject';
 import {
 	bookmarkProject,
+	createProjectComment,
 	deleteProject,
+	deleteProjectComment,
 	handleError,
 	likeProject,
 	removeProjectBookmark,
@@ -43,6 +40,7 @@ import {
 import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import Carousel from 'components/Project/Carousel';
 import UploadProjectMedia from 'components/Project/UploadProjectMedia';
+import CommentsSection from 'components/CommentsSection';
 
 export default function Project() {
 	const { projectId } = useParams();
@@ -186,7 +184,7 @@ export default function Project() {
 					>
 						{projectName}
 					</Typography>
-					{projectTechnologies.slice(0, 6).map((tech) => (
+					{projectTechnologies.map((tech) => (
 						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
 					))}
 				</Box>
@@ -334,78 +332,17 @@ export default function Project() {
 						label={projectSavedBy.length}
 					/>
 				</Stack>
-				<Divider variant="middle" />
-				<Typography variant="h5" sx={{ mb: 2, mt: 2 }}>
-					<Badge color="primary">
-						<Tooltip title="Total comments count" arrow>
-							<ChatIcon sx={{ mr: 1, width: 30, height: 30 }} />
-						</Tooltip>
-						Comments ({projectComments.length})
-					</Badge>
-				</Typography>
-				<Grid container wrap="nowrap" spacing={2}>
-					<Grid item>
-						<Avatar
-							src={user.avatar}
-							alt={`${projectOwner.firstName} ${projectOwner.lastName}`}
-							sx={{ bgcolor: '#1976d2' }}
-						>
-							{user.firstName} {user.lastName}
-						</Avatar>
-					</Grid>
-					<Card raised sx={{ height: '100%', width: '100%', p: 1, m: 2 }}>
-						<form
-							onSubmit={(event) => {
-								event.preventDefault();
-							}}
-						>
-							<Grid container spacing={1}>
-								<Grid item xs={10}>
-									<TextField
-										id="inputCommentText"
-										label="Comment here"
-										placeholder="Your comment(s) goes here..."
-										sx={{ height: '100%', width: '100%' }}
-									/>
-								</Grid>
-								<Grid item xs={2}>
-									<Tooltip title="Post your comment" arrow>
-										<Button
-											variant="contained"
-											sx={{ height: '100%', width: '100%' }}
-											endIcon={<SendIcon />}
-										>
-											Comment
-										</Button>
-									</Tooltip>
-								</Grid>
-							</Grid>
-						</form>
-					</Card>
-				</Grid>
-				{projectComments.map((comment) => (
-					<Grid container wrap="nowrap" spacing={2}>
-						<Grid item>
-							<Avatar>{comment.owner.username.charAt(0).toUpperCase()}</Avatar>
-						</Grid>
-						<Card raised sx={{ height: 'auto', width: '100%', p: 1, m: 2 }}>
-							<Typography variant="h6" sx={{ mb: 1 }}>
-								{comment.owner.username}
-							</Typography>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-								{comment.comment}
-							</Typography>
-							<Tooltip title="Date posted on" arrow placement="right">
-								<Chip
-									label={getFormatterTime(comment.timestamp)}
-									key={getFormatterTime(comment.timestamp)}
-									sx={{ mr: 1 }}
-								/>
-							</Tooltip>
-						</Card>
-					</Grid>
-				))}
 			</Box>
+			<CommentsSection
+				createCommentReqFn={async (comment) =>
+					createProjectComment(comment, projectId)
+				}
+				deleteCommentReqFn={async (commentId) =>
+					deleteProjectComment(projectId, commentId)
+				}
+				comments={projectComments}
+				isOwner={isCurrentUsersProject}
+			/>
 		</Box>
 	);
 }

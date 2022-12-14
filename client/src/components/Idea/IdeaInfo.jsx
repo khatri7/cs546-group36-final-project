@@ -1,35 +1,49 @@
 import {
-	Card,
 	Box,
 	Typography,
-	Grid,
 	Chip,
-	IconButton,
-	Badge,
 	Avatar,
-	CardHeader,
-	CardMedia,
-	CardContent,
-	Tooltip,
 	Divider,
+	Stack,
+	Button,
+	FormControlLabel,
+	Checkbox,
 } from '@mui/material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import React from 'react';
-// import CreateComment from '../CreateComment';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import {
+	createIdeaComment,
+	deleteIdeaComment,
+	handleError,
+	likeIdea,
+	unlikeIdea,
+} from 'utils/api-calls';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import { useDispatch, useSelector } from 'react-redux';
+import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
+import Favorite from '@mui/icons-material/Favorite';
+import { errorAlert, warningAlert } from 'store/alert';
 import CommentsSection from '../CommentsSection';
-// import Technologies from 'components/Idea/Technologies';
-// import CommentList from 'components/CommentsList/CommentList';
 
-function IdeaInfo({ idea, isOwner = false }) {
+function IdeaInfo({ idea }) {
+	const user = useSelector((state) => state.user);
+	const dispatch = useDispatch();
+
+	const [likes, setLikes] = useState(idea.likes);
+
+	useEffect(() => {
+		setLikes(idea.likes);
+	}, [idea.likes]);
+
 	const ideaName = idea.name;
 	const ideaId = idea._id;
-	const ownerName = idea.owner.username;
+	const ideaOwner = idea.owner;
 	const technologiesUsed = idea.technologies;
-	let { likes } = idea;
-	likes = likes.length;
 	const { description, createdAt, comments, status, lookingFor } = idea;
+
+	const isCurrentUsersIdea = user?._id === ideaOwner._id;
 
 	function getFormatterTime(timestamp) {
 		const options = {
@@ -43,121 +57,139 @@ function IdeaInfo({ idea, isOwner = false }) {
 	}
 
 	function getSubHeader() {
-		return `Create On: ${getFormatterTime(createdAt)}`;
+		return `Created On: ${getFormatterTime(createdAt)}`;
 	}
 
-	function getAvatarInitials(name) {
-		let initials = 'AB';
-		if (name) {
-			const _owner = name.split();
-			if (_owner.length === 2) {
-				initials =
-					_owner[0].charAt(0).toUpperCase() + _owner[1].charAt(0).toUpperCase();
-			} else {
-				initials = name.charAt(0).toUpperCase();
+	const handleLike = async (e) => {
+		if (!user)
+			dispatch(
+				warningAlert('You need to login before liking/unliking an idea')
+			);
+		else {
+			try {
+				let res;
+				if (e.target.checked) res = await likeIdea(ideaId);
+				else res = await unlikeIdea(ideaId);
+				if (!res.likes) throw new Error();
+				setLikes(res.likes);
+			} catch (err) {
+				let error = 'Unexpected error occurred';
+				if (typeof handleError(err) === 'string') error = handleError(err);
+				dispatch(errorAlert(error));
 			}
 		}
-		return initials;
-	}
-	function handleIdeaLikes() {}
-	function handleDeleteIdea() {}
-
-	function notificationsLabel(count) {
-		if (count === 0) {
-			return 'no notifications';
-		}
-		if (count > 99) {
-			return 'more than 99 notifications';
-		}
-		return `${count} notifications`;
-	}
+	};
+	// function handleDeleteIdea() {}
 
 	return (
-		<Card raised sx={{ height: '100%', p: 0 }}>
-			<CardMedia
-				component="img"
-				height="100%"
-				image="https://resumespice.com/wp-content/uploads/2021/03/1-980x245.png"
-				alt="Coffee Mug"
-			/>
-			<CardHeader
-				avatar={
-					<Avatar sx={{ width: 50, height: 50, bgcolor: '#1976d2' }}>
-						{getAvatarInitials(ownerName)}
-					</Avatar>
-				}
-				title={<Typography variant="h5">{ownerName}</Typography>}
-				subheader={<Typography variant="body2">{getSubHeader()}</Typography>}
-				action={
-					<IconButton aria-label="settings">
-						<AccountCircleIcon />
-					</IconButton>
-				}
-			/>
-			<Divider variant="middle" />
-			<CardContent sx={{ p: 2 }}>
-				<Grid container spacing={3}>
-					<Grid item xs={8}>
-						<Typography variant="h4" component="div">
+		<Box>
+			<Stack direction="row" spacing={2}>
+				<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
+					{ideaOwner.username.charAt(0).toUpperCase()}
+				</Avatar>
+				<Box>
+					<Link
+						to={`/users/${ideaOwner.username}`}
+						style={{
+							all: 'unset',
+							cursor: 'pointer',
+						}}
+					>
+						<Typography variant="h5">{ideaOwner.username}</Typography>
+					</Link>
+					<Typography variant="body2">{getSubHeader()}</Typography>
+				</Box>
+			</Stack>
+			<Divider variant="middle" sx={{ my: 2 }} />
+			<Stack
+				direction="row"
+				justifyContent="space-between"
+				alignItems="flex-start"
+				sx={{
+					mb: 2,
+				}}
+			>
+				<Box>
+					<Stack
+						direction="row"
+						spacing={2}
+						alignItems="center"
+						sx={{
+							mb: 1,
+						}}
+					>
+						<Typography variant="h4" component="h1">
 							{ideaName}
 						</Typography>
-						{technologiesUsed.slice(0, 6).map((tech) => (
-							<Chip label={tech} key={tech} sx={{ mr: 1 }} />
-						))}
-					</Grid>
-					<Grid item xs={4}>
-						<Box display="flex" justifyContent="flex-end">
-							<Tooltip title="Likes count" arrow>
-								<IconButton
-									onClick={handleIdeaLikes()}
-									aria-label={notificationsLabel({ likes })}
-								>
-									<Badge color="primary" badgeContent={likes}>
-										<FavoriteIcon sx={{ width: 35, height: 35 }} />
-									</Badge>
-								</IconButton>
-							</Tooltip>
-							<Tooltip title="Delete Project?" arrow>
-								<IconButton onClick={handleDeleteIdea()} color="error">
-									<DeleteIcon sx={{ width: 35, height: 35 }} />
-								</IconButton>
-							</Tooltip>
-						</Box>
-					</Grid>
-					<Grid item xs={6}>
-						<Typography variant="body2">{description}</Typography>
-						<Typography variant="body2">{status}</Typography>
-						<Typography variant="body2">{lookingFor}</Typography>
-					</Grid>
-				</Grid>
-				<Grid item xs={12} sx={{ mt: 6, p: 1 }}>
-					<Divider variant="middle" />
-					<Grid container wrap="nowrap" spacing={2}>
-						<Grid item>
-							<Avatar
-								sx={{
-									marginTop: '45px',
-									marginRight: '10px',
-									bgcolor: '#1976d2',
+						<Chip label={status} color={status === 'active' && 'success'} />
+					</Stack>
+					{technologiesUsed.map((tech) => (
+						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
+					))}
+				</Box>
+				<Box
+					display="flex"
+					justifyContent="flex-end"
+					sx={{
+						gap: 1,
+					}}
+				>
+					{isCurrentUsersIdea && (
+						<Stack direction="row" spacing={2}>
+							<Button
+								variant="outlined"
+								onClick={() => {
+									// setIsEditing(!isEditing);
 								}}
-								alt={ownerName}
+								startIcon={<EditRoundedIcon />}
 							>
-								{getAvatarInitials(ownerName)}
-							</Avatar>
-						</Grid>
-						<Grid container spacing={1}>
-							<Grid item xs={12}>
-								<CommentsSection
-									ideaId={ideaId}
-									comments={comments}
-									isOwner={isOwner}
-								/>
-							</Grid>
-						</Grid>
-					</Grid>
-				</Grid>
-			</CardContent>
-		</Card>
+								Edit
+							</Button>
+							<Button
+								variant="contained"
+								color="error"
+								// onClick={handleDeleteProject}
+								startIcon={<DeleteIcon />}
+							>
+								Delete
+							</Button>
+						</Stack>
+					)}
+				</Box>
+			</Stack>
+			<Stack direction="row" spacing={1} alignItems="center">
+				<PeopleAltRoundedIcon />
+				<Typography variant="h6">Looking For: {lookingFor}</Typography>
+			</Stack>
+			<Box sx={{ py: 2 }}>
+				<Typography>{description}</Typography>
+			</Box>
+			<Box sx={{ p: 1 }}>
+				<FormControlLabel
+					control={
+						<Checkbox
+							inputProps={{ 'aria-label': 'Like' }}
+							icon={<FavoriteBorder />}
+							checkedIcon={<Favorite />}
+							checked={likes.includes(user?._id)}
+							onClick={handleLike}
+						/>
+					}
+					label={likes.length}
+				/>
+			</Box>
+			<CommentsSection
+				ideaId={ideaId}
+				createCommentReqFn={async (comment) =>
+					createIdeaComment(comment, ideaId)
+				}
+				deleteCommentReqFn={async (commentId) =>
+					deleteIdeaComment(ideaId, commentId)
+				}
+				comments={comments}
+				isOwner={isCurrentUsersIdea}
+			/>
+		</Box>
 	);
 }
 

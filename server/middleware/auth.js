@@ -13,10 +13,7 @@ const authenticateToken = async (req, res, next) => {
 			user.username = isValidUsername(user.username);
 			const dbUser = await getUserById(user._id);
 			if (dbUser.username !== user.username) throw new Error();
-			req.user = {
-				...user,
-				avatar: dbUser.avatar,
-			};
+			req.user = user;
 			next();
 		} catch (e) {
 			res.clearCookie('token');

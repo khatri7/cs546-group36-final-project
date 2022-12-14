@@ -126,6 +126,12 @@ export const createIdeaComment = async (comment, ideaId) =>
 export const deleteIdeaComment = async (ideaId, commentId) =>
 	DELETE(`/ideas/${ideaId}/comments/${commentId}`);
 
+export const createProjectComment = async (comment, projectId) =>
+	POST(`/projects/${projectId}/comments`, comment);
+
+export const deleteProjectComment = async (projectId, commentId) =>
+	DELETE(`/projects/${projectId}/comments/${commentId}`);
+
 export const initialReq = async () => POST('/auth');
 
 // jQuery AJAX request

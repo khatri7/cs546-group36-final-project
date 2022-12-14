@@ -52,7 +52,7 @@ const createComment = async (commentParam, user) => {
 	const commentObject = {
 		_id: ObjectId(),
 		comment,
-		timestamp: commentDate,
+		createdAt: commentDate,
 		owner: user,
 	};
 
@@ -88,7 +88,7 @@ const removeComment = async (commentParam, user) => {
 	)
 		throw internalServerErr('Could not delete the comment. Please try again');
 	projectId = await getProjectById(projectId);
-	return projectId;
+	return projectId.comments;
 };
 
 module.exports = {

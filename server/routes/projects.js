@@ -157,7 +157,7 @@ router
 				user
 			);
 			res.status(successStatusCodes.CREATED).json({
-				projectComment,
+				comment: projectComment,
 			});
 		} catch (e) {
 			sendErrResp(res, e);
@@ -212,12 +212,9 @@ router
 				projectId,
 				commentId,
 			};
-			const removedComment = await commentsData.removeComment(
-				commentObject,
-				user
-			);
-			res.status(successStatusCodes.DELETED).json({
-				removedComment,
+			const comments = await commentsData.removeComment(commentObject, user);
+			res.status(successStatusCodes.OK).json({
+				comments,
 			});
 		} catch (e) {
 			sendErrResp(res, e);

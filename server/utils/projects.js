@@ -1,6 +1,11 @@
 // Projects Validations
 const topics = require('./data/technologies');
-const { badRequestErr, isLetterChar, isNumberChar } = require('./index');
+const {
+	badRequestErr,
+	isLetterChar,
+	isNumberChar,
+	isValidUrl,
+} = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
 const checkuseraccess = (user, owner) => {
@@ -83,7 +88,7 @@ const isValidProjectObject = (projectObject) => {
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
 		technologies: isValidTechnologies(projectObject.technologies),
 		deploymentLink: projectObject.deploymentLink
-			? isValidStr(projectObject.deploymentLink, 'project deployment link')
+			? isValidUrl(projectObject.deploymentLink, 'project deployment link')
 			: null,
 	};
 };

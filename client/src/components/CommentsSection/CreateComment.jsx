@@ -1,26 +1,42 @@
 import React from 'react';
-import { TextField, Button, Box, CircularProgress } from '@mui/material';
+import {
+	TextField,
+	Button,
+	Box,
+	CircularProgress,
+	Avatar,
+} from '@mui/material';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { createIdeaComment } from 'utils/api-calls';
+import { useSelector } from 'react-redux';
 
 const schema = Yup.object().shape({
-	comment: Yup.string()
-		.required('comment data required')
-		.min(3, 'comment should be at least 3 characters'),
+	comment: Yup.string().nullable(),
 });
 
-function CreateComment({ ideaId, handleNewComment = () => {} }) {
+function CreateComment({ reqFn, handleNewComment = () => {} }) {
+	const user = useSelector((state) => state.user);
+
+	if (!user) return null;
+
 	return (
 		<Box
 			sx={{
-				marginTop: '50px',
-				minHeight: '20vh',
 				display: 'flex',
 				flexDirection: 'row',
+				alignItems: 'center',
 				gap: 2,
+				width: '100%',
 			}}
 		>
+			<Avatar
+				src={user.avatar}
+				alt={`${user.firstName} ${user.lastName}`}
+				sx={{
+					width: 40,
+					height: 40,
+				}}
+			/>
 			<Formik
 				initialValues={{
 					comment: '',
@@ -28,7 +44,7 @@ function CreateComment({ ideaId, handleNewComment = () => {} }) {
 				validationSchema={schema}
 				validate={(values) => {
 					const errors = {};
-					if (values.comment.trim().length < 3)
+					if (values.comment && values.comment.trim().length < 3)
 						errors.comment = 'Comment should be at least 3 characters';
 					return errors;
 				}}
@@ -36,7 +52,7 @@ function CreateComment({ ideaId, handleNewComment = () => {} }) {
 					const commentObj = {
 						comment: values.comment.trim(),
 					};
-					const resp = await createIdeaComment(commentObj, ideaId);
+					const resp = await reqFn(commentObj);
 					if (!resp.comment) throw new Error();
 					handleNewComment(resp.comment);
 					resetForm();
@@ -50,7 +66,11 @@ function CreateComment({ ideaId, handleNewComment = () => {} }) {
 					handleBlur,
 					isSubmitting,
 				}) => (
-					<Form>
+					<Form
+						style={{
+							width: '100%',
+						}}
+					>
 						<Box
 							sx={{
 								display: 'flex',
@@ -58,7 +78,7 @@ function CreateComment({ ideaId, handleNewComment = () => {} }) {
 								alignItems: 'center',
 								justifyContent: 'center',
 								gap: 2,
-								minWidth: '300%',
+								width: '100%',
 							}}
 						>
 							<TextField
