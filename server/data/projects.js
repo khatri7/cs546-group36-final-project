@@ -221,10 +221,15 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateProjectImages = async (url, pos, projectId) => {
+const updateProjectImages = async (url, pos, projectId, user) => {
+	const project = await getProjectById(projectId);
+	const ownercheck = checkuseraccess(user, project.owner);
+	if (!ownercheck)
+		throw forbiddenErr(
+			`Not Authorised to update this project. Not Project Owner`
+		);
+	const imageArray = project.media;
 	try {
-		const project = await getProjectById(projectId);
-		const imageArray = project.media;
 		if (imageArray[pos]) {
 			const existingPhotoKey = imageArray[pos].substr(
 				imageArray[pos].indexOf('.com/') + 5
