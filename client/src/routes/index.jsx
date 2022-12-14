@@ -5,7 +5,6 @@ import {
 	useLocation,
 	Navigate,
 } from 'react-router-dom';
-import Home from 'pages';
 import Login from 'pages/Login';
 import Signup from 'pages/Signup';
 import User from 'pages/User';
@@ -35,7 +34,7 @@ function Routes() {
 	}
 	return (
 		<RRDRoutes>
-			<Route index element={<Home />} />
+			<Route index element={<Navigate to="/projects" />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/signup" element={<Signup />} />
 			<Route path="/users">

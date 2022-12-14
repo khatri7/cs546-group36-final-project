@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 import moment from 'moment';
 import { initializeApp } from 'store/app';
 import { setUser } from 'store/user';
@@ -64,4 +65,50 @@ export const autoLogin = async (dispatch) => {
 	} finally {
 		dispatch(initializeApp());
 	}
+};
+
+const isValidObject = (obj) =>
+	obj !== null && typeof obj === 'object' && !Array.isArray(obj);
+
+export const compareArrays = (arr1, arr2) => {
+	if (arr1.length !== arr2.length) return false;
+	// eslint-disable-next-line no-plusplus
+	for (let i = 0; i < arr1.length; i++) {
+		if (arr1[i] !== arr2[i]) {
+			if (
+				(Array.isArray(arr1[i]) &&
+					Array.isArray(arr2[i]) &&
+					compareArrays(arr1[i], arr2[i])) ||
+				(isValidObject(arr1[i]) &&
+					isValidObject(arr2[i]) &&
+					// eslint-disable-next-line no-use-before-define
+					deepEquality(arr1[i], arr2[i]))
+			)
+				continue;
+			return false;
+		}
+	}
+	return true;
+};
+
+export const deepEquality = (obj1, obj2) => {
+	const obj1keys = Object.keys(obj1);
+	const obj2keys = Object.keys(obj2);
+	if (obj1keys.length !== obj2keys.length) return false;
+	// eslint-disable-next-line no-restricted-syntax
+	for (const key of obj1keys) {
+		if (obj1[key] !== obj2[key]) {
+			if (
+				(Array.isArray(obj1[key]) &&
+					Array.isArray(obj2[key]) &&
+					compareArrays(obj1[key], obj2[key])) ||
+				(isValidObject(obj1[key]) &&
+					isValidObject(obj2[key]) &&
+					deepEquality(obj1[key], obj2[key]))
+			)
+				continue;
+			return false;
+		}
+	}
+	return true;
 };

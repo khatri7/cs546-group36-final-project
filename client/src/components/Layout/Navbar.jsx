@@ -84,7 +84,7 @@ function Navbar() {
 								textDecoration: 'none',
 								lineHeight: 0,
 							}}
-							to="/"
+							to="/projects"
 						>
 							<img
 								src={FavIcon}
@@ -144,7 +144,7 @@ function Navbar() {
 								textDecoration: 'none',
 								lineHeight: 0,
 							}}
-							to="/"
+							to="/projects"
 						>
 							<img
 								src={FavIcon}

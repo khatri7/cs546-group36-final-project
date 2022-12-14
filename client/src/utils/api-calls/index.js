@@ -184,3 +184,6 @@ export const createIdeaComment = (ideaId, commentObj) =>
 	POST(`/ideas/${ideaId}/comments`, commentObj);
 export const deleteIdeaComment = (ideaId, commentId) =>
 	DELETE(`/ideas/${ideaId}/comments/${commentId}`);
+
+export const updateProject = (projectId, projectObj) =>
+	PUT(`/projects/${projectId}`, projectObj);
