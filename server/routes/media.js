@@ -20,6 +20,7 @@ const router = express.Router();
 router
 	.route('/')
 	.post(authenticateToken, uploadMedia, async (req, res) => {
+		const { user } = req;
 		try {
 			if (req.body.mediaType === 'resume') {
 				if (!req.file) {
@@ -31,10 +32,10 @@ router
 				if (fileSize > 5253365.76)
 					throw badRequestErr('the file size of resume has exceeded 5 mb');
 
-				const user = await getUserById(req.body.userId);
+				const users = await getUserById(req.body.userId);
 				const resumeUploaded = await resumeUpload.resume(
 					req.file,
-					user,
+					users,
 					req.body.userId
 				);
 				res.status(successStatusCodes.CREATED).json({ user: resumeUploaded });
@@ -62,7 +63,8 @@ router
 					req.file,
 					project,
 					imagePos,
-					req.body.projectId
+					req.body.projectId,
+					user
 				);
 				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
 			} else if (req.body.mediaType === 'avatar') {
@@ -82,10 +84,10 @@ router
 						'the file size of Avatar Image has exceeded 5 mb'
 					);
 
-				const user = await getUserById(req.body.userId);
+				const users = await getUserById(req.body.userId);
 				const avatarUploaded = await avatarUpload.avatar(
 					req.file,
-					user,
+					users,
 					req.body.userId
 				);
 				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
