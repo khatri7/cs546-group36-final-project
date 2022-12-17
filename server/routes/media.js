@@ -1,6 +1,5 @@
 const express = require('express');
 const imageUpload = require('../utils/aws/image');
-const avatarUpload = require('../utils/aws/avatar');
 const { authenticateToken } = require('../middleware/auth');
 const {
 	badRequestErr,
@@ -11,7 +10,7 @@ const {
 	isValidFile,
 } = require('../utils');
 const { getProjectById, removeProjectMedia } = require('../data/projects');
-const { getUserById, udpateResume } = require('../data/users');
+const { getUserById, udpateResume, udpateAvatar } = require('../data/users');
 const uploadMedia = require('../middleware/uploadMedia');
 const { isValidUsername } = require('../utils/users');
 
@@ -20,6 +19,7 @@ const router = express.Router();
 router
 	.route('/')
 	.post(authenticateToken, uploadMedia, async (req, res) => {
+		const { user } = req;
 		try {
 			isValidFile(req.file, req.body.mediaType);
 			const currentUser = {
@@ -39,19 +39,15 @@ router
 					req.file,
 					project,
 					imagePos,
-					req.body.projectId
+					req.body.projectId,
+					user
 				);
 				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
 			} else if (req.body.mediaType === 'avatar') {
 				const userId = isValidObjectId(req.body.userId);
 				await getUserById(userId);
-				const user = await getUserById(userId);
-				const avatarUploaded = await avatarUpload.avatar(
-					req.file,
-					user,
-					req.body.userId
-				);
-				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
+				const updatedUser = await udpateAvatar(userId, currentUser, req.file);
+				res.status(successStatusCodes.CREATED).json({ user: updatedUser });
 			} else {
 				throw badRequestErr(
 					'Invald Entry, mediaType needs to be of resume, avatar, or image'

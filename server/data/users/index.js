@@ -7,7 +7,6 @@ const {
 	internalServerErr,
 	badRequestErr,
 	forbiddenErr,
-	isValidStr,
 	isValidFile,
 	unauthorizedErr,
 } = require('../../utils');
@@ -97,28 +96,38 @@ const checkEmailTaken = async (emailParam) => {
 	return true;
 };
 
-const udpateAvatar = async (url, userName, userId) => {
+const udpateAvatar = async (userIdParam, currentUserParam, avatar) => {
+	const userId = isValidObjectId(userIdParam);
+	const user = await getUserById(userId);
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	isValidFile(avatar, 'avatar');
+	if (currentUser._id !== user._id.toString())
+		throw unauthorizedErr('You cannot update avatar of another user');
+	let location = null;
 	try {
-		const user = await getUserByUsername(userName);
-		isValidStr(url, 'avatar');
-		if (user._id.toString() !== userId) {
-			throw badRequestErr('user doesnt not have appropriate persmissions');
+		if (user.avatar) {
+			const existingAvatarKey = user.avatar.substr(
+				user.avatar.indexOf('.com/') + 5
+			);
+			await deleteFile(existingAvatarKey);
 		}
-		const usersCollection = await users();
-		const updateInfo = await usersCollection.updateOne(
-			{ _id: ObjectId(userId) },
-			{ $set: { avatar: url } }
-		);
-
-		if (!updateInfo.acknowledged)
-			throw badRequestErr('Could not update the User. Please try again.');
-		const udpatedAvatar = await getUserByUsername(userName);
-		return udpatedAvatar;
+		const resumeKey = `${process.env.ENVIRONMENT}/avatars/${userId}/${avatar.originalname}`;
+		location = await upload(resumeKey, avatar.buffer, avatar.mimetype);
 	} catch (e) {
-		throw badRequestErr(
-			'Invalid AWS request/ AWS unable to process your avatar right now'
-		);
+		throw internalServerErr('Error updating avatar on AWS');
 	}
+	const usersCollection = await users();
+	const updateInfo = await usersCollection.updateOne(
+		{ _id: ObjectId(userId) },
+		{ $set: { avatar: location } }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the User. Please try again.');
+	const updatedUser = await getUserById(userId);
+	return updatedUser;
 };
 
 const updateUser = async (
