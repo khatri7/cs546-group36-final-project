@@ -228,3 +228,9 @@ export const removeProjectMedia = (imagePos, projectId) =>
 		projectId,
 		mediaType: 'image',
 	});
+
+export const removeUserMedia = (userId, mediaType) =>
+	DELETE('/media', {
+		userId,
+		mediaType,
+	});
