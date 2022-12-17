@@ -20,6 +20,15 @@ const theme = createTheme({
 				},
 			},
 		},
+		MuiTextField: {
+			styleOverrides: {
+				root: {
+					'& legend': { display: 'none' },
+					'& fieldset': { top: 0 },
+					'& label': { padding: '0 5px', background: 'white' },
+				},
+			},
+		},
 	},
 });
 
