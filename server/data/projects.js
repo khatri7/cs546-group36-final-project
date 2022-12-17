@@ -8,6 +8,7 @@ const {
 	forbiddenErr,
 	unauthorizedErr,
 	badRequestErr,
+	isValidFile,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
@@ -16,7 +17,7 @@ const {
 	checkuseraccess,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
-const { deleteFile } = require('../utils/aws');
+const { deleteFile, upload } = require('../utils/aws');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -221,14 +222,27 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateProjectImages = async (url, pos, projectId, user) => {
+const updateProjectImages = async (
+	projectIdParam,
+	currentUserParam,
+	image,
+	pos
+) => {
+	const projectId = isValidObjectId(projectIdParam);
 	const project = await getProjectById(projectId);
-	const ownercheck = checkuseraccess(user, project.owner);
-	if (!ownercheck)
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	if (!['0', '1', '2', '3', '4'].includes(pos))
+		throw badRequestErr('Invalid image position');
+	isValidFile(image, 'image');
+	if (!checkuseraccess(currentUser, project.owner))
 		throw forbiddenErr(
 			`Not Authorised to update this project. Not Project Owner`
 		);
 	const imageArray = project.media;
+	let location = null;
 	try {
 		if (imageArray[pos]) {
 			const existingPhotoKey = imageArray[pos].substr(
@@ -236,21 +250,21 @@ const updateProjectImages = async (url, pos, projectId, user) => {
 			);
 			await deleteFile(existingPhotoKey);
 		}
-		imageArray[pos] = url;
-		const projectCollection = await projects();
-		const updateInfo = await projectCollection.updateOne(
-			{ _id: ObjectId(projectId) },
-			{ $set: { media: imageArray } }
-		);
-		if (!updateInfo.acknowledged)
-			throw badRequestErr('Could not update the project. Please try again.');
-		const updatedProject = await getProjectById(projectId);
-		return updatedProject;
+		const imageKey = `${process.env.ENVIRONMENT}/projects/${projectId}/image/${pos}/${image.originalname}`;
+		location = await upload(imageKey, image.buffer, image.mimetype);
 	} catch (e) {
-		throw badRequestErr(
-			'Invalid AWS request/AWS unable to process your request right now'
-		);
+		throw internalServerErr('Error updating media on AWS');
 	}
+	imageArray[pos] = location;
+	const projectCollection = await projects();
+	const updateInfo = await projectCollection.updateOne(
+		{ _id: ObjectId(projectId) },
+		{ $set: { media: imageArray } }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the project. Please try again.');
+	const updatedProject = await getProjectById(projectId);
+	return updatedProject;
 };
 
 const removeProjectMedia = async (
@@ -276,7 +290,13 @@ const removeProjectMedia = async (
 	const existingPhotoKey = project.media[imagePos].substr(
 		project.media[imagePos].indexOf('.com/') + 5
 	);
-	await deleteFile(existingPhotoKey);
+	try {
+		await deleteFile(existingPhotoKey);
+	} catch (e) {
+		throw internalServerErr(
+			'An error occurred while trying to remove media for AWS'
+		);
+	}
 	const updatedProjectMedia = project.media;
 	updatedProjectMedia[imagePos] = null;
 	const projectCollection = await projects();

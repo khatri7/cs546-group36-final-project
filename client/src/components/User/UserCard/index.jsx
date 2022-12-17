@@ -21,7 +21,13 @@ import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { errorAlert, successAlert } from 'store/alert';
-import { handleError, uploadAvatar, uploadResume } from 'utils/api-calls';
+import {
+	handleError,
+	removeUserMedia,
+	uploadAvatar,
+	uploadResume,
+} from 'utils/api-calls';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
@@ -101,6 +107,21 @@ function UserCard({
 		return true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const handleRemoveMedia = async (mediaType, setLoading) => {
+		try {
+			setLoading(true);
+			const res = await removeUserMedia(_id, mediaType);
+			if (!res.user) throw new Error();
+			handleUpdateUser(res.user);
+			dispatch(successAlert(`${mediaType} removed successfully`));
+		} catch (err) {
+			let error = 'Unexpected error occurred';
+			if (typeof handleError(err) === 'string') error = handleError(err);
+			dispatch(errorAlert(error));
+		} finally {
+			setLoading(false);
+		}
+	};
 	useEffect(() => {
 		if (resumeRef.current)
 			resumeRef.current.addEventListener('change', handleResumeUpload);
@@ -127,28 +148,45 @@ function UserCard({
 					<Stack alignItems="center" spacing={1}>
 						<Avatar src={avatar} sx={{ width: 100, height: 100 }} />
 						{isCurrentUserProfile && (
-							<Button
-								sx={{
-									mt: -1,
-								}}
-								variant="text"
-								size="small"
-								component="label"
-								aria-label="upload avatar"
-								disabled={submittingAvatar}
-							>
-								{submittingAvatar ? (
-									<CircularProgress size={16} />
-								) : (
-									'Upload/Update Avatar'
+							<Stack>
+								<Button
+									sx={{
+										mt: -1,
+									}}
+									variant="text"
+									size="small"
+									component="label"
+									aria-label="upload avatar"
+									disabled={submittingAvatar}
+								>
+									{submittingAvatar ? (
+										<CircularProgress size={16} />
+									) : (
+										'Upload/Update Avatar'
+									)}
+									<input
+										ref={avatarRef}
+										hidden
+										accept="image/jpeg, image/png"
+										type="file"
+									/>
+								</Button>
+								{avatar && !submittingAvatar && (
+									<Button
+										type="button"
+										color="error"
+										size="small"
+										sx={{
+											m: 0,
+										}}
+										onClick={() => {
+											handleRemoveMedia('avatar', setSubmittingAvatar);
+										}}
+									>
+										Remove Avatar
+									</Button>
 								)}
-								<input
-									ref={avatarRef}
-									hidden
-									accept="image/jpeg, image/png"
-									type="file"
-								/>
-							</Button>
+							</Stack>
 						)}
 					</Stack>
 					{showEditProfile ? (
@@ -235,8 +273,9 @@ function UserCard({
 									</Link>
 								)}
 							</Stack>
-							<Stack direction="row" spacing={1}>
-								{isCurrentUserProfile && (
+
+							{isCurrentUserProfile && (
+								<Stack direction="row" spacing={1}>
 									<Button
 										variant="outlined"
 										component="label"
@@ -247,7 +286,7 @@ function UserCard({
 										{submittingResume ? (
 											<CircularProgress size={16} />
 										) : (
-											'Upload Resume'
+											`${resume ? 'Update' : 'Upload'} Resume`
 										)}
 										<input
 											ref={resumeRef}
@@ -256,18 +295,31 @@ function UserCard({
 											type="file"
 										/>
 									</Button>
-								)}
-								{resume && (
-									<Button
-										variant="contained"
-										onClick={() => {
-											window.open(resume, '_blank');
-										}}
-									>
-										Resume
-									</Button>
-								)}
-							</Stack>
+									{resume && !submittingResume && (
+										<Button
+											type="button"
+											color="error"
+											variant="outlined"
+											onClick={() => {
+												handleRemoveMedia('resume', setSubmittingResume);
+											}}
+										>
+											Remove Resume
+										</Button>
+									)}
+								</Stack>
+							)}
+							{resume && (
+								<Button
+									variant="contained"
+									onClick={() => {
+										window.open(resume, '_blank');
+									}}
+									startIcon={<OpenInNewIcon />}
+								>
+									Resume
+								</Button>
+							)}
 						</>
 					)}
 				</Stack>

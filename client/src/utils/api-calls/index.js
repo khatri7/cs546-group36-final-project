@@ -60,6 +60,21 @@ export const PUT = async (endpoint, body = {}, params = {}, headers = {}) => {
  * @param {object} params query parameters
  * @returns
  */
+export const PATCH = async (endpoint, body = {}, params = {}, headers = {}) => {
+	const { data } = await axios.patch(endpoint, body, {
+		params,
+		headers,
+	});
+	return data;
+};
+
+/**
+ *
+ * @param {string} endpoint to which the API request is to be made
+ * @param {object} body request body
+ * @param {object} params query parameters
+ * @returns
+ */
 export const DELETE = async (
 	endpoint,
 	body = {},
@@ -76,7 +91,7 @@ export const DELETE = async (
 
 /**
  * Types of axios request possible
- * @typedef {('GET'|'POST'|'PUT'|'DELETE')} requestType
+ * @typedef {('GET'|'POST'|'PUT'|'DELETE' | 'PATCH')} requestType
  */
 
 export const requestTypes = {
@@ -84,6 +99,7 @@ export const requestTypes = {
 	POST: 'POST',
 	PUT: 'PUT',
 	DELETE: 'DELETE',
+	PATCH: 'PATCH',
 };
 
 Object.freeze(requestTypes);
@@ -95,7 +111,7 @@ export const login = async (userLoginObj) => POST('/auth/login', userLoginObj);
 export const logout = async () => POST('/auth/logout');
 
 export const updateUser = async (username, updateUserObj) =>
-	PUT(`/users/${username}`, updateUserObj);
+	PATCH(`/users/${username}`, updateUserObj);
 
 export const createExperience = async (username, experienceObj) =>
 	POST(`/users/${username}/experience`, experienceObj);
@@ -211,4 +227,10 @@ export const removeProjectMedia = (imagePos, projectId) =>
 		imagePos,
 		projectId,
 		mediaType: 'image',
+	});
+
+export const removeUserMedia = (userId, mediaType) =>
+	DELETE('/media', {
+		userId,
+		mediaType,
 	});

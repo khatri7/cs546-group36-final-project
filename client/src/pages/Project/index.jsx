@@ -148,23 +148,17 @@ export default function Project() {
 
 	return (
 		<Box>
-			<Stack direction="row" spacing={2}>
-				<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
+			<div className="project-page__owner-container">
+				<Avatar className="project-page__owner-avatar">
 					{projectOwner.username.charAt(0).toUpperCase()}
 				</Avatar>
 				<Box>
-					<RRDLink
-						to={`/users/${projectOwner.username}`}
-						style={{
-							all: 'unset',
-							cursor: 'pointer',
-						}}
-					>
+					<RRDLink to={`/users/${projectOwner.username}`}>
 						<Typography variant="h5">{projectOwner.username}</Typography>
 					</RRDLink>
 					<Typography variant="body2">{getSubHeader()}</Typography>
 				</Box>
-			</Stack>
+			</div>
 			<Divider variant="middle" sx={{ my: 2 }} />
 			<Stack
 				direction="row"
@@ -260,7 +254,7 @@ export default function Project() {
 					}
 				/>
 			) : (
-				<Grid container spacing={3} sx={{ mt: 2 }}>
+				<div className="project-page__content-container">
 					<Grid item xs={6}>
 						{showUpdateMediaForm ? (
 							<UploadProjectMedia
@@ -297,9 +291,9 @@ export default function Project() {
 					<Grid item xs={6}>
 						<Typography variant="body2">{projectDescription}</Typography>
 					</Grid>
-				</Grid>
+				</div>
 			)}
-			<Box sx={{ mt: 2, p: 1 }}>
+			<div className="project-page__interactions-container">
 				<Stack
 					direction="row"
 					gap={1}
@@ -332,7 +326,7 @@ export default function Project() {
 						label={projectSavedBy.length}
 					/>
 				</Stack>
-			</Box>
+			</div>
 			<CommentsSection
 				createCommentReqFn={async (comment) =>
 					createProjectComment(comment, projectId)

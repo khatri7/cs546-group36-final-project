@@ -33,8 +33,7 @@ router
 				10
 			);
 			lookingFor = isValidLookingFor(parseInt(xss(lookingFor), 10));
-			// need to handle cases where it is an array
-			technologies.map((tech) => xss(tech));
+			// xss checks for technologies done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
 
 			const ideaObject = {
@@ -58,14 +57,14 @@ router
 		try {
 			let { technologies, name, status } = req.query;
 			// xss checks for technologies done in isValidQueryParamTechnologies()
-			technologies = xss(technologies?.trim()) ?? '';
-			name = xss(name?.trim()) ?? '';
+			technologies = xss(technologies?.trim() ?? '');
+			name = xss(name?.trim() ?? '');
 			if (technologies && technologies.length > 0)
 				technologies = isValidQueryParamTechnologies(technologies);
 			if (name && name.length > 0)
 				name = isValidStr(name, 'ideas name query param', 'min', 1);
 			if (status && status.length > 0) {
-				status = isValidStatus(status);
+				status = isValidStatus(xss(status));
 			}
 			const ideas = await ideasData.getAllIdeas({
 				name,
@@ -111,8 +110,7 @@ router
 			);
 			lookingFor = isValidLookingFor(parseInt(xss(lookingFor), 10));
 			status = isValidStatus(xss(status));
-			// need to handle for the case of array
-			technologies.map((tech) => xss(tech));
+			// xss checks for technologies done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
 
 			const idea = await ideasData.updateIdea(

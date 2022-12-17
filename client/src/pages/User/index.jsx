@@ -9,18 +9,16 @@ import UserCard from 'components/User/UserCard';
 import TabPanel from 'components/User/TabPanel';
 import Profile from 'components/User/Profile';
 import Projects from 'components/User/Projects';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SavedProjects from 'components/User/SavedProjects';
+import { setUser as setReduxUser } from 'store/user';
 
 function User() {
 	const { username } = useParams();
+	const dispatch = useDispatch();
 	const { data, loading, error } = useQuery(`/users/${username}`);
 	const [tabValue, setTabValue] = useState(0);
 	const [user, setUser] = useState(data?.user ?? null);
-
-	const handleUpdateUser = (updatedUserObj) => {
-		setUser(updatedUserObj);
-	};
 
 	const currentUser = useSelector((state) => state.user);
 
@@ -34,9 +32,28 @@ function User() {
 
 	if (!user) return <Typography>Error getting user</Typography>;
 
-	const isCurrentUserProfile = currentUser && currentUser._id === user._id;
+	const isCurrentUserProfile = Boolean(
+		currentUser && currentUser._id === user._id
+	);
+
+	const handleUpdateUser = (updatedUserObj) => {
+		setUser(updatedUserObj);
+		if (isCurrentUserProfile) {
+			const { _id, firstName, lastName, avatar } = updatedUserObj;
+			dispatch(
+				setReduxUser({
+					_id,
+					username: updatedUserObj.username,
+					firstName,
+					lastName,
+					avatar,
+				})
+			);
+		}
+	};
 
 	const handleTabChange = (_e, newValue) => {
+		console.log(newValue);
 		setTabValue(newValue);
 	};
 
@@ -81,6 +98,7 @@ function User() {
 					>
 						<Profile
 							username={username}
+							dob={user.dob}
 							bio={user.bio}
 							education={user.education}
 							experience={user.experience}

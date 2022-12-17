@@ -103,10 +103,9 @@ function SearchIdea({ setEndpoint }) {
 					/>
 
 					<FormControl fullWidth>
-						<InputLabel id="demo-simple-select-label">Status</InputLabel>
+						<InputLabel id="select-label">Status</InputLabel>
 						<Select
-							labelId="demo-simple-select-label"
-							id="demo-simple-select"
+							labelId="select-label"
 							value={status}
 							label="status"
 							onChange={handleStatusChange}

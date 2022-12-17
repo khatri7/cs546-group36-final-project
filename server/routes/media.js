@@ -1,18 +1,24 @@
 const express = require('express');
 const xss = require('xss');
-const imageUpload = require('../utils/aws/image');
-const resumeUpload = require('../utils/aws/resume');
-const avatarUpload = require('../utils/aws/avatar');
 const { authenticateToken } = require('../middleware/auth');
 const {
 	badRequestErr,
 	sendErrResp,
-	isValidStr,
 	isValidObjectId,
 	successStatusCodes,
+	isValidFile,
 } = require('../utils');
-const { getProjectById, removeProjectMedia } = require('../data/projects');
-const { getUserById } = require('../data/users');
+const {
+	getProjectById,
+	removeProjectMedia,
+	updateProjectImages,
+} = require('../data/projects');
+const {
+	getUserById,
+	udpateResume,
+	udpateAvatar,
+	removeUserMedia,
+} = require('../data/users');
 const uploadMedia = require('../middleware/uploadMedia');
 const { isValidUsername } = require('../utils/users');
 
@@ -21,77 +27,36 @@ const router = express.Router();
 router
 	.route('/')
 	.post(authenticateToken, uploadMedia, async (req, res) => {
-		const { user } = req;
 		try {
-			if (req.body.mediaType === 'resume') {
-				if (!req.file) {
-					throw badRequestErr('Please Pass a file');
-				}
-				const fileSize = req.file.size;
-				if (req.file.mimetype !== 'application/pdf')
-					throw badRequestErr('Please upload file type of PDF only');
-				if (fileSize > 5253365.76)
-					throw badRequestErr('the file size of resume has exceeded 5 mb');
-
-				const users = await getUserById(xss(req.body.userId));
-				const resumeUploaded = await resumeUpload.resume(
-					xss(req.file),
-					users,
-					xss(req.body.userId)
-				);
-				res.status(successStatusCodes.CREATED).json({ user: resumeUploaded });
-			} else if (req.body.mediaType === 'image') {
-				if (!req.file) {
-					throw badRequestErr('Please Pass a file');
-				}
-				const fileSize = req.file.size;
-				if (
-					!(
-						req.file.mimetype === 'image/jpeg' ||
-						req.file.mimetype === 'image/png'
-					)
-				)
-					throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
-				if (fileSize > 5253365.76)
-					throw badRequestErr(
-						'the file size of Image uploaded has exceeded 5 mb'
-					);
-
+			isValidFile(req.file, xss(req.body.mediaType.trim()));
+			const currentUser = {
+				_id: isValidObjectId(xss(req.user._id)),
+				username: isValidUsername(xss(req.user.username)),
+			};
+			if (req.body.mediaType.trim() === 'resume') {
+				const userId = isValidObjectId(xss(req.body.userId));
+				await getUserById(userId);
+				const updatedUser = await udpateResume(userId, currentUser, req.file);
+				res.status(successStatusCodes.CREATED).json({ user: updatedUser });
+			} else if (req.body.mediaType.trim() === 'image') {
 				const projectId = isValidObjectId(xss(req.body.projectId));
-				const project = await getProjectById(projectId);
-				const imagePos = isValidStr(xss(req.body.imagePos));
-				const imageUploaded = await imageUpload.images(
-					xss(req.file),
-					project,
-					imagePos,
-					xss(req.body.projectId),
-					user
+				await getProjectById(projectId);
+				if (!['0', '1', '2', '3', '4'].includes(xss(req.body.imagePos.trim())))
+					throw badRequestErr('Invalid image position');
+				const updatedProject = await updateProjectImages(
+					projectId,
+					currentUser,
+					req.file,
+					xss(req.body.imagePos.trim())
 				);
-				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
-			} else if (req.body.mediaType === 'avatar') {
-				if (!req.file) {
-					throw badRequestErr('Please Pass a file');
-				}
-				const fileSize = req.file.size;
-				if (
-					!(
-						req.file.mimetype === 'image/jpeg' ||
-						req.file.mimetype === 'image/png'
-					)
-				)
-					throw badRequestErr('file type wrong');
-				if (fileSize > 5253365.76)
-					throw badRequestErr(
-						'the file size of Avatar Image has exceeded 5 mb'
-					);
-
-				const users = await getUserById(xss(req.body.userId));
-				const avatarUploaded = await avatarUpload.avatar(
-					xss(req.file),
-					users,
-					xss(req.body.userId)
-				);
-				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
+				res
+					.status(successStatusCodes.CREATED)
+					.json({ project: updatedProject });
+			} else if (req.body.mediaType.trim() === 'avatar') {
+				const userId = isValidObjectId(xss(req.body.userId));
+				await getUserById(userId);
+				const updatedUser = await udpateAvatar(userId, currentUser, req.file);
+				res.status(successStatusCodes.CREATED).json({ user: updatedUser });
 			} else {
 				throw badRequestErr(
 					'Invald Entry, mediaType needs to be of resume, avatar, or image'
@@ -103,16 +68,27 @@ router
 	})
 	.delete(authenticateToken, async (req, res) => {
 		try {
-			if (req.body.mediaType === 'image') {
+			const currentUser = {
+				_id: isValidObjectId(xss(req.user._id)),
+				username: isValidUsername(xss(req.user.username)),
+			};
+			if (['resume', 'avatar'].includes(xss(req.body.mediaType.trim()))) {
+				const userId = isValidObjectId(xss(req.body.userId));
+				await getUserById(userId);
+				const updatedUser = await removeUserMedia(
+					userId,
+					currentUser,
+					xss(req.body.mediaType.trim())
+				);
+				res.status(successStatusCodes.OK).json({
+					user: updatedUser,
+				});
+			} else if (xss(req.body.mediaType.trim()) === 'image') {
 				const projectId = isValidObjectId(xss(req.body.projectId));
 				await getProjectById(projectId);
 				const { imagePos } = req.body;
-				if (![0, 1, 2, 3, 4].includes(xss(imagePos).parseInt()))
+				if (![0, 1, 2, 3, 4].includes(parseInt(xss(imagePos), 10)))
 					throw badRequestErr('Invalid image position');
-				const currentUser = {
-					_id: isValidObjectId(req.user._id),
-					username: isValidUsername(req.user.username),
-				};
 				const project = await removeProjectMedia(
 					projectId,
 					imagePos,

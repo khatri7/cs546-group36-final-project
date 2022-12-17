@@ -61,7 +61,7 @@ router
 			sendErrResp(res, e);
 		}
 	})
-	.put(authenticateToken, async (req, res) => {
+	.patch(authenticateToken, async (req, res) => {
 		try {
 			const username = isValidUsername(xss(req.params.username));
 			await getUserByUsername(username);
@@ -69,7 +69,7 @@ router
 				_id: isValidObjectId(xss(req.user._id)),
 				username: isValidUsername(xss(req.user.username)),
 			};
-			// xss added in the isValidUpdateUserObj()
+			// xss validation done in the isValidUpdateUserObj()
 			const updateUserObj = isValidUpdateUserObj(req.body);
 			const updatedUser = await updateUser(
 				username,
@@ -124,7 +124,7 @@ router
 			};
 			const ed = req.body;
 			ed.from = xss(ed.from);
-			ed.to = xss(ed.to);
+			ed.to = ed.to ? xss(ed.to) : null;
 			ed.school = xss(ed.school);
 			ed.course = xss(ed.course);
 			const educationObj = isValidEducationObj(ed);
@@ -149,7 +149,7 @@ router
 			};
 			const ed = req.body;
 			ed.from = xss(ed.from);
-			ed.to = xss(ed.to);
+			ed.to = ed.to ? xss(ed.to) : null;
 			ed.school = xss(ed.school);
 			ed.course = xss(ed.course);
 			const educationObj = isValidEducationObj(ed);
@@ -199,7 +199,7 @@ router
 			ex.company = xss(ex.company);
 			ex.title = xss(ex.title);
 			ex.from = xss(ex.from);
-			ex.to = xss(ex.to);
+			ex.to = ex.to ? xss(ex.to) : null;
 			const experienceObj = isValidExperienceObj(ex);
 			const user = await createExperience(username, currentUser, experienceObj);
 			res.status(successStatusCodes.CREATED).json({ user });
@@ -224,7 +224,7 @@ router
 			ex.company = xss(ex.company);
 			ex.title = xss(ex.title);
 			ex.from = xss(ex.from);
-			ex.to = xss(ex.to);
+			ex.to = ex.to ? xss(ex.to) : null;
 			const experienceObj = isValidExperienceObj(ex);
 			const user = await updateExperience(
 				username,

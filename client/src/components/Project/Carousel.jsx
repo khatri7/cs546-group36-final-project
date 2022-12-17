@@ -14,13 +14,7 @@ function Carousel({ projectMedia }) {
 	return (
 		<div>
 			<img
-				style={{
-					borderRadius: 15,
-					height: 280,
-					width: '100%',
-					maxWidth: 550,
-					objectFit: 'cover',
-				}}
+				className="carousel__image"
 				src={projectMedia[activeStep]}
 				alt={projectMedia[activeStep]}
 			/>

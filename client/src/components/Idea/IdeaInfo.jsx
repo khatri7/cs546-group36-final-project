@@ -112,13 +112,7 @@ function IdeaInfo({ idea: ideaProp }) {
 					{ideaOwner.username.charAt(0).toUpperCase()}
 				</Avatar>
 				<Box>
-					<Link
-						to={`/users/${ideaOwner.username}`}
-						style={{
-							all: 'unset',
-							cursor: 'pointer',
-						}}
-					>
+					<Link to={`/users/${ideaOwner.username}`}>
 						<Typography variant="h5">{ideaOwner.username}</Typography>
 					</Link>
 					<Typography variant="body2">{getSubHeader()}</Typography>

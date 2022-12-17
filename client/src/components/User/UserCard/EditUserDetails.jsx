@@ -21,6 +21,7 @@ import { handleError, updateUser } from 'utils/api-calls';
 import { errorAlert, successAlert } from 'store/alert';
 import { useDispatch } from 'react-redux';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
+import moment from 'moment';
 
 const AVAILABILITY = [
 	'full-time',
@@ -122,11 +123,7 @@ function EditUserDetails({
 				setFieldValue,
 			}) => {
 				return (
-					<Form
-						style={{
-							width: '100%',
-						}}
-					>
+					<Form className="edituser__form">
 						<Box
 							sx={{
 								display: 'flex',
@@ -164,6 +161,7 @@ function EditUserDetails({
 								name="dob"
 								component={DatePickerInput}
 								label="Date of Birth"
+								maxDate={moment().subtract(12, 'y')}
 								required
 							/>
 							<Field

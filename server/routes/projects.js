@@ -26,17 +26,14 @@ router
 		try {
 			user._id = isValidObjectId(xss(user._id));
 			user.username = isValidUsername(xss(user.username));
-			name = isValidProjectName(name);
-			description = xss(req.body.description)
+			name = isValidProjectName(xss(name));
+			description = req.body.description
 				? isValidStr(xss(req.body.description), 'project description')
 				: null;
-			github = xss(req.body.github)
-				? isValidGithub(xss(req.body.github))
-				: null;
-			// need to do xss for technologies
-			technologies.map((tech) => xss(tech));
+			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
+			// xss validation done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
-			deploymentLink = xss(req.body.deploymentLink)
+			deploymentLink = req.body.deploymentLink
 				? isValidStr(xss(req.body.deploymentLink), 'project deployment link')
 				: null;
 			const projectObject = {
@@ -57,9 +54,9 @@ router
 	.get(async (req, res) => {
 		try {
 			let { technologies, name } = req.query;
-			// did technology xss checks in isValidQueryParamTechnologies()
-			technologies = xss(technologies)?.trim() ?? '';
-			name = xss(name)?.trim() ?? '';
+			// xss validation done in isValidQueryParamTechnologies()
+			technologies = xss(technologies?.trim() ?? '');
+			name = xss(name?.trim() ?? '');
 			if (technologies && technologies.length > 0)
 				technologies = isValidQueryParamTechnologies(technologies);
 			if (name && name.length > 0)
@@ -102,16 +99,13 @@ router
 			const projectId = isValidObjectId(xss(req.params.project_id));
 			await projectsData.getProjectById(projectId);
 			name = isValidProjectName(xss(name));
-			description = xss(req.body.description)
+			description = req.body.description
 				? isValidStr(xss(req.body.description), 'project description')
 				: null;
-			github = xss(req.body.github)
-				? isValidGithub(xss(req.body.github))
-				: null;
-			// Need to do for technologies
-			technologies.map((tech) => xss(tech));
+			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
+			// xss validation done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
-			deploymentLink = xss(req.body.deploymentLink)
+			deploymentLink = req.body.deploymentLink
 				? isValidStr(xss(req.body.deploymentLink), 'project deployment link')
 				: null;
 			const projectObject = {

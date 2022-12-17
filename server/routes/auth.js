@@ -40,8 +40,8 @@ router.route('/').post(async (req, res) => {
 
 router.route('/login').post(async (req, res) => {
 	try {
+		// XSS validation done in isValidUserLoginObj()
 		const userLoginObj = isValidUserLoginObj(req.body);
-		// XSS validation done in authenticateUser()
 		const { user, token } = await authenticateUser(userLoginObj);
 		res
 			.cookie('token', token, {

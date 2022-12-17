@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteIdea, handleError, likeIdea, unlikeIdea } from 'utils/api-calls';
 import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 
 function IdeaCard({
 	idea,
@@ -82,13 +83,7 @@ function IdeaCard({
 				<CardHeader
 					title={idea.name}
 					subheader={
-						<Link
-							to={`/users/${idea.owner?.username}`}
-							style={{
-								all: 'unset',
-								cursor: 'pointer',
-							}}
-						>
+						<Link to={`/users/${idea.owner?.username}`}>
 							@{idea.owner.username}
 						</Link>
 					}
@@ -109,7 +104,7 @@ function IdeaCard({
 									</IconButton>
 									<Menu
 										sx={{ mt: '2rem' }}
-										id="menu-appbar"
+										id="idea-menu"
 										anchorEl={anchorElIdea}
 										anchorOrigin={{
 											vertical: 'top',
@@ -175,6 +170,15 @@ function IdeaCard({
 									/>
 								}
 								label={likes.length}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										inputProps={{ 'aria-label': 'Save' }}
+										icon={<ChatBubbleOutlineRoundedIcon />}
+									/>
+								}
+								label={idea.comments?.length ?? 0}
 							/>
 						</Stack>
 					</CardActions>
