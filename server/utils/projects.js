@@ -1,4 +1,4 @@
-// Projects Validations
+const xss = require('xss');
 const topics = require('./data/technologies');
 const {
 	badRequestErr,
@@ -69,7 +69,7 @@ const isValidTechnologies = (technologiesParam) => {
 };
 
 const isValidQueryParamTechnologies = (technologiesParam) => {
-	isValidStr(technologiesParam, 'technologies query param');
+	isValidStr(xss(technologiesParam), 'technologies query param');
 	return isValidTechnologies(
 		technologiesParam
 			.trim()

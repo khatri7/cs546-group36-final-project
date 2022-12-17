@@ -1,4 +1,5 @@
 const moment = require('moment/moment');
+const xss = require('xss');
 const bcrypt = require('bcrypt');
 const {
 	isValidStr,
@@ -212,17 +213,18 @@ const isValidPassword = (passwordParam) => {
 const isValidUserObj = (userObjParam) => {
 	isValidObj(userObjParam);
 	return {
-		firstName: isValidName(userObjParam.firstName, 'First Name', false),
-		lastName: isValidName(userObjParam.lastName, 'Last Name', false),
-		username: isValidUsername(userObjParam.username),
-		dob: isValidDob(userObjParam.dob),
-		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
-		email: isValidEmail(userObjParam.email),
-		password: isValidPassword(userObjParam.password),
+		firstName: isValidName(xss(userObjParam.firstName), 'First Name', false),
+		lastName: isValidName(xss(userObjParam.lastName), 'Last Name', false),
+		username: isValidUsername(xss(userObjParam.username)),
+		dob: isValidDob(xss(userObjParam.dob)),
+		bio: userObjParam.bio ? isValidStr(xss(userObjParam.bio)) : null,
+		email: isValidEmail(xss(userObjParam.email)),
+		password: isValidPassword(xss(userObjParam.password)),
 		education: [],
 		experience: [],
-		resumeUrl: '',
-		avatar: '',
+		resumeUrl: null,
+		avatar: null,
+		// xss validations for skills done in isValidTechnologies()
 		skills: isValidTechnologies(userObjParam.skills),
 		isAvailable: false,
 		availability: [],
@@ -247,18 +249,21 @@ const isValidUpdateUserObj = (userObjParam) => {
 	} = userObjParam;
 	const updateUserObj = {};
 	if (firstName)
-		updateUserObj.firstName = isValidName(firstName, 'First Name', false);
+		updateUserObj.firstName = isValidName(xss(firstName), 'First Name', false);
 	if (lastName)
-		updateUserObj.lastName = isValidName(lastName, 'Last Name', false);
-	if (dob) updateUserObj.dob = isValidDob(dob);
+		updateUserObj.lastName = isValidName(xss(lastName), 'Last Name', false);
+	if (dob) updateUserObj.dob = isValidDob(xss(dob));
 	if (Object.keys(userObjParam).includes('bio'))
 		updateUserObj.bio =
-			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
+			bio === null || bio.trim().length === 0
+				? null
+				: isValidStr(xss(bio), 'Bio');
+	// xss validations for skills done in isValidTechnologies()
 	if (skills) updateUserObj.skills = isValidTechnologies(skills);
 	if (socials) {
 		updateUserObj.socials = {
-			github: socials.github || null,
-			linkedin: socials.linkedin || null,
+			github: socials.github ? xss(socials.github) : null,
+			linkedin: socials.linkedin ? xss(socials.linkedin) : null,
 		};
 	}
 	if (Object.keys(userObjParam).includes('isAvailable')) {
@@ -278,8 +283,8 @@ const isValidUpdateUserObj = (userObjParam) => {
 const isValidUserLoginObj = (userLoginObjParam) => {
 	isValidObj(userLoginObjParam);
 	return {
-		username: isValidUsername(userLoginObjParam.username),
-		password: isValidPassword(userLoginObjParam.password),
+		username: isValidUsername(xss(userLoginObjParam.username)),
+		password: isValidPassword(xss(userLoginObjParam.password)),
 	};
 };
 
@@ -345,7 +350,7 @@ const isValidExperienceObj = (experienceObjParam, userDob = undefined) => {
 const isValidAvailabilityQueryParams = (availabilityParam) => {
 	if (!AVAILABILITY.includes(availabilityParam.trim().toLowerCase()))
 		throw badRequestErr('Not a valid availability param');
-	return availabilityParam.trim().toLowerCase();
+	return xss(availabilityParam.trim().toLowerCase());
 };
 
 module.exports = {
