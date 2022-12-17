@@ -1,15 +1,17 @@
 const express = require('express');
-const imageUpload = require('../utils/aws/image');
 const { authenticateToken } = require('../middleware/auth');
 const {
 	badRequestErr,
 	sendErrResp,
-	isValidStr,
 	isValidObjectId,
 	successStatusCodes,
 	isValidFile,
 } = require('../utils');
-const { getProjectById, removeProjectMedia } = require('../data/projects');
+const {
+	getProjectById,
+	removeProjectMedia,
+	updateProjectImages,
+} = require('../data/projects');
 const { getUserById, udpateResume, udpateAvatar } = require('../data/users');
 const uploadMedia = require('../middleware/uploadMedia');
 const { isValidUsername } = require('../utils/users');
@@ -19,7 +21,6 @@ const router = express.Router();
 router
 	.route('/')
 	.post(authenticateToken, uploadMedia, async (req, res) => {
-		const { user } = req;
 		try {
 			isValidFile(req.file, req.body.mediaType);
 			const currentUser = {
@@ -33,16 +34,18 @@ router
 				res.status(successStatusCodes.CREATED).json({ user: updatedUser });
 			} else if (req.body.mediaType === 'image') {
 				const projectId = isValidObjectId(req.body.projectId);
-				const project = await getProjectById(projectId);
-				const imagePos = isValidStr(req.body.imagePos);
-				const imageUploaded = await imageUpload.images(
+				await getProjectById(projectId);
+				if (!['0', '1', '2', '3', '4'].includes(req.body.imagePos.trim()))
+					throw badRequestErr('Invalid image position');
+				const updatedProject = await updateProjectImages(
+					projectId,
+					currentUser,
 					req.file,
-					project,
-					imagePos,
-					req.body.projectId,
-					user
+					req.body.imagePos.trim()
 				);
-				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
+				res
+					.status(successStatusCodes.CREATED)
+					.json({ project: updatedProject });
 			} else if (req.body.mediaType === 'avatar') {
 				const userId = isValidObjectId(req.body.userId);
 				await getUserById(userId);
