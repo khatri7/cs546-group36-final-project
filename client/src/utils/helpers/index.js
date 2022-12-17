@@ -53,6 +53,12 @@ export const compareDateStr = (date, compareDate, comparision) => {
 	return false;
 };
 
+export const isFutureDate = (date) => {
+	const momentDate = moment(date);
+	if (moment().diff(momentDate, 'days') < 0) return true;
+	return false;
+};
+
 export const isValidDob = (dateParam) => {
 	isValidDateStr(dateParam);
 	const momentDate = moment(dateParam);

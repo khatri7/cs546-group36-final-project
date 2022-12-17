@@ -20,7 +20,12 @@ import {
 	updateEducation,
 	updateExperience,
 } from 'utils/api-calls';
-import { compareDateStr, deepEquality, isValidDateStr } from 'utils/helpers';
+import {
+	compareDateStr,
+	deepEquality,
+	isFutureDate,
+	isValidDateStr,
+} from 'utils/helpers';
 import * as Yup from 'yup';
 
 function CreateEducationExperienceForm({
@@ -76,6 +81,10 @@ function CreateEducationExperienceForm({
 						errors.from = 'Invalid Date (MM-DD-YYYY expected)';
 					else if (!compareDateStr(values.from, minFrom, 'after'))
 						errors.from = 'From date cannot be before or same as your DOB';
+					else if (isFutureDate(values.from))
+						errors.from = 'From date cannot be in the future';
+					else if (values.to && compareDateStr(values.from, values.to, 'after'))
+						errors.from = 'From date cannot be after to date';
 				}
 				if (!values.isCurrent) {
 					if (!values.to || values.to.trim().length === 0)
@@ -95,6 +104,9 @@ function CreateEducationExperienceForm({
 							errors.to = 'Invalid Date (MM-DD-YYYY expected)';
 						else if (!compareDateStr(values.to, compareDate.date, 'after'))
 							errors.to = compareDate.msg;
+						else if (isFutureDate(values.to))
+							errors.from =
+								'To date cannot be in the future. Choose current option if on-going';
 					}
 				}
 				return errors;
@@ -171,6 +183,11 @@ function CreateEducationExperienceForm({
 							component={DatePickerInput}
 							label="From"
 							minDate={minFrom}
+							maxDate={
+								values.to
+									? moment(values.to).subtract(1, 'days').format('MM-DD-YYYY')
+									: undefined
+							}
 							required
 						/>
 						<Field

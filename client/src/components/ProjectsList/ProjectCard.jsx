@@ -33,6 +33,7 @@ import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 
 /**
  * @typedef {Object} Project
@@ -246,6 +247,15 @@ function ProjectCard({
 									/>
 								}
 								label={savedBy.length}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										inputProps={{ 'aria-label': 'Save' }}
+										icon={<ChatBubbleOutlineRoundedIcon />}
+									/>
+								}
+								label={project.comments?.length ?? 0}
 							/>
 						</Stack>
 					</CardActions>

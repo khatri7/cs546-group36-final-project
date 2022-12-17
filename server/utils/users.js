@@ -101,6 +101,10 @@ const isValidFromAndToDate = (fromDate, toDate = null) => {
 	if (moment().diff(fromMomentDate, 'days') < 0)
 		throw badRequestErr('From Date cannot be in the future');
 	if (toMomentDate) {
+		if (moment().diff(toMomentDate, 'days') < 0)
+			throw badRequestErr(
+				'To Date cannot be in the future, set it as null if it is current'
+			);
 		const difference = toMomentDate.diff(fromMomentDate, 'days');
 		if (difference < 1)
 			throw badRequestErr('To Date cannot be same as or before From Date');
@@ -195,8 +199,6 @@ const isValidPassword = (passwordParam) => {
 	return password;
 };
 
-// TODO - validate bio
-// TODO - check email specs on wiki and create validation (HTML input validation breaks when there is missing TLD after .)
 /**
  *
  * @param {object} userObj

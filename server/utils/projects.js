@@ -44,16 +44,6 @@ const isValidGithub = (inputLinkParam) => {
 	return inputLink;
 };
 
-const isValidQueryParamTechnologies = (technologiesParam) => {
-	isValidStr(technologiesParam, 'technologies query param');
-	return technologiesParam
-		.trim()
-		.split(',')
-		.map((topic) => topic.toLowerCase().trim())
-		.filter((topic) => topic !== '')
-		.join(',');
-};
-
 const isValidTechnologies = (technologiesParam) => {
 	const technologies = isValidArray(
 		technologiesParam,
@@ -76,6 +66,17 @@ const isValidTechnologies = (technologiesParam) => {
 		return tech.trim().toLowerCase();
 	});
 	return technologies;
+};
+
+const isValidQueryParamTechnologies = (technologiesParam) => {
+	isValidStr(technologiesParam, 'technologies query param');
+	return isValidTechnologies(
+		technologiesParam
+			.trim()
+			.split(',')
+			.map((topic) => topic.toLowerCase().trim())
+			.filter((topic) => topic !== '')
+	).join(',');
 };
 
 const isValidProjectObject = (projectObject) => {

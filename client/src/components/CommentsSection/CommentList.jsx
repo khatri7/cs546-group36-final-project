@@ -7,6 +7,7 @@ function CommentList({
 	commentsList = [],
 	reqFn,
 	handleDeleteComment = () => {},
+	isOwner,
 }) {
 	const user = useSelector((state) => state.user);
 
@@ -25,7 +26,9 @@ function CommentList({
 						reqFn={reqFn}
 						handleDeleteComment={handleDeleteComment}
 						comment={comment}
-						isOwner={Boolean(user?._id && user._id === comment.owner._id)}
+						isOwner={
+							Boolean(user?._id && user._id === comment.owner._id) || isOwner
+						}
 						key={comment._id}
 					/>
 				))}
