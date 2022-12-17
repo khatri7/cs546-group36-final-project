@@ -60,7 +60,7 @@ router
 			sendErrResp(res, e);
 		}
 	})
-	.put(authenticateToken, async (req, res) => {
+	.patch(authenticateToken, async (req, res) => {
 		try {
 			const username = isValidUsername(req.params.username);
 			await getUserByUsername(username);
