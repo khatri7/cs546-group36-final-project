@@ -92,7 +92,7 @@ const isValidDob = (dateParam) => {
 	return momentDate.format('MM-DD-YYYY');
 };
 
-const isValidFromAndToDate = (fromDate, toDate = null) => {
+const isValidFromAndToDate = (fromDate, toDate = null, userDob = undefined) => {
 	const fromMomentDate = isValidDateStr(fromDate, 'From Date');
 	const toMomentDate = toDate ? isValidDateStr(toDate, 'To Date') : null;
 	if (!fromMomentDate.isValid()) throw badRequestErr('Invalid From Date');
@@ -100,6 +100,11 @@ const isValidFromAndToDate = (fromDate, toDate = null) => {
 		throw badRequestErr('Invalid To Date');
 	if (moment().diff(fromMomentDate, 'days') < 0)
 		throw badRequestErr('From Date cannot be in the future');
+	if (userDob) {
+		const userDobMoment = moment(userDob);
+		if (fromMomentDate.diff(userDobMoment, 'days') < 1)
+			throw badRequestErr('From date cannot be before or same as your DOB');
+	}
 	if (toMomentDate) {
 		if (moment().diff(toMomentDate, 'days') < 0)
 			throw badRequestErr(
@@ -303,11 +308,12 @@ const isValidCourseName = (nameParam, varName) => {
 	return name;
 };
 
-const isValidEducationObj = (educationObjParam) => {
+const isValidEducationObj = (educationObjParam, userDob = undefined) => {
 	isValidObj(educationObjParam);
 	const { from, to } = isValidFromAndToDate(
 		educationObjParam.from,
-		educationObjParam.to
+		educationObjParam.to,
+		userDob
 	);
 	return {
 		school: isValidSchoolName(
@@ -322,11 +328,12 @@ const isValidEducationObj = (educationObjParam) => {
 	};
 };
 
-const isValidExperienceObj = (experienceObjParam) => {
+const isValidExperienceObj = (experienceObjParam, userDob = undefined) => {
 	isValidObj(experienceObjParam);
 	const { from, to } = isValidFromAndToDate(
 		experienceObjParam.from,
-		experienceObjParam.to
+		experienceObjParam.to,
+		userDob
 	);
 	return {
 		company: isValidSchoolName(experienceObjParam.company, 'Company Name'),
