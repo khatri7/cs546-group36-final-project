@@ -148,87 +148,91 @@ export default function Project() {
 
 	return (
 		<Box>
-			<div className="project-page__owner-container">
-				<Avatar className="project-page__owner-avatar">
-					{projectOwner.username.charAt(0).toUpperCase()}
-				</Avatar>
-				<Box>
-					<RRDLink to={`/users/${projectOwner.username}`}>
-						<Typography variant="h5">{projectOwner.username}</Typography>
-					</RRDLink>
-					<Typography variant="body2">{getSubHeader()}</Typography>
-				</Box>
-			</div>
-			<Divider variant="middle" sx={{ my: 2 }} />
-			<Stack
-				direction="row"
-				justifyContent="space-between"
-				alignItems="flex-start"
-				sx={{
-					mb: 2,
-				}}
-			>
-				<Box>
-					<Typography
-						variant="h4"
-						component="h1"
-						sx={{
-							mb: 1,
-						}}
-					>
-						{projectName}
-					</Typography>
-					{projectTechnologies.map((tech) => (
-						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
-					))}
-				</Box>
-				<Box
-					display="flex"
-					justifyContent="flex-end"
+			<Stack direction="column-reverse">
+				<Stack
+					direction="row"
+					justifyContent="space-between"
+					alignItems="flex-start"
 					sx={{
-						gap: 1,
+						mb: 2,
 					}}
 				>
-					{projectDeploymentLink && (
-						<Tooltip title="Deployment Link" arrow>
-							<Link href={projectDeploymentLink} target="_blank">
-								<IconButton>
-									<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
-								</IconButton>
-							</Link>
-						</Tooltip>
-					)}
-					{projectGithub && (
-						<Tooltip title="GitHub" arrow>
-							<Link href={projectGithub} target="_blank">
-								<IconButton>
-									<GitHubIcon sx={{ width: 35, height: 35 }} />
-								</IconButton>
-							</Link>
-						</Tooltip>
-					)}
-					{isCurrentUsersProject && (
-						<Stack direction="row" spacing={2}>
-							<Button
-								variant="outlined"
-								onClick={() => {
-									setIsEditing(!isEditing);
-								}}
-								startIcon={<EditRoundedIcon />}
-							>
-								Edit
-							</Button>
-							<Button
-								variant="contained"
-								color="error"
-								onClick={handleDeleteProject}
-								startIcon={<DeleteIcon />}
-							>
-								Delete
-							</Button>
-						</Stack>
-					)}
-				</Box>
+					<Box>
+						<Typography
+							variant="h4"
+							component="h1"
+							sx={{
+								mb: 1,
+							}}
+						>
+							{projectName}
+						</Typography>
+						{projectTechnologies.map((tech) => (
+							<Chip label={tech} key={tech} sx={{ mr: 1 }} />
+						))}
+					</Box>
+					<Box
+						display="flex"
+						justifyContent="flex-end"
+						sx={{
+							gap: 1,
+						}}
+					>
+						{projectDeploymentLink && (
+							<Tooltip title="Deployment Link" arrow>
+								<Link href={projectDeploymentLink} target="_blank">
+									<IconButton>
+										<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
+									</IconButton>
+								</Link>
+							</Tooltip>
+						)}
+						{projectGithub && (
+							<Tooltip title="GitHub" arrow>
+								<Link href={projectGithub} target="_blank">
+									<IconButton>
+										<GitHubIcon sx={{ width: 35, height: 35 }} />
+									</IconButton>
+								</Link>
+							</Tooltip>
+						)}
+						{isCurrentUsersProject && (
+							<Stack direction="row" spacing={2}>
+								<Button
+									variant="outlined"
+									onClick={() => {
+										setIsEditing(!isEditing);
+									}}
+									startIcon={<EditRoundedIcon />}
+								>
+									Edit
+								</Button>
+								<Button
+									variant="contained"
+									color="error"
+									onClick={handleDeleteProject}
+									startIcon={<DeleteIcon />}
+								>
+									Delete
+								</Button>
+							</Stack>
+						)}
+					</Box>
+				</Stack>
+				<Divider variant="middle" sx={{ my: 2 }} />
+				<div className="project-page__owner-container">
+					<Avatar className="project-page__owner-avatar">
+						{projectOwner.username.charAt(0).toUpperCase()}
+					</Avatar>
+					<Box>
+						<RRDLink to={`/users/${projectOwner.username}`}>
+							<Typography variant="h5" component="h2">
+								{projectOwner.username}
+							</Typography>
+						</RRDLink>
+						<Typography variant="body2">{getSubHeader()}</Typography>
+					</Box>
+				</div>
 			</Stack>
 			{isEditing ? (
 				<CreateProject

@@ -53,14 +53,30 @@ function User() {
 	};
 
 	const handleTabChange = (_e, newValue) => {
-		console.log(newValue);
 		setTabValue(newValue);
 	};
 
 	return (
 		<Box>
 			<Grid container spacing={2}>
-				<Grid item xs={8}>
+				<Grid item xs={4}>
+					<UserCard
+						_id={user._id}
+						firstName={user.firstName}
+						lastName={user.lastName}
+						username={user.username}
+						avatar={user.avatar}
+						dob={user.dob}
+						socials={user.socials}
+						skills={user.skills}
+						isAvailable={user.isAvailable}
+						availability={user.availability}
+						resume={user.resumeUrl}
+						isCurrentUserProfile={isCurrentUserProfile}
+						handleUpdateUser={handleUpdateUser}
+					/>
+				</Grid>
+				<Grid sx={{ order: -1 }} item xs={8}>
 					<Tabs
 						value={tabValue}
 						onChange={handleTabChange}
@@ -122,23 +138,6 @@ function User() {
 					>
 						<SavedProjects username={user.username} />
 					</TabPanel>
-				</Grid>
-				<Grid item xs={4}>
-					<UserCard
-						_id={user._id}
-						firstName={user.firstName}
-						lastName={user.lastName}
-						username={user.username}
-						avatar={user.avatar}
-						dob={user.dob}
-						socials={user.socials}
-						skills={user.skills}
-						isAvailable={user.isAvailable}
-						availability={user.availability}
-						resume={user.resumeUrl}
-						isCurrentUserProfile={isCurrentUserProfile}
-						handleUpdateUser={handleUpdateUser}
-					/>
 				</Grid>
 			</Grid>
 		</Box>

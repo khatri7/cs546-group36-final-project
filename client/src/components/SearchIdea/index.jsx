@@ -79,8 +79,7 @@ function SearchIdea({ setEndpoint }) {
 						value={technologies}
 						onChange={handleChange}
 						renderInput={(params) => {
-							// eslint-disable-next-line react/jsx-props-no-spreading
-							return <TextField {...params} placeholder="Technologies" />;
+							return <TextField {...params} label="Technologies" />;
 						}}
 						renderTags={() => {}}
 						clearIcon={null}
@@ -99,7 +98,7 @@ function SearchIdea({ setEndpoint }) {
 							),
 						}}
 						name="name"
-						placeholder="Idea Name"
+						label="Idea Name"
 					/>
 
 					<FormControl fullWidth>
@@ -107,7 +106,7 @@ function SearchIdea({ setEndpoint }) {
 						<Select
 							labelId="select-label"
 							value={status}
-							label="status"
+							label="Status"
 							onChange={handleStatusChange}
 						>
 							<MenuItem value="inactive">inactive</MenuItem>

@@ -4,7 +4,6 @@ import {
 	CardContent,
 	Stack,
 	Typography,
-	Link,
 	Chip,
 	Button,
 	IconButton,
@@ -146,7 +145,11 @@ function UserCard({
 						</IconButton>
 					)}
 					<Stack alignItems="center" spacing={1}>
-						<Avatar src={avatar} sx={{ width: 100, height: 100 }} />
+						<Avatar
+							src={avatar}
+							alt={`${firstName} ${lastName}`}
+							sx={{ width: 100, height: 100 }}
+						/>
 						{isCurrentUserProfile && (
 							<Stack>
 								<Button
@@ -263,14 +266,26 @@ function UserCard({
 							</Stack>
 							<Stack direction="row" spacing={2} alignItems="center">
 								{socials.github && (
-									<Link href={socials.github} target="_blank" color="inherit">
+									<IconButton
+										onClick={() => {
+											window.open(socials.github, '_blank');
+										}}
+										color="inherit"
+										component="label"
+									>
 										<GitHubIcon fontSize="large" />
-									</Link>
+									</IconButton>
 								)}
 								{socials.linkedin && (
-									<Link href={socials.linkedin} target="_blank" color="inherit">
+									<IconButton
+										onClick={() => {
+											window.open(socials.linkedin, '_blank');
+										}}
+										color="inherit"
+										component="label"
+									>
 										<LinkedInIcon fontSize="large" />
-									</Link>
+									</IconButton>
 								)}
 							</Stack>
 

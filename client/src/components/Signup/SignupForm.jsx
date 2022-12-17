@@ -151,7 +151,11 @@ function SignupForm() {
 								minWidth: '500px',
 							}}
 						>
-							<Typography variant="h3" sx={{ textTransform: 'uppercase' }}>
+							<Typography
+								variant="h3"
+								component="h1"
+								sx={{ textTransform: 'uppercase' }}
+							>
 								Sign Up
 							</Typography>
 							<Stack
@@ -251,7 +255,9 @@ function SignupForm() {
 								id="select-skills-autocomplete"
 							/>
 							<Divider sx={{ width: '100%' }}>
-								<Typography variant="h5">SOCIALS</Typography>
+								<Typography variant="h5" component="h2">
+									SOCIALS
+								</Typography>
 							</Divider>
 							<TextField
 								variant="outlined"

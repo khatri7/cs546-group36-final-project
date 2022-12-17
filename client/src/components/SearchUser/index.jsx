@@ -78,8 +78,7 @@ function SearchUser({ setEndpoint }) {
 						value={skills}
 						onChange={handleSkillsChange}
 						renderInput={(params) => {
-							// eslint-disable-next-line react/jsx-props-no-spreading
-							return <TextField {...params} placeholder="Skills" />;
+							return <TextField {...params} label="Skills" />;
 						}}
 						renderTags={() => {}}
 						clearIcon={null}
