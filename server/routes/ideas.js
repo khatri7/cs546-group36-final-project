@@ -1,4 +1,5 @@
 const express = require('express');
+const xss = require('xss');
 const ideasData = require('../data/ideas');
 const { successStatusCodes, badRequestErr } = require('../utils');
 const { authenticateToken } = require('../middleware/auth');
@@ -22,16 +23,18 @@ router
 		const { user } = req;
 		let { name, description, lookingFor, technologies } = req.body;
 		try {
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
-			name = isValidIdeaName(name);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
+			name = isValidIdeaName(xss(name));
 			description = isValidStr(
-				req.body.description,
+				xss(req.body.description),
 				'idea description',
 				'min',
 				10
 			);
-			lookingFor = isValidLookingFor(lookingFor);
+			lookingFor = isValidLookingFor(parseInt(xss(lookingFor), 10));
+			// need to handle cases where it is an array
+			technologies.map((tech) => xss(tech));
 			technologies = isValidTechnologies(technologies);
 
 			const ideaObject = {
@@ -54,8 +57,9 @@ router
 	.get(async (req, res) => {
 		try {
 			let { technologies, name, status } = req.query;
-			technologies = technologies?.trim() ?? '';
-			name = name?.trim() ?? '';
+			// xss checks for technologies done in isValidQueryParamTechnologies()
+			technologies = xss(technologies?.trim()) ?? '';
+			name = xss(name?.trim()) ?? '';
 			if (technologies && technologies.length > 0)
 				technologies = isValidQueryParamTechnologies(technologies);
 			if (name && name.length > 0)
@@ -78,7 +82,7 @@ router
 	.route('/:ideaId')
 	.get(async (req, res) => {
 		try {
-			const ideaId = isValidObjectId(req.params.ideaId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
 			const idea = await ideasData.getIdeaById(ideaId);
 			res.json({
 				idea,
@@ -90,23 +94,25 @@ router
 	.put(authenticateToken, async (req, res) => {
 		try {
 			const { user } = req;
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
 
-			const ideaId = isValidObjectId(req.params.ideaId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
 			await ideasData.getIdeaById(ideaId);
 
 			let { name, description, status, lookingFor, technologies } = req.body;
 
-			name = isValidIdeaName(name);
+			name = isValidIdeaName(xss(name));
 			description = isValidStr(
-				req.body.description,
+				xss(req.body.description),
 				'idea description',
 				'min',
 				10
 			);
-			lookingFor = isValidLookingFor(lookingFor);
-			status = isValidStatus(status);
+			lookingFor = isValidLookingFor(parseInt(xss(lookingFor), 10));
+			status = isValidStatus(xss(status));
+			// need to handle for the case of array
+			technologies.map((tech) => xss(tech));
 			technologies = isValidTechnologies(technologies);
 
 			const idea = await ideasData.updateIdea(
@@ -125,10 +131,10 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		try {
 			const { user } = req;
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
 
-			const ideaId = isValidObjectId(req.params.ideaId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
 			await ideasData.getIdeaById(ideaId);
 
 			const status = await ideasData.removeIdea(ideaId, user);
@@ -146,10 +152,10 @@ router
 	.post(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
 
-			const ideaId = isValidObjectId(req.params.ideaId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
 			const getIdea = await ideasData.getIdeaById(ideaId);
 			if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 			const likeIdeaInfo = await ideasData.likeIdea(ideaId, user);
@@ -164,10 +170,10 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
 
-			const ideaId = isValidObjectId(req.params.ideaId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
 			const getIdea = await ideasData.getIdeaById(ideaId);
 			if (!getIdea) throw badRequestErr('Could not find any idea with the id');
 			const unlikeIdeaInfo = await ideasData.unlikeIdea(ideaId, user);
@@ -185,13 +191,13 @@ router.route('/:ideaId/comments').post(authenticateToken, async (req, res) => {
 	let { comment } = req.body;
 
 	try {
-		user._id = isValidObjectId(user._id);
-		user.username = isValidUsername(user.username);
+		user._id = isValidObjectId(xss(user._id));
+		user.username = isValidUsername(xss(user.username));
 
-		const ideaId = isValidObjectId(req.params.ideaId);
+		const ideaId = isValidObjectId(xss(req.params.ideaId));
 		await ideasData.getIdeaById(ideaId);
 
-		comment = isValidStr(req.body.comment, 'Comment');
+		comment = isValidStr(xss(req.body.comment), 'Comment');
 		const commentObject = {
 			comment,
 			ideaId,
@@ -211,11 +217,11 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		try {
 			const { user } = req;
-			user._id = isValidObjectId(user._id);
-			user.username = isValidUsername(user.username);
+			user._id = isValidObjectId(xss(user._id));
+			user.username = isValidUsername(xss(user.username));
 
-			const ideaId = isValidObjectId(req.params.ideaId);
-			const commentId = isValidObjectId(req.params.commentId);
+			const ideaId = isValidObjectId(xss(req.params.ideaId));
+			const commentId = isValidObjectId(xss(req.params.commentId));
 
 			const ideaObj = await ideasData.getIdeaById(ideaId);
 			if (!ideaObj) throw badRequestErr('Could not find any idea with the id');

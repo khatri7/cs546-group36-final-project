@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const xss = require('xss');
 const { ObjectId } = require('mongodb');
 const { users } = require('../../config/mongoCollections');
 const {
@@ -184,8 +185,14 @@ const udpateResume = async (url, userName, userId) => {
 const authenticateUser = async (userLoginObjParam) => {
 	const userLoginObj = isValidUserLoginObj(userLoginObjParam);
 	try {
-		const { _id, firstName, lastName, avatar, username, password } =
+		let { _id, firstName, lastName, avatar, username, password } =
 			await getUserByUsername(userLoginObj.username);
+		_id = xss(_id);
+		firstName = xss(firstName);
+		lastName = xss(lastName);
+		avatar = xss(avatar);
+		username = xss(username);
+		password = xss(password);
 		const doPasswordsMatch = await comparePassword(
 			userLoginObj.password,
 			password

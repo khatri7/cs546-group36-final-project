@@ -1,4 +1,5 @@
 const express = require('express');
+const xss = require('xss');
 const imageUpload = require('../utils/aws/image');
 const resumeUpload = require('../utils/aws/resume');
 const avatarUpload = require('../utils/aws/avatar');
@@ -32,11 +33,11 @@ router
 				if (fileSize > 5253365.76)
 					throw badRequestErr('the file size of resume has exceeded 5 mb');
 
-				const users = await getUserById(req.body.userId);
+				const users = await getUserById(xss(req.body.userId));
 				const resumeUploaded = await resumeUpload.resume(
-					req.file,
+					xss(req.file),
 					users,
-					req.body.userId
+					xss(req.body.userId)
 				);
 				res.status(successStatusCodes.CREATED).json({ user: resumeUploaded });
 			} else if (req.body.mediaType === 'image') {
@@ -56,14 +57,14 @@ router
 						'the file size of Image uploaded has exceeded 5 mb'
 					);
 
-				const projectId = isValidObjectId(req.body.projectId);
+				const projectId = isValidObjectId(xss(req.body.projectId));
 				const project = await getProjectById(projectId);
-				const imagePos = isValidStr(req.body.imagePos);
+				const imagePos = isValidStr(xss(req.body.imagePos));
 				const imageUploaded = await imageUpload.images(
-					req.file,
+					xss(req.file),
 					project,
 					imagePos,
-					req.body.projectId,
+					xss(req.body.projectId),
 					user
 				);
 				res.status(successStatusCodes.CREATED).json({ project: imageUploaded });
@@ -84,11 +85,11 @@ router
 						'the file size of Avatar Image has exceeded 5 mb'
 					);
 
-				const users = await getUserById(req.body.userId);
+				const users = await getUserById(xss(req.body.userId));
 				const avatarUploaded = await avatarUpload.avatar(
-					req.file,
+					xss(req.file),
 					users,
-					req.body.userId
+					xss(req.body.userId)
 				);
 				res.status(successStatusCodes.CREATED).json({ user: avatarUploaded });
 			} else {
@@ -103,10 +104,10 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		try {
 			if (req.body.mediaType === 'image') {
-				const projectId = isValidObjectId(req.body.projectId);
+				const projectId = isValidObjectId(xss(req.body.projectId));
 				await getProjectById(projectId);
 				const { imagePos } = req.body;
-				if (![0, 1, 2, 3, 4].includes(imagePos))
+				if (![0, 1, 2, 3, 4].includes(xss(imagePos).parseInt()))
 					throw badRequestErr('Invalid image position');
 				const currentUser = {
 					_id: isValidObjectId(req.user._id),

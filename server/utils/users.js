@@ -1,4 +1,5 @@
 const moment = require('moment/moment');
+const xss = require('xss');
 const bcrypt = require('bcrypt');
 const {
 	isValidStr,
@@ -204,14 +205,15 @@ const isValidPassword = (passwordParam) => {
  */
 const isValidUserObj = (userObjParam) => {
 	isValidObj(userObjParam);
+	userObjParam.skills.map((skill) => xss(skill));
 	return {
-		firstName: isValidName(userObjParam.firstName, 'First Name', false),
-		lastName: isValidName(userObjParam.lastName, 'Last Name', false),
-		username: isValidUsername(userObjParam.username),
-		dob: isValidDob(userObjParam.dob),
-		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
-		email: isValidEmail(userObjParam.email),
-		password: isValidPassword(userObjParam.password),
+		firstName: isValidName(xss(userObjParam.firstName), 'First Name', false),
+		lastName: isValidName(xss(userObjParam.lastName), 'Last Name', false),
+		username: isValidUsername(xss(userObjParam.username)),
+		dob: isValidDob(xss(userObjParam.dob)),
+		bio: xss(userObjParam.bio) ? isValidStr(xss(userObjParam.bio)) : null,
+		email: isValidEmail(xss(userObjParam.email)),
+		password: isValidPassword(xss(userObjParam.password)),
 		education: [],
 		experience: [],
 		resumeUrl: '',
@@ -240,19 +242,23 @@ const isValidUpdateUserObj = (userObjParam) => {
 	} = userObjParam;
 	const updateUserObj = {};
 	if (firstName)
-		updateUserObj.firstName = isValidName(firstName, 'First Name', false);
+		updateUserObj.firstName = isValidName(xss(firstName), 'First Name', false);
 	if (lastName)
-		updateUserObj.lastName = isValidName(lastName, 'Last Name', false);
-	if (dob) updateUserObj.dob = isValidDob(dob);
+		updateUserObj.lastName = isValidName(xss(lastName), 'Last Name', false);
+	if (dob) updateUserObj.dob = isValidDob(xss(dob));
 	if (Object.keys(userObjParam).includes('bio'))
 		updateUserObj.bio =
-			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
-	if (skills) updateUserObj.skills = isValidTechnologies(skills);
-	if (skills.length > 10) throw badRequestErr('You can add up to 10 skills.');
+			xss(bio) === null || xss(bio.trim().length) === 0
+				? null
+				: isValidStr(xss(bio), 'Bio');
+	if (skills) {
+		skills.map((skill) => xss(skill));
+		updateUserObj.skills = isValidTechnologies(skills);
+	}
 	if (socials) {
 		updateUserObj.socials = {
-			github: socials.github || null,
-			linkedin: socials.linkedin || null,
+			github: xss(socials.github) || null,
+			linkedin: xss(socials.linkedin) || null,
 		};
 	}
 	if (Object.keys(userObjParam).includes('isAvailable')) {
@@ -307,7 +313,7 @@ const isValidExperienceObj = (experienceObjParam) => {
 const isValidAvailabilityQueryParams = (availabilityParam) => {
 	if (!AVAILABILITY.includes(availabilityParam.trim().toLowerCase()))
 		throw badRequestErr('Not a valid availability param');
-	return availabilityParam.trim().toLowerCase();
+	return xss(availabilityParam.trim().toLowerCase());
 };
 
 module.exports = {

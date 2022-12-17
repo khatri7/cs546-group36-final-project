@@ -1,4 +1,5 @@
 // Projects Validations
+const xss = require('xss');
 const topics = require('./data/technologies');
 const {
 	badRequestErr,
@@ -49,7 +50,7 @@ const isValidQueryParamTechnologies = (technologiesParam) => {
 	return technologiesParam
 		.trim()
 		.split(',')
-		.map((topic) => topic.toLowerCase().trim())
+		.map((topic) => xss(topic.toLowerCase().trim()))
 		.filter((topic) => topic !== '')
 		.join(',');
 };
