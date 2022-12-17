@@ -248,7 +248,6 @@ const isValidUpdateUserObj = (userObjParam) => {
 		updateUserObj.bio =
 			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
 	if (skills) updateUserObj.skills = isValidTechnologies(skills);
-	if (skills.length > 10) throw badRequestErr('You can add up to 10 skills.');
 	if (socials) {
 		updateUserObj.socials = {
 			github: socials.github || null,
@@ -277,6 +276,31 @@ const isValidUserLoginObj = (userLoginObjParam) => {
 	};
 };
 
+// checks if a string has letters only from the english alphabet. spaces are allowed.
+const isValidSchoolName = (nameParam, varName) => {
+	const name = isValidStr(nameParam, varName, 'min', 3);
+	name.split('').forEach((char) => {
+		if (!isLetterChar(char) && char !== '' && char !== ' ')
+			throw badRequestErr(`Invalid ${varName}`);
+	});
+	return name;
+};
+
+// checks if a string is alpha numeric. spaces are allowed
+const isValidCourseName = (nameParam, varName) => {
+	const name = isValidStr(nameParam, varName, 'min', 3);
+	name.split('').forEach((char) => {
+		if (
+			!isLetterChar(char) &&
+			!isNumberChar(char) &&
+			char !== '' &&
+			char !== ' '
+		)
+			throw badRequestErr(`Invalid ${varName}`);
+	});
+	return name;
+};
+
 const isValidEducationObj = (educationObjParam) => {
 	isValidObj(educationObjParam);
 	const { from, to } = isValidFromAndToDate(
@@ -284,8 +308,13 @@ const isValidEducationObj = (educationObjParam) => {
 		educationObjParam.to
 	);
 	return {
-		school: isValidStr(educationObjParam.school, 'School Name', 'min', 3),
-		course: isValidStr(educationObjParam.course, 'Course Name', 'min', 3),
+		school: isValidSchoolName(
+			educationObjParam.school,
+			'School Name',
+			'min',
+			3
+		),
+		course: isValidCourseName(educationObjParam.course, 'Course Name'),
 		from,
 		to,
 	};
@@ -298,8 +327,8 @@ const isValidExperienceObj = (experienceObjParam) => {
 		experienceObjParam.to
 	);
 	return {
-		company: isValidStr(experienceObjParam.company, 'Company Name', 'min', 3),
-		title: isValidStr(experienceObjParam.title, 'Title', 'min', 3),
+		company: isValidSchoolName(experienceObjParam.company, 'Company Name'),
+		title: isValidCourseName(experienceObjParam.title, 'Title'),
 		from,
 		to,
 	};

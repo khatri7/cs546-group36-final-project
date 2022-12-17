@@ -79,20 +79,8 @@ function Navbar() {
 							display: { xs: 'none', md: 'flex' },
 						}}
 					>
-						<Link
-							style={{
-								textDecoration: 'none',
-								lineHeight: 0,
-							}}
-							to="/projects"
-						>
-							<img
-								src={FavIcon}
-								alt="Open Glass"
-								style={{
-									height: '3rem',
-								}}
-							/>
+						<Link to="/projects">
+							<img src={FavIcon} alt="Open Glass" className="navbar__icon" />
 						</Link>
 					</Box>
 					{/* Mobile Hamburger Icon */}
@@ -139,20 +127,8 @@ function Navbar() {
 							justifyContent: 'center',
 						}}
 					>
-						<Link
-							style={{
-								textDecoration: 'none',
-								lineHeight: 0,
-							}}
-							to="/projects"
-						>
-							<img
-								src={FavIcon}
-								alt="Open Glass"
-								style={{
-									height: '3rem',
-								}}
-							/>
+						<Link to="/projects">
+							<img src={FavIcon} alt="Open Glass" className="navbar__icon" />
 						</Link>
 					</Box>
 					{/* Desktop Menu */}

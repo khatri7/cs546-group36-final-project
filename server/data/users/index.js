@@ -8,7 +8,10 @@ const {
 	badRequestErr,
 	forbiddenErr,
 	isValidStr,
+	isValidFile,
+	unauthorizedErr,
 } = require('../../utils');
+const { deleteFile, upload } = require('../../utils/aws');
 const { isValidQueryParamTechnologies } = require('../../utils/projects');
 const {
 	isValidUsername,
@@ -156,29 +159,39 @@ const updateUser = async (
 	const updatedUser = await getUserById(user._id.toString());
 	return updatedUser;
 };
-const udpateResume = async (url, userName, userId) => {
+
+const udpateResume = async (userIdParam, currentUserParam, resume) => {
+	const userId = isValidObjectId(userIdParam);
+	const user = await getUserById(userId);
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	isValidFile(resume, 'resume');
+	if (currentUser._id !== user._id.toString())
+		throw unauthorizedErr('You cannot update resume of another user');
+	let location = null;
 	try {
-		isValidStr(url, 'resume');
-		const user = await getUserByUsername(userName);
-		if (user._id.toString() !== userId) {
-			throw badRequestErr('user doesnt not have appropriate persmissions');
+		if (user.resumeUrl) {
+			const existingResumeKey = user.resumeUrl.substr(
+				user.resumeUrl.indexOf('.com/') + 5
+			);
+			await deleteFile(existingResumeKey);
 		}
-
-		const usersCollection = await users();
-		const updateInfo = await usersCollection.updateOne(
-			{ _id: ObjectId(userId) },
-			{ $set: { resumeUrl: url } }
-		);
-
-		if (!updateInfo.acknowledged)
-			throw badRequestErr('Could not update the User. Please try again.');
-		const updatedResume = await getUserByUsername(userName);
-		return updatedResume;
+		const resumeKey = `${process.env.ENVIRONMENT}/resumes/${userId}/${resume.originalname}`;
+		location = await upload(resumeKey, resume.buffer, resume.mimetype, 5485760);
 	} catch (e) {
-		throw badRequestErr(
-			'Invalid AWS request/ AWS unable to process your request right now'
-		);
+		throw internalServerErr('Error updating resume on AWS');
 	}
+	const usersCollection = await users();
+	const updateInfo = await usersCollection.updateOne(
+		{ _id: ObjectId(userId) },
+		{ $set: { resumeUrl: location } }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the User. Please try again.');
+	const updatedUser = await getUserById(userId);
+	return updatedUser;
 };
 
 const authenticateUser = async (userLoginObjParam) => {

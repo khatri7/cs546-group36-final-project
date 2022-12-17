@@ -5,6 +5,7 @@ import { Education, Experience } from './EducationExperience';
 
 function Profile({
 	username,
+	dob,
 	bio = '',
 	experience = [],
 	education = [],
@@ -21,12 +22,14 @@ function Profile({
 			/>
 			<Experience
 				username={username}
+				dob={dob}
 				experiece={experience}
 				isCurrentUserProfile={isCurrentUserProfile}
 				handleUpdateUser={handleUpdateUser}
 			/>
 			<Education
 				username={username}
+				dob={dob}
 				education={education}
 				isCurrentUserProfile={isCurrentUserProfile}
 				handleUpdateUser={handleUpdateUser}

@@ -36,12 +36,8 @@ function CommentCard({
 						},
 					}}
 				>
-					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<Link
-							to={`/users/${comment.owner.username}`}
-							style={{ textDecoration: 'none' }}
-							relative="path"
-						>
+					<div className="commentCard__content__container">
+						<Link to={`/users/${comment.owner.username}`} relative="path">
 							<Typography variant="h6">{comment.owner.username}</Typography>
 						</Link>
 						{isOwner && (
@@ -62,7 +58,7 @@ function CommentCard({
 									}}
 									color="error"
 								>
-									<DeleteIcon sx={{ width: 20, height: 20 }} />
+									<DeleteIcon className="comment-card__delete-btn" />
 								</IconButton>
 							</Tooltip>
 						)}

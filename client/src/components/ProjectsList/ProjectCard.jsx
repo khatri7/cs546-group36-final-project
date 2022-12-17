@@ -134,13 +134,7 @@ function ProjectCard({
 				<CardHeader
 					title={project.name}
 					subheader={
-						<Link
-							to={`/users/${project.owner?.username}`}
-							style={{
-								all: 'unset',
-								cursor: 'pointer',
-							}}
-						>
+						<Link to={`/users/${project.owner?.username}`}>
 							@{project.owner.username}
 						</Link>
 					}

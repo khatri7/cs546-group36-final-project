@@ -187,6 +187,24 @@ const isValidUrl = (urlParam, varName) => {
 	return url;
 };
 
+const isValidFile = (file, type) => {
+	if (!file) {
+		throw badRequestErr('No file provided');
+	}
+	const fileSize = file.size;
+	if (fileSize > 5253365.76) throw badRequestErr('File exceeds the 5MB limit');
+	if (type === 'resume') {
+		if (file.mimetype !== 'application/pdf')
+			throw badRequestErr('Please upload file type of PDF only');
+	} else if (['image', 'avatar'].includes(type)) {
+		if (!(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'))
+			throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
+	} else
+		throw badRequestErr(
+			'Invalid mediaType, needs to be one of resume, avatar, or image'
+		);
+};
+
 module.exports = {
 	successStatusCodes,
 	unauthorizedErr,
@@ -204,4 +222,5 @@ module.exports = {
 	isValidObjectId,
 	isValidJwtString,
 	isValidUrl,
+	isValidFile,
 };

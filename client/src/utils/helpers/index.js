@@ -38,6 +38,21 @@ export const isValidDateStr = (date) => {
 	return true;
 };
 
+/**
+ *
+ * @param {string} date in format MM-DD-YYYY
+ * @param {string} compareDate in formate MM-DD-YYY
+ * @param {('before' | 'after')} comparision before or after the compare date
+ */
+export const compareDateStr = (date, compareDate, comparision) => {
+	const momentDate = moment(date);
+	const compareMomentDate = moment(compareDate);
+	const diff = compareMomentDate.diff(momentDate, 'days');
+	if (comparision === 'before' && diff > 0) return true;
+	if (comparision === 'after' && diff < 0) return true;
+	return false;
+};
+
 export const isValidDob = (dateParam) => {
 	isValidDateStr(dateParam);
 	const momentDate = moment(dateParam);

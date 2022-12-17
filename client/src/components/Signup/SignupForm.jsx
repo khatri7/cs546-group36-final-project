@@ -97,6 +97,8 @@ function SignupForm() {
 						errors.dob = 'Invalid DOB: Should be between 12-100 years in age';
 					if (!values.skills || values.skills.length < 1)
 						errors.skills = 'Need to mention at least one skill';
+					else if (values.skills.length > 10)
+						errors.skills = 'You can only add upto 10 skills';
 					if (!isValidSkills(values.skills)) errors.skills = 'Invalid skills';
 					if (values.skills.length > 10)
 						errors.skills = 'You can add up to 10 skills';
@@ -244,7 +246,7 @@ function SignupForm() {
 							<Field
 								name="skills"
 								component={TechnologiesAutocomplete}
-								label="Skills"
+								label="Skills (upto 10)"
 								required
 								id="select-skills-autocomplete"
 							/>

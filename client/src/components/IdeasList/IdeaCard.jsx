@@ -82,13 +82,7 @@ function IdeaCard({
 				<CardHeader
 					title={idea.name}
 					subheader={
-						<Link
-							to={`/users/${idea.owner?.username}`}
-							style={{
-								all: 'unset',
-								cursor: 'pointer',
-							}}
-						>
+						<Link to={`/users/${idea.owner?.username}`}>
 							@{idea.owner.username}
 						</Link>
 					}
