@@ -87,11 +87,11 @@ router
 				const projectId = isValidObjectId(xss(req.body.projectId));
 				await getProjectById(projectId);
 				const { imagePos } = req.body;
-				if (![0, 1, 2, 3, 4].includes(parseInt(xss(imagePos), 10)))
+				if (![0, 1, 2, 3, 4].includes(imagePos))
 					throw badRequestErr('Invalid image position');
 				const project = await removeProjectMedia(
 					projectId,
-					imagePos,
+					parseInt(xss(imagePos.toString()), 10),
 					currentUser
 				);
 				res.status(successStatusCodes.OK).json({ project });
