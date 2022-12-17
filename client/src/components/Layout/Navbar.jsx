@@ -88,14 +88,12 @@ function Navbar() {
 						<IconButton
 							size="large"
 							aria-label="account of current user"
-							aria-controls="menu-appbar"
 							aria-haspopup="true"
 							onClick={handleOpenNavMenu}
 						>
 							<MenuIcon />
 						</IconButton>
 						<Menu
-							id="menu-appbar"
 							anchorEl={anchorElNav}
 							anchorOrigin={{
 								vertical: 'bottom',
@@ -189,7 +187,11 @@ function Navbar() {
 								>
 									Create Project
 								</Button>
-								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+								<IconButton
+									component="div"
+									onClick={handleOpenUserMenu}
+									sx={{ p: 0 }}
+								>
 									<Avatar
 										alt={`${user.firstName} ${user.lastName}`}
 										src={user.avatar}
@@ -197,7 +199,6 @@ function Navbar() {
 								</IconButton>
 								<Menu
 									sx={{ mt: '45px' }}
-									id="menu-appbar"
 									anchorEl={anchorElUser}
 									anchorOrigin={{
 										vertical: 'top',

@@ -85,10 +85,9 @@ function SearchUser({ setEndpoint }) {
 						clearIcon={null}
 					/>
 					<FormControl fullWidth>
-						<InputLabel id="demo-simple-select-label">Availability</InputLabel>
+						<InputLabel id="select-label">Availability</InputLabel>
 						<Select
-							labelId="demo-simple-select-label"
-							id="demo-simple-select"
+							labelId="select-label"
 							value={availability}
 							label="Availability"
 							onChange={handleAvailabilityChange}

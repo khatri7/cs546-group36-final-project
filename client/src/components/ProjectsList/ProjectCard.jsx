@@ -159,7 +159,6 @@ function ProjectCard({
 									</IconButton>
 									<Menu
 										sx={{ mt: '2rem' }}
-										id="menu-appbar"
 										anchorEl={anchorElProject}
 										anchorOrigin={{
 											vertical: 'top',

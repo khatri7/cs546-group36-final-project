@@ -53,6 +53,7 @@ function User() {
 	};
 
 	const handleTabChange = (_e, newValue) => {
+		console.log(newValue);
 		setTabValue(newValue);
 	};
 

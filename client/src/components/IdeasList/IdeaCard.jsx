@@ -104,7 +104,7 @@ function IdeaCard({
 									</IconButton>
 									<Menu
 										sx={{ mt: '2rem' }}
-										id="menu-appbar"
+										id="idea-menu"
 										anchorEl={anchorElIdea}
 										anchorOrigin={{
 											vertical: 'top',
