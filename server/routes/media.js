@@ -12,7 +12,12 @@ const {
 	removeProjectMedia,
 	updateProjectImages,
 } = require('../data/projects');
-const { getUserById, udpateResume, udpateAvatar } = require('../data/users');
+const {
+	getUserById,
+	udpateResume,
+	udpateAvatar,
+	removeUserMedia,
+} = require('../data/users');
 const uploadMedia = require('../middleware/uploadMedia');
 const { isValidUsername } = require('../utils/users');
 
@@ -22,17 +27,17 @@ router
 	.route('/')
 	.post(authenticateToken, uploadMedia, async (req, res) => {
 		try {
-			isValidFile(req.file, req.body.mediaType);
+			isValidFile(req.file, req.body.mediaType.trim());
 			const currentUser = {
 				_id: isValidObjectId(req.user._id),
 				username: isValidUsername(req.user.username),
 			};
-			if (req.body.mediaType === 'resume') {
+			if (req.body.mediaType.trim() === 'resume') {
 				const userId = isValidObjectId(req.body.userId);
 				await getUserById(userId);
 				const updatedUser = await udpateResume(userId, currentUser, req.file);
 				res.status(successStatusCodes.CREATED).json({ user: updatedUser });
-			} else if (req.body.mediaType === 'image') {
+			} else if (req.body.mediaType.trim() === 'image') {
 				const projectId = isValidObjectId(req.body.projectId);
 				await getProjectById(projectId);
 				if (!['0', '1', '2', '3', '4'].includes(req.body.imagePos.trim()))
@@ -46,7 +51,7 @@ router
 				res
 					.status(successStatusCodes.CREATED)
 					.json({ project: updatedProject });
-			} else if (req.body.mediaType === 'avatar') {
+			} else if (req.body.mediaType.trim() === 'avatar') {
 				const userId = isValidObjectId(req.body.userId);
 				await getUserById(userId);
 				const updatedUser = await udpateAvatar(userId, currentUser, req.file);
@@ -62,16 +67,27 @@ router
 	})
 	.delete(authenticateToken, async (req, res) => {
 		try {
-			if (req.body.mediaType === 'image') {
+			const currentUser = {
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
+			};
+			if (['resume', 'avatar'].includes(req.body.mediaType.trim())) {
+				const userId = isValidObjectId(req.body.userId);
+				await getUserById(userId);
+				const updatedUser = await removeUserMedia(
+					userId,
+					currentUser,
+					req.body.mediaType.trim()
+				);
+				res.status(successStatusCodes.OK).json({
+					user: updatedUser,
+				});
+			} else if (req.body.mediaType.trim() === 'image') {
 				const projectId = isValidObjectId(req.body.projectId);
 				await getProjectById(projectId);
 				const { imagePos } = req.body;
 				if (![0, 1, 2, 3, 4].includes(imagePos))
 					throw badRequestErr('Invalid image position');
-				const currentUser = {
-					_id: isValidObjectId(req.user._id),
-					username: isValidUsername(req.user.username),
-				};
 				const project = await removeProjectMedia(
 					projectId,
 					imagePos,

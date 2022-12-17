@@ -251,6 +251,51 @@ const createUser = async (userObjParam) => {
 	return createdUser;
 };
 
+const removeUserMedia = async (userIdParam, currentUserParam, mediaType) => {
+	const userId = isValidObjectId(userIdParam);
+	const user = await getUserById(userId);
+	const currentUser = {
+		_id: isValidObjectId(currentUserParam._id),
+		username: isValidUsername(currentUserParam.username),
+	};
+	if (!['resume', 'avatar'].includes(mediaType.trim()))
+		throw badRequestErr('Unrecognized media type');
+	if (currentUser._id !== user._id.toString())
+		throw unauthorizedErr('You cannot update resume or avatar of another user');
+	if (mediaType === 'avatar' && !user.avatar)
+		throw badRequestErr('Avatar does not exist');
+	if (mediaType === 'resume' && !user.resumeUrl)
+		throw badRequestErr('Resume does not exist');
+	let objKey = 'avatar';
+	if (mediaType === 'resume') objKey = 'resumeUrl';
+	const existingMediaKey = user[objKey].substr(
+		user[objKey].indexOf('.com/') + 5
+	);
+	try {
+		await deleteFile(existingMediaKey);
+	} catch (e) {
+		throw internalServerErr(
+			'An error occurred while trying to remove media for AWS'
+		);
+	}
+	let updateObj = {
+		avatar: null,
+	};
+	if (mediaType === 'resume')
+		updateObj = {
+			resumeUrl: null,
+		};
+	const usersCollection = await users();
+	const updateInfo = await usersCollection.updateOne(
+		{ _id: ObjectId(userId) },
+		{ $set: updateObj }
+	);
+	if (!updateInfo.acknowledged)
+		throw badRequestErr('Could not update the User. Please try again.');
+	const updatedUser = await getUserById(userId);
+	return updatedUser;
+};
+
 module.exports = {
 	getUserById,
 	getUserByUsername,
@@ -261,4 +306,5 @@ module.exports = {
 	getAllUsers,
 	udpateResume,
 	udpateAvatar,
+	removeUserMedia,
 };

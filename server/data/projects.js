@@ -290,7 +290,13 @@ const removeProjectMedia = async (
 	const existingPhotoKey = project.media[imagePos].substr(
 		project.media[imagePos].indexOf('.com/') + 5
 	);
-	await deleteFile(existingPhotoKey);
+	try {
+		await deleteFile(existingPhotoKey);
+	} catch (e) {
+		throw internalServerErr(
+			'An error occurred while trying to remove media for AWS'
+		);
+	}
 	const updatedProjectMedia = project.media;
 	updatedProjectMedia[imagePos] = null;
 	const projectCollection = await projects();
