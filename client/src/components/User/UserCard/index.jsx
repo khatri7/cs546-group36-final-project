@@ -4,7 +4,6 @@ import {
 	CardContent,
 	Stack,
 	Typography,
-	Link,
 	Chip,
 	Button,
 	IconButton,
@@ -21,7 +20,13 @@ import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { errorAlert, successAlert } from 'store/alert';
-import { handleError, uploadAvatar, uploadResume } from 'utils/api-calls';
+import {
+	handleError,
+	removeUserMedia,
+	uploadAvatar,
+	uploadResume,
+} from 'utils/api-calls';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
@@ -101,6 +106,21 @@ function UserCard({
 		return true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	const handleRemoveMedia = async (mediaType, setLoading) => {
+		try {
+			setLoading(true);
+			const res = await removeUserMedia(_id, mediaType);
+			if (!res.user) throw new Error();
+			handleUpdateUser(res.user);
+			dispatch(successAlert(`${mediaType} removed successfully`));
+		} catch (err) {
+			let error = 'Unexpected error occurred';
+			if (typeof handleError(err) === 'string') error = handleError(err);
+			dispatch(errorAlert(error));
+		} finally {
+			setLoading(false);
+		}
+	};
 	useEffect(() => {
 		if (resumeRef.current)
 			resumeRef.current.addEventListener('change', handleResumeUpload);
@@ -125,32 +145,60 @@ function UserCard({
 						</IconButton>
 					)}
 					<Stack alignItems="center" spacing={1}>
-						<Avatar src={avatar} sx={{ width: 100, height: 100 }} />
-						{isCurrentUserProfile && (
-							<Button
-								sx={{
-									mt: -1,
-								}}
-								variant="text"
-								size="small"
-								component="label"
-								aria-label="upload avatar"
-								disabled={submittingAvatar}
-							>
-								{submittingAvatar ? (
-									<CircularProgress size={16} />
-								) : (
-									'Upload/Update Avatar'
+						<Avatar
+							src={avatar}
+							alt={`${firstName} ${lastName}`}
+							sx={{ width: 100, height: 100 }}
+						/>
+						{isCurrentUserProfile && !showEditProfile && (
+							<Stack>
+								<Button
+									sx={{
+										mt: -1,
+									}}
+									variant="text"
+									size="small"
+									component="label"
+									aria-label="upload avatar"
+									disabled={submittingAvatar}
+								>
+									{submittingAvatar ? (
+										<CircularProgress size={16} />
+									) : (
+										'Upload/Update Avatar'
+									)}
+									<input
+										ref={avatarRef}
+										hidden
+										accept="image/jpeg, image/png"
+										type="file"
+									/>
+								</Button>
+								{avatar && !submittingAvatar && (
+									<Button
+										type="button"
+										color="error"
+										size="small"
+										sx={{
+											m: 0,
+										}}
+										onClick={() => {
+											handleRemoveMedia('avatar', setSubmittingAvatar);
+										}}
+									>
+										Remove Avatar
+									</Button>
 								)}
-								<input
-									ref={avatarRef}
-									hidden
-									accept="image/jpeg, image/png"
-									type="file"
-								/>
-							</Button>
+							</Stack>
 						)}
 					</Stack>
+					<Typography
+						variant="h1"
+						fontSize="2rem"
+						sx={showEditProfile ? { display: 'none' } : {}}
+					>
+						{firstName} {lastName}
+					</Typography>
 					{showEditProfile ? (
 						<EditUserDetails
 							username={username}
@@ -169,9 +217,6 @@ function UserCard({
 						/>
 					) : (
 						<>
-							<Typography variant="h1" fontSize="2rem">
-								{firstName} {lastName}
-							</Typography>
 							<Typography
 								variant="h2"
 								fontSize="1.2rem"
@@ -195,10 +240,12 @@ function UserCard({
 									</Stack>
 									<Stack
 										direction="row"
-										spacing={1}
+										gap={1}
 										sx={{
 											marginTop: '0.5rem !important',
+											flexWrap: 'wrap',
 										}}
+										justifyContent="center"
 									>
 										{skills.map((skill) => (
 											<Chip label={skill} key={skill} />
@@ -212,10 +259,12 @@ function UserCard({
 							</Stack>
 							<Stack
 								direction="row"
-								spacing={1}
+								gap={1}
 								sx={{
 									marginTop: '0.5rem !important',
+									flexWrap: 'wrap',
 								}}
+								justifyContent="center"
 							>
 								{isAvailable && availability.length > 0 ? (
 									availability.map((item) => <Chip label={item} key={item} />)
@@ -225,18 +274,31 @@ function UserCard({
 							</Stack>
 							<Stack direction="row" spacing={2} alignItems="center">
 								{socials.github && (
-									<Link href={socials.github} target="_blank" color="inherit">
+									<IconButton
+										onClick={() => {
+											window.open(socials.github, '_blank');
+										}}
+										color="inherit"
+										component="label"
+									>
 										<GitHubIcon fontSize="large" />
-									</Link>
+									</IconButton>
 								)}
 								{socials.linkedin && (
-									<Link href={socials.linkedin} target="_blank" color="inherit">
+									<IconButton
+										onClick={() => {
+											window.open(socials.linkedin, '_blank');
+										}}
+										color="inherit"
+										component="label"
+									>
 										<LinkedInIcon fontSize="large" />
-									</Link>
+									</IconButton>
 								)}
 							</Stack>
-							<Stack direction="row" spacing={1}>
-								{isCurrentUserProfile && (
+
+							{isCurrentUserProfile && (
+								<Stack direction="row" spacing={1}>
 									<Button
 										variant="outlined"
 										component="label"
@@ -247,7 +309,7 @@ function UserCard({
 										{submittingResume ? (
 											<CircularProgress size={16} />
 										) : (
-											'Upload Resume'
+											`${resume ? 'Update' : 'Upload'} Resume`
 										)}
 										<input
 											ref={resumeRef}
@@ -256,18 +318,31 @@ function UserCard({
 											type="file"
 										/>
 									</Button>
-								)}
-								{resume && (
-									<Button
-										variant="contained"
-										onClick={() => {
-											window.open(resume, '_blank');
-										}}
-									>
-										Resume
-									</Button>
-								)}
-							</Stack>
+									{resume && !submittingResume && (
+										<Button
+											type="button"
+											color="error"
+											variant="outlined"
+											onClick={() => {
+												handleRemoveMedia('resume', setSubmittingResume);
+											}}
+										>
+											Remove Resume
+										</Button>
+									)}
+								</Stack>
+							)}
+							{resume && (
+								<Button
+									variant="contained"
+									onClick={() => {
+										window.open(resume, '_blank');
+									}}
+									startIcon={<OpenInNewIcon />}
+								>
+									Resume
+								</Button>
+							)}
 						</>
 					)}
 				</Stack>

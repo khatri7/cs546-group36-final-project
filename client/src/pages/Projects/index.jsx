@@ -12,6 +12,8 @@ function Projects() {
 	const renderProjectsSection = () => {
 		if (loading) return <Typography>Loading...</Typography>;
 		if (error) return <Typography>{error}</Typography>;
+		if (!data.projects)
+			return <Typography>Error getting the projects</Typography>;
 		return <ProjectsList projectsList={data.projects || []} />;
 	};
 

@@ -9,6 +9,7 @@ const router = express.Router();
 router.route('/').get(async (req, res) => {
 	try {
 		let { skills, availability } = req.query;
+		// xss checks done in isValidQueryParamTechnologies and isValidAvailabilityQueryParams()
 		if (skills) skills = isValidQueryParamTechnologies(skills);
 		if (availability)
 			availability = isValidAvailabilityQueryParams(availability);

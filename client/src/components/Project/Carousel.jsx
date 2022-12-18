@@ -2,7 +2,7 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { Button, MobileStepper } from '@mui/material';
 import React, { useState } from 'react';
 
-function Carousel({ projectMedia }) {
+function Carousel({ projectMedia = [] }) {
 	const [activeStep, setActiveStep] = useState(0);
 	const handleNext = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -11,16 +11,13 @@ function Carousel({ projectMedia }) {
 	const handleBack = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
 	};
+
+	if (projectMedia.length === 0) return null;
+
 	return (
 		<div>
 			<img
-				style={{
-					borderRadius: 15,
-					height: 280,
-					width: '100%',
-					maxWidth: 550,
-					objectFit: 'cover',
-				}}
+				className="carousel__image"
 				src={projectMedia[activeStep]}
 				alt={projectMedia[activeStep]}
 			/>
