@@ -66,8 +66,8 @@ function EditUserDetails({
 				skills,
 				isAvailable,
 				availability,
-				github,
-				linkedin,
+				github: github || '',
+				linkedin: linkedin || '',
 			}}
 			validationSchema={schema}
 			validate={(values) => {
@@ -96,8 +96,12 @@ function EditUserDetails({
 						isAvailable: values.isAvailable,
 						availability: values.isAvailable ? values.availability : [],
 						socials: {
-							github: values.github,
-							linkedin: values.linkedin,
+							github:
+								values.github.trim().length === 0 ? null : values.github.trim(),
+							linkedin:
+								values.linkedin.trim().length === 0
+									? null
+									: values.linkedin.trim(),
 						},
 					});
 					if (!resp.user) throw new Error();

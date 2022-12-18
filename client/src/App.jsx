@@ -25,7 +25,19 @@ const theme = createTheme({
 				root: {
 					'& legend': { display: 'none' },
 					'& fieldset': { top: 0 },
-					'& label': { padding: '0 5px', background: 'white' },
+					'& label': {
+						padding: '0 5px',
+						background: 'white',
+					},
+				},
+			},
+		},
+		MuiInputLabel: {
+			styleOverrides: {
+				root: {
+					'&.Mui-disabled': {
+						color: '#747474',
+					},
 				},
 			},
 		},

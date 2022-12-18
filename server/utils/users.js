@@ -229,8 +229,14 @@ const isValidUserObj = (userObjParam) => {
 		isAvailable: false,
 		availability: [],
 		socials: {
-			github: null,
-			linkedin: null,
+			github:
+				userObjParam.socials && userObjParam.socials.github
+					? xss(userObjParam.socials.github)
+					: null,
+			linkedin:
+				userObjParam.socials && userObjParam.socials.linkedin
+					? xss(userObjParam.socials.linkedin)
+					: null,
 		},
 	};
 };

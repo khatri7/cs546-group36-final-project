@@ -87,14 +87,14 @@ function User() {
 							iconPosition="start"
 							label="Profile"
 							id="profile-tab"
-							aria-controls="profile-tab"
+							aria-controls="profile-tabpanel"
 						/>
 						<Tab
 							icon={<ScienceOutlinedIcon />}
 							iconPosition="start"
 							label="Projects"
 							id="projects-tab"
-							aria-controls="projects-tab"
+							aria-controls="projects-tabpanel"
 						/>
 						{isCurrentUserProfile && (
 							<Tab
@@ -102,14 +102,14 @@ function User() {
 								iconPosition="start"
 								label="Saved Projects"
 								id="saved-projects-tab"
-								aria-controls="saved-projects-tab"
+								aria-controls="saved-projects-tabpanel"
 							/>
 						)}
 					</Tabs>
 					<TabPanel
 						value={tabValue}
-						tabId="profile-tab"
-						tabAriaLabel="profile-tab"
+						tabId="profile-tabpanel"
+						tabAriaLabel="profile-tabpanel"
 						index={0}
 					>
 						<Profile
@@ -124,16 +124,16 @@ function User() {
 					</TabPanel>
 					<TabPanel
 						value={tabValue}
-						tabId="projects-tab"
-						tabAriaLabel="projects-tab"
+						tabId="projects-tabpanel"
+						tabAriaLabel="projects-tabpanel"
 						index={1}
 					>
 						<Projects username={user.username} />
 					</TabPanel>
 					<TabPanel
 						value={tabValue}
-						tabId="saved-projects-tab"
-						tabAriaLabel="saved-projects-tab"
+						tabId="saved-projects-tabpanel"
+						tabAriaLabel="saved-projects-tabpanel"
 						index={2}
 					>
 						<SavedProjects username={user.username} />

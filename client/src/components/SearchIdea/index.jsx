@@ -100,13 +100,21 @@ function SearchIdea({ setEndpoint }) {
 						name="name"
 						label="Idea Name"
 					/>
-
 					<FormControl fullWidth>
-						<InputLabel id="select-label">Status</InputLabel>
+						<InputLabel
+							id="select-label"
+							sx={{ padding: '0 5px', background: 'white' }}
+						>
+							Status
+						</InputLabel>
 						<Select
 							labelId="select-label"
 							value={status}
 							label="Status"
+							sx={{
+								'& legend': { display: 'none' },
+								'& fieldset': { top: 0 },
+							}}
 							onChange={handleStatusChange}
 						>
 							<MenuItem value="inactive">inactive</MenuItem>

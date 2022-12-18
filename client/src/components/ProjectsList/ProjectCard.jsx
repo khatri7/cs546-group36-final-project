@@ -210,7 +210,14 @@ function ProjectCard({
 						{project.description?.substring(0, 100)}
 						{project.description?.length > 100 && '...'}
 					</Typography>
-					<Stack direction="row" gap={1} mt={1}>
+					<Stack
+						direction="row"
+						gap={1}
+						mt={1}
+						sx={{
+							flexWrap: 'wrap',
+						}}
+					>
 						{project.technologies.slice(0, 4).map((tech) => (
 							<Chip label={tech} key={tech} variant="outlined" />
 						))}
@@ -250,8 +257,9 @@ function ProjectCard({
 							<FormControlLabel
 								control={
 									<Checkbox
-										inputProps={{ 'aria-label': 'Save' }}
+										inputProps={{ 'aria-label': 'Comments' }}
 										icon={<ChatBubbleOutlineRoundedIcon />}
+										checked={false}
 									/>
 								}
 								label={project.comments?.length ?? 0}

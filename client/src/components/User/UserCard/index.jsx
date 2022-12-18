@@ -150,7 +150,7 @@ function UserCard({
 							alt={`${firstName} ${lastName}`}
 							sx={{ width: 100, height: 100 }}
 						/>
-						{isCurrentUserProfile && (
+						{isCurrentUserProfile && !showEditProfile && (
 							<Stack>
 								<Button
 									sx={{
@@ -192,6 +192,13 @@ function UserCard({
 							</Stack>
 						)}
 					</Stack>
+					<Typography
+						variant="h1"
+						fontSize="2rem"
+						sx={showEditProfile ? { display: 'none' } : {}}
+					>
+						{firstName} {lastName}
+					</Typography>
 					{showEditProfile ? (
 						<EditUserDetails
 							username={username}
@@ -210,9 +217,6 @@ function UserCard({
 						/>
 					) : (
 						<>
-							<Typography variant="h1" fontSize="2rem">
-								{firstName} {lastName}
-							</Typography>
 							<Typography
 								variant="h2"
 								fontSize="1.2rem"
@@ -236,10 +240,12 @@ function UserCard({
 									</Stack>
 									<Stack
 										direction="row"
-										spacing={1}
+										gap={1}
 										sx={{
 											marginTop: '0.5rem !important',
+											flexWrap: 'wrap',
 										}}
+										justifyContent="center"
 									>
 										{skills.map((skill) => (
 											<Chip label={skill} key={skill} />
@@ -253,10 +259,12 @@ function UserCard({
 							</Stack>
 							<Stack
 								direction="row"
-								spacing={1}
+								gap={1}
 								sx={{
 									marginTop: '0.5rem !important',
+									flexWrap: 'wrap',
 								}}
+								justifyContent="center"
 							>
 								{isAvailable && availability.length > 0 ? (
 									availability.map((item) => <Chip label={item} key={item} />)

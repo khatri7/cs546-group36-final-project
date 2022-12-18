@@ -84,16 +84,26 @@ function SearchUser({ setEndpoint }) {
 						clearIcon={null}
 					/>
 					<FormControl fullWidth>
-						<InputLabel id="select-label">Availability</InputLabel>
+						<InputLabel
+							id="select-label"
+							sx={{ padding: '0 5px', background: 'white' }}
+						>
+							Availability
+						</InputLabel>
 						<Select
 							labelId="select-label"
 							value={availability}
 							label="Availability"
 							onChange={handleAvailabilityChange}
+							sx={{
+								'& legend': { display: 'none' },
+								'& fieldset': { top: 0 },
+							}}
 							endAdornment={
 								<IconButton
 									sx={{ display: availability ? '' : 'none' }}
 									onClick={handleAvailabilityClear}
+									component="label"
 								>
 									<ClearIcon />
 								</IconButton>

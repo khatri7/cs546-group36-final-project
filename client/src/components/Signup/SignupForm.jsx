@@ -255,7 +255,7 @@ function SignupForm() {
 								id="select-skills-autocomplete"
 							/>
 							<Divider sx={{ width: '100%' }}>
-								<Typography variant="h5" component="h2">
+								<Typography variant="h5" component="span">
 									SOCIALS
 								</Typography>
 							</Divider>

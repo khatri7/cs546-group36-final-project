@@ -144,9 +144,17 @@ function IdeaCard({
 					}}
 				>
 					<Typography variant="body2" color="text.secondary">
-						{idea.description}
+						{idea.description?.substring(0, 100)}
+						{idea.description?.length > 100 && '...'}
 					</Typography>
-					<Stack direction="row" gap={1} mt={1}>
+					<Stack
+						direction="row"
+						gap={1}
+						mt={1}
+						sx={{
+							flexWrap: 'wrap',
+						}}
+					>
 						{idea.technologies.slice(0, 4).map((tech) => (
 							<Chip label={tech} key={tech} variant="outlined" />
 						))}
@@ -174,8 +182,9 @@ function IdeaCard({
 							<FormControlLabel
 								control={
 									<Checkbox
-										inputProps={{ 'aria-label': 'Save' }}
+										inputProps={{ 'aria-label': 'Comments' }}
 										icon={<ChatBubbleOutlineRoundedIcon />}
+										checked={false}
 									/>
 								}
 								label={idea.comments?.length ?? 0}
