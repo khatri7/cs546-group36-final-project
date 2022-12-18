@@ -35,20 +35,22 @@ function SearchIdea({ setEndpoint }) {
 	};
 
 	const handleSearch = () => {
-		let endpoint = '/ideas';
-		if (name.trim() !== '' && technologies.length > 0 && status.length > 0)
-			endpoint = `/ideas?name=${name}&technologies=${String(
-				technologies
-			)}&status=${String(status)}`;
-		else if (name.trim() !== '') endpoint = `/ideas?name=${name}`;
-		else if (technologies.length > 0)
-			endpoint = `/ideas?technologies=${String(technologies)}`;
-		else if (status !== 'all') endpoint = `/ideas?status=${String(status)}`;
-		setEndpoint(endpoint);
+		const queryParams = [];
+		if (name.trim() !== '') queryParams.push(`name=${name.trim()}`);
+		if (technologies.length > 0)
+			queryParams.push(`technologies=${String(technologies)}`);
+		if (status !== 'all') queryParams.push(`status=${status}`);
+		setEndpoint(
+			`/ideas${queryParams.length === 0 ? '' : `?${queryParams.join('&')}`}`
+		);
 	};
 
 	useEffect(() => {
-		if (name.trim() === '' && technologies.length === 0 && status.trim() === '')
+		if (
+			name.trim() === '' &&
+			technologies.length === 0 &&
+			status.trim() === 'all'
+		)
 			setEndpoint('/ideas');
 	}, [technologies.length, name, status, setEndpoint]);
 
@@ -130,7 +132,7 @@ function SearchIdea({ setEndpoint }) {
 						disabled={
 							name.trim() === '' &&
 							technologies.length === 0 &&
-							status.length === 0
+							status === 'all'
 						}
 					>
 						Search
