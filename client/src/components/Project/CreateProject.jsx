@@ -14,7 +14,12 @@ const schema = Yup.object().shape({
 		.matches('^[a-zA-Z0-9 ]*$', 'Invalid Project name')
 		.min(3, 'Project name should be atleast 3 cahracters'),
 	description: Yup.string().nullable(),
-	github: Yup.string().url('Invalid GitHub link').nullable(),
+	github: Yup.string()
+		.matches(
+			'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
+			'Invalid GitHub link'
+		)
+		.nullable(),
 	deploymentLink: Yup.string().url('Invalid deployment link').nullable(),
 });
 

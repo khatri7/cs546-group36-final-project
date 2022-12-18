@@ -49,10 +49,12 @@ function CreateEducationExperienceForm({
 		[primaryKey]: Yup.string()
 			.required(`${primaryLabel} is required`)
 			.min(3, `${primaryLabel} should be at least 3 characters`)
+			.max(60, `${primaryLabel} cannot be greater than 60 characters`)
 			.matches(primaryRegex, primaryRegexErrMsg),
 		[secondaryKey]: Yup.string()
 			.required(`${secondaryLabel} is required`)
 			.min(3, `${secondaryLabel} should be at least 3 characters`)
+			.max(60, `${secondaryLabel} cannot be greater than 60 characters`)
 			.matches(
 				'^[a-zA-Z0-9 ]*$',
 				`Invalid ${secondaryLabel}. Can only be alpha numeric`

@@ -32,15 +32,25 @@ const AVAILABILITY = [
 ];
 
 const schema = Yup.object().shape({
-	firstName: Yup.string('First Name should be a string')
-		.required('First Name is required')
+	firstName: Yup.string()
+		.required('First name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid First name')
-		.min(3, 'First Name should be at least 3 characters long'),
-	lastName: Yup.string('Last Name should be a string')
-		.required('Last Name is required')
+		.min(3, 'First name must be atleast 3 cahracters')
+		.max(40, 'First name cannot be greater than 40 cahracters'),
+	lastName: Yup.string()
+		.required('Last name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid Last name')
-		.min(3, 'Last Name should be at least 3 characters long'),
-	dob: Yup.string('Invalid DOB').required('DOB is required').min(4),
+		.min(3, 'Last name must be atleast 3 characters')
+		.max(40, 'Last name cannot be greater than 40 cahracters'),
+	dob: Yup.string('Invalid DOB').required('DOB is required'),
+	github: Yup.string().matches(
+		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'Invalid GitHub URL'
+	),
+	linkedin: Yup.string().matches(
+		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'Invalid LinkedIn URL'
+	),
 });
 
 function EditUserDetails({
