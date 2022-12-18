@@ -3,7 +3,7 @@ const xss = require('xss');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
 const bookmarksData = require('../data/bookmarks');
-const { successStatusCodes } = require('../utils');
+const { successStatusCodes, isValidUrl } = require('../utils');
 
 const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const {
@@ -28,13 +28,13 @@ router
 			user.username = isValidUsername(xss(user.username));
 			name = isValidProjectName(xss(name));
 			description = req.body.description
-				? isValidStr(xss(req.body.description), 'project description')
+				? isValidStr(xss(req.body.description), 'project description', 'min', 3)
 				: null;
 			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
 			// xss validation done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
-				? isValidStr(xss(req.body.deploymentLink), 'project deployment link')
+				? isValidUrl(xss(req.body.deploymentLink), 'project deployment link')
 				: null;
 			const projectObject = {
 				name,
@@ -100,13 +100,13 @@ router
 			await projectsData.getProjectById(projectId);
 			name = isValidProjectName(xss(name));
 			description = req.body.description
-				? isValidStr(xss(req.body.description), 'project description')
+				? isValidStr(xss(req.body.description), 'project description', 'min', 3)
 				: null;
 			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
 			// xss validation done in isValidTechnologies()
 			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
-				? isValidStr(xss(req.body.deploymentLink), 'project deployment link')
+				? isValidUrl(xss(req.body.deploymentLink), 'project deployment link')
 				: null;
 			const projectObject = {
 				name,

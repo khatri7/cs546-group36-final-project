@@ -114,8 +114,8 @@ const udpateAvatar = async (userIdParam, currentUserParam, avatar) => {
 			);
 			await deleteFile(existingAvatarKey);
 		}
-		const resumeKey = `${process.env.ENVIRONMENT}/avatars/${userId}/${avatar.originalname}`;
-		location = await upload(resumeKey, avatar.buffer, avatar.mimetype);
+		const avatarKey = `${process.env.ENVIRONMENT}/avatars/${userId}/${avatar.originalname}`;
+		location = await upload(avatarKey, avatar.buffer, avatar.mimetype);
 	} catch (e) {
 		throw internalServerErr('Error updating avatar on AWS');
 	}

@@ -10,8 +10,9 @@ const {
 	internalServerErr,
 	isValidArray,
 	isBoolean,
+	rLinkedIn,
 } = require('./index');
-const { isValidTechnologies } = require('./projects');
+const { isValidTechnologies, isValidGithub } = require('./projects');
 
 const saltRounds = 16;
 
@@ -37,6 +38,7 @@ const AVAILABILITY = [
  */
 const isValidName = (nameParam, varName, allowPunctuations = false) => {
 	const name = isValidStr(nameParam, varName, 'min', 3);
+	isValidStr(name, varName, 'max', 40);
 	name
 		.toLowerCase()
 		.split('')
@@ -128,6 +130,7 @@ const isValidFromAndToDate = (fromDate, toDate = null, userDob = undefined) => {
  */
 const isValidUsername = (usernameParam) => {
 	const username = isValidStr(usernameParam, 'Username', 'min', 3);
+	isValidStr(username, 'Username', 'max', 20);
 	if (!isLetterChar(username.charAt(0)))
 		throw badRequestErr('Invalid username: Should start with a letter');
 	username.split('').forEach((char) => {
@@ -146,9 +149,13 @@ const isValidAvailability = (availabilityArr) => {
 		'min',
 		1
 	);
-	return availability.map((item, index) => {
+	const availabilitiesSet = new Set(availability);
+	const availabilitiesArr = Array.from(availabilitiesSet);
+	return availabilitiesArr.map((item) => {
 		if (!AVAILABILITY.includes(item.trim().toLowerCase()))
-			throw badRequestErr(`Invalid availabliity at index ${index}`);
+			throw badRequestErr(
+				`Invalid availabliity at index ${availability.indexOf(item)}`
+			);
 		return item.trim().toLowerCase();
 	});
 };
@@ -205,6 +212,12 @@ const isValidPassword = (passwordParam) => {
 	return password;
 };
 
+const isValidLinkedin = (inputLinkParam) => {
+	const inputLink = isValidStr(inputLinkParam);
+	if (!rLinkedIn.test(inputLink)) throw badRequestErr('Invalid LinkedIn url');
+	return inputLink;
+};
+
 /**
  *
  * @param {object} userObj
@@ -217,7 +230,9 @@ const isValidUserObj = (userObjParam) => {
 		lastName: isValidName(xss(userObjParam.lastName), 'Last Name', false),
 		username: isValidUsername(xss(userObjParam.username)),
 		dob: isValidDob(xss(userObjParam.dob)),
-		bio: userObjParam.bio ? isValidStr(xss(userObjParam.bio)) : null,
+		bio: userObjParam.bio
+			? isValidStr(xss(userObjParam.bio), 'Bio', 'min', 3)
+			: null,
 		email: isValidEmail(xss(userObjParam.email)),
 		password: isValidPassword(xss(userObjParam.password)),
 		education: [],
@@ -231,11 +246,11 @@ const isValidUserObj = (userObjParam) => {
 		socials: {
 			github:
 				userObjParam.socials && userObjParam.socials.github
-					? xss(userObjParam.socials.github)
+					? isValidGithub(xss(userObjParam.socials.github))
 					: null,
 			linkedin:
 				userObjParam.socials && userObjParam.socials.linkedin
-					? xss(userObjParam.socials.linkedin)
+					? isValidLinkedin(xss(userObjParam.socials.linkedin))
 					: null,
 		},
 	};
@@ -263,13 +278,15 @@ const isValidUpdateUserObj = (userObjParam) => {
 		updateUserObj.bio =
 			bio === null || bio.trim().length === 0
 				? null
-				: isValidStr(xss(bio), 'Bio');
+				: isValidStr(xss(bio), 'Bio', 'min', 3);
 	// xss validations for skills done in isValidTechnologies()
 	if (skills) updateUserObj.skills = isValidTechnologies(skills);
 	if (socials) {
 		updateUserObj.socials = {
-			github: socials.github ? xss(socials.github) : null,
-			linkedin: socials.linkedin ? xss(socials.linkedin) : null,
+			github: socials.github ? isValidGithub(xss(socials.github)) : null,
+			linkedin: socials.linkedin
+				? isValidLinkedin(xss(socials.linkedin))
+				: null,
 		};
 	}
 	if (Object.keys(userObjParam).includes('isAvailable')) {
@@ -297,6 +314,7 @@ const isValidUserLoginObj = (userLoginObjParam) => {
 // checks if a string has letters only from the english alphabet. spaces are allowed.
 const isValidSchoolName = (nameParam, varName) => {
 	const name = isValidStr(nameParam, varName, 'min', 3);
+	isValidStr(name, varName, 'max', 60);
 	name.split('').forEach((char) => {
 		if (!isLetterChar(char) && char !== '' && char !== ' ')
 			throw badRequestErr(`Invalid ${varName}`);
@@ -307,6 +325,7 @@ const isValidSchoolName = (nameParam, varName) => {
 // checks if a string is alpha numeric. spaces are allowed
 const isValidCourseName = (nameParam, varName) => {
 	const name = isValidStr(nameParam, varName, 'min', 3);
+	isValidStr(name, varName, 'max', 60);
 	name.split('').forEach((char) => {
 		if (
 			!isLetterChar(char) &&
@@ -327,12 +346,7 @@ const isValidEducationObj = (educationObjParam, userDob = undefined) => {
 		userDob
 	);
 	return {
-		school: isValidSchoolName(
-			educationObjParam.school,
-			'School Name',
-			'min',
-			3
-		),
+		school: isValidSchoolName(educationObjParam.school, 'School Name'),
 		course: isValidCourseName(educationObjParam.course, 'Course Name'),
 		from,
 		to,
@@ -347,7 +361,8 @@ const isValidExperienceObj = (experienceObjParam, userDob = undefined) => {
 		userDob
 	);
 	return {
-		company: isValidSchoolName(experienceObjParam.company, 'Company Name'),
+		// is valid course name is an alpha numeric check which is what we need for company name
+		company: isValidCourseName(experienceObjParam.company, 'Company Name'),
 		title: isValidCourseName(experienceObjParam.title, 'Title'),
 		from,
 		to,

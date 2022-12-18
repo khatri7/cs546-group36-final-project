@@ -314,7 +314,7 @@ export function CreateExperienceForm({
 					: 'Experience added successfully'
 			}
 			primaryRegex="^[a-zA-Z0-9 ]*$"
-			primaryRegexErrMsg="Invalid Company Name. Can only be letters"
+			primaryRegexErrMsg="Invalid Company Name. Can only be letters or numbers"
 			primaryValue={company}
 			secondaryValue={title}
 			from={from}

@@ -4,7 +4,6 @@ const {
 	internalServerErr,
 	isValidObjectId,
 	notFoundErr,
-	isValidStr,
 	forbiddenErr,
 	unauthorizedErr,
 	badRequestErr,
@@ -15,6 +14,7 @@ const {
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
 	checkuseraccess,
+	isValidProjectName,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
 const { deleteFile, upload } = require('../utils/aws');
@@ -36,11 +36,7 @@ const getAllProjects = async (
 	const { name, technologies } = options;
 	const projectsCollection = await projects();
 	const query = {};
-	if (
-		name &&
-		name.trim().length > 0 &&
-		isValidStr(name, 'project name query param', 'min', 1)
-	)
+	if (name && name.trim().length > 0 && isValidProjectName(name))
 		query.name = { $regex: name.trim(), $options: 'i' };
 	if (technologies && technologies.trim().length > 0) {
 		const technologiesArr =
@@ -199,6 +195,7 @@ const getSavedProjects = async (usernameParam, ownerParam) => {
 		);
 	return savedProjects;
 };
+
 const unlikeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
