@@ -110,9 +110,9 @@ function Bio({ username, bio, handleUpdateUser, isCurrentUserProfile }) {
 										<Button
 											type="submit"
 											variant="contained"
-											disabled={
+											disabled={Boolean(
 												isSubmitting || values.bio?.trim() === bio || errors.bio
-											}
+											)}
 										>
 											{isSubmitting ? <CircularProgress /> : 'Save'}
 										</Button>

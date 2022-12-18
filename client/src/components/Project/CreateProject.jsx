@@ -20,7 +20,12 @@ const schema = Yup.object().shape({
 			'Invalid GitHub link'
 		)
 		.nullable(),
-	deploymentLink: Yup.string().url('Invalid deployment link').nullable(),
+	deploymentLink: Yup.string()
+		.matches(
+			'^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$',
+			'Invalid Deployment link'
+		)
+		.nullable(),
 });
 
 function CreateProject({
