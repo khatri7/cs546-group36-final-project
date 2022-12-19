@@ -58,30 +58,27 @@ function UploadImageBtn({ position, projectId, handleUpdate }) {
 			mediaBtnRef.current.addEventListener('change', uploadImage);
 	}, [mediaBtnRef, uploadImage]);
 	return (
-		<>
-			<Button
-				sx={{
-					border: (theme) => `2px dashed ${theme.palette.primary.main}`,
-					width: '100%',
-					height: '150px',
-				}}
-				onClick={() => {
-					if (mediaBtnRef.current) mediaBtnRef.current.click();
-				}}
-			>
-				{submitting ? (
-					<CircularProgress size={16} />
-				) : (
-					<AddIcon color="primary" />
-				)}
-			</Button>
+		<Button
+			sx={{
+				border: (theme) => `2px dashed ${theme.palette.primary.main}`,
+				width: '100%',
+				height: '150px',
+			}}
+			component="label"
+		>
+			{submitting ? (
+				<CircularProgress size={16} />
+			) : (
+				<AddIcon color="primary" />
+			)}
+
 			<input
 				ref={mediaBtnRef}
 				hidden
 				accept="image/jpeg, image/png"
 				type="file"
 			/>
-		</>
+		</Button>
 	);
 }
 

@@ -25,6 +25,7 @@ function Carousel({ projectMedia }) {
 				alt={projectMedia[activeStep]}
 			/>
 			<MobileStepper
+				index={activeStep}
 				steps={projectMedia.length}
 				position="static"
 				activeStep={activeStep}

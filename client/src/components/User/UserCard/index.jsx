@@ -4,6 +4,7 @@ import {
 	CardContent,
 	Stack,
 	Typography,
+	Link,
 	Chip,
 	Button,
 	IconButton,
@@ -20,13 +21,7 @@ import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { errorAlert, successAlert } from 'store/alert';
-import {
-	handleError,
-	removeUserMedia,
-	uploadAvatar,
-	uploadResume,
-} from 'utils/api-calls';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { handleError, uploadAvatar, uploadResume } from 'utils/api-calls';
 import EditUserDetails from './EditUserDetails';
 
 function UserCard({
@@ -106,27 +101,6 @@ function UserCard({
 		return true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	const handleRemoveMedia = async (mediaType, setLoading) => {
-		try {
-			setLoading(true);
-			const res = await removeUserMedia(_id, mediaType);
-			if (!res.user) throw new Error();
-			handleUpdateUser(res.user);
-			dispatch(successAlert(`${mediaType} removed successfully`));
-		} catch (err) {
-			let error = 'Unexpected error occurred';
-			if (typeof handleError(err) === 'string') error = handleError(err);
-			dispatch(errorAlert(error));
-		} finally {
-			setLoading(false);
-		}
-	};
-	const openAvatarInput = () => {
-		if (avatarRef.current) avatarRef.current.click();
-	};
-	const openResumeInput = () => {
-		if (resumeRef.current) resumeRef.current.click();
-	};
 	useEffect(() => {
 		if (resumeRef.current)
 			resumeRef.current.addEventListener('change', handleResumeUpload);
@@ -151,60 +125,32 @@ function UserCard({
 						</IconButton>
 					)}
 					<Stack alignItems="center" spacing={1}>
-						<Avatar
-							src={avatar}
-							alt={`${firstName} ${lastName}`}
-							sx={{ width: 100, height: 100 }}
-						/>
-						{isCurrentUserProfile && !showEditProfile && (
-							<Stack>
+						<Avatar src={avatar} sx={{ width: 100, height: 100 }} />
+						{isCurrentUserProfile && (
+							<Button
+								sx={{
+									mt: -1,
+								}}
+								variant="text"
+								size="small"
+								component="label"
+								aria-label="upload avatar"
+								disabled={submittingAvatar}
+							>
+								{submittingAvatar ? (
+									<CircularProgress size={16} />
+								) : (
+									'Upload/Update Avatar'
+								)}
 								<input
 									ref={avatarRef}
 									hidden
 									accept="image/jpeg, image/png"
 									type="file"
 								/>
-								<Button
-									sx={{
-										mt: -1,
-									}}
-									variant="text"
-									size="small"
-									aria-label="upload avatar"
-									disabled={submittingAvatar}
-									onClick={openAvatarInput}
-								>
-									{submittingAvatar ? (
-										<CircularProgress size={16} />
-									) : (
-										'Upload/Update Avatar'
-									)}
-								</Button>
-								{avatar && !submittingAvatar && (
-									<Button
-										type="button"
-										color="error"
-										size="small"
-										sx={{
-											m: 0,
-										}}
-										onClick={() => {
-											handleRemoveMedia('avatar', setSubmittingAvatar);
-										}}
-									>
-										Remove Avatar
-									</Button>
-								)}
-							</Stack>
+							</Button>
 						)}
 					</Stack>
-					<Typography
-						variant="h1"
-						fontSize="2rem"
-						sx={showEditProfile ? { display: 'none' } : {}}
-					>
-						{firstName} {lastName}
-					</Typography>
 					{showEditProfile ? (
 						<EditUserDetails
 							username={username}
@@ -223,6 +169,9 @@ function UserCard({
 						/>
 					) : (
 						<>
+							<Typography variant="h1" fontSize="2rem">
+								{firstName} {lastName}
+							</Typography>
 							<Typography
 								variant="h2"
 								fontSize="1.2rem"
@@ -246,12 +195,10 @@ function UserCard({
 									</Stack>
 									<Stack
 										direction="row"
-										gap={1}
+										spacing={1}
 										sx={{
 											marginTop: '0.5rem !important',
-											flexWrap: 'wrap',
 										}}
-										justifyContent="center"
 									>
 										{skills.map((skill) => (
 											<Chip label={skill} key={skill} />
@@ -265,12 +212,10 @@ function UserCard({
 							</Stack>
 							<Stack
 								direction="row"
-								gap={1}
+								spacing={1}
 								sx={{
 									marginTop: '0.5rem !important',
-									flexWrap: 'wrap',
 								}}
-								justifyContent="center"
 							>
 								{isAvailable && availability.length > 0 ? (
 									availability.map((item) => <Chip label={item} key={item} />)
@@ -280,75 +225,49 @@ function UserCard({
 							</Stack>
 							<Stack direction="row" spacing={2} alignItems="center">
 								{socials.github && (
-									<IconButton
-										onClick={() => {
-											window.open(socials.github, '_blank');
-										}}
-										color="inherit"
-									>
+									<Link href={socials.github} target="_blank" color="inherit">
 										<GitHubIcon fontSize="large" />
-										<span style={{ display: 'none' }}>Github</span>
-									</IconButton>
+									</Link>
 								)}
 								{socials.linkedin && (
-									<IconButton
-										onClick={() => {
-											window.open(socials.linkedin, '_blank');
-										}}
-										color="inherit"
-									>
+									<Link href={socials.linkedin} target="_blank" color="inherit">
 										<LinkedInIcon fontSize="large" />
-										<span style={{ display: 'none' }}>LinkedIn</span>
-									</IconButton>
+									</Link>
 								)}
 							</Stack>
-
-							{isCurrentUserProfile && (
-								<Stack direction="row" spacing={1}>
-									<input
-										ref={resumeRef}
-										hidden
-										accept="application/pdf"
-										type="file"
-									/>
+							<Stack direction="row" spacing={1}>
+								{isCurrentUserProfile && (
 									<Button
 										variant="outlined"
+										component="label"
 										aria-label="upload resume"
 										startIcon={<UploadRoundedIcon />}
 										disabled={submittingResume}
-										onClick={openResumeInput}
 									>
 										{submittingResume ? (
 											<CircularProgress size={16} />
 										) : (
-											`${resume ? 'Update' : 'Upload'} Resume`
+											'Upload Resume'
 										)}
+										<input
+											ref={resumeRef}
+											hidden
+											accept="application/pdf"
+											type="file"
+										/>
 									</Button>
-									{resume && !submittingResume && (
-										<Button
-											type="button"
-											color="error"
-											variant="outlined"
-											onClick={() => {
-												handleRemoveMedia('resume', setSubmittingResume);
-											}}
-										>
-											Remove Resume
-										</Button>
-									)}
-								</Stack>
-							)}
-							{resume && (
-								<Button
-									variant="contained"
-									onClick={() => {
-										window.open(resume, '_blank');
-									}}
-									startIcon={<OpenInNewIcon />}
-								>
-									Resume
-								</Button>
-							)}
+								)}
+								{resume && (
+									<Button
+										variant="contained"
+										onClick={() => {
+											window.open(resume, '_blank');
+										}}
+									>
+										Resume
+									</Button>
+								)}
+							</Stack>
 						</>
 					)}
 				</Stack>
