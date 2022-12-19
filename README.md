@@ -63,7 +63,7 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 		}
 	],
 	"socials": {
-		"github": "https://github.com/199nik/test.git",
+		"github": "https://github.com/199nik/test",
 		"linkedin": null
 	}
 }
@@ -76,7 +76,7 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 	"_id": "639181477a14df2ee3ee937a",
 	"name": "Aftersell Casestudy 3D illustration",
 	"description": "Description here",
-	"github": "https://github.com/199nik/test.git",
+	"github": "https://github.com/199nik/test",
 	"media": [],
 	"deploymentLink": "https://www.github.com",
 	"createdAt": "2022-12-08T06:16:39.174Z",
@@ -133,10 +133,8 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 }
 ```
 
-> Note: The allowed ranges and types for the input fields have been put in a separate file (collections\_\_type-and-range.pdf) which is in the parent directory in the zip.
-
----
-
+> Note: The allowed ranges and types for the input fields have been put in a separate file (collections__type-and-range.pdf) which is in the parent directory in the zip.
+- - - -
 # Setup
 
 ## Step I. Clone URL (optional)
@@ -150,9 +148,9 @@ Install npm dependencies in both the `client` and `server` sub-directories and a
 ```shell
 > npm install
 # go to the 'server' directory and execute the below
-> npm install
+> cd server && npm install
 # go to the 'client' directory and execute the below
-> npm install
+> cd client && npm install
 ```
 
 The root directory has been initialized as an npm project and installs [`concurrently`](https://www.npmjs.com/package/concurrently) as a dev dependency to start both the client and the server with a single command
@@ -162,8 +160,7 @@ Set up a MongoDB database either locally or online via <a href='https://www.mong
 Create a `.env` file in both the `client` and `server` subdirectories as shown in the `.env.example` files
 
 ## Step III: Setting up environment variables:
-
-> Note: the zipped file will already contain the .env files with the below entries
+> Note: the zipped file will already contain the .env files with the below entries  
 
 ```ini
 In `client/.env`:
@@ -183,7 +180,6 @@ ENVIRONMENT="local" //environment currently working on - used for storing media 
 ## Step IV: Running the application
 
 To run the code, from the root directory you can start the application in development mode using:
-
 ```shell
 $ npm start
 ```

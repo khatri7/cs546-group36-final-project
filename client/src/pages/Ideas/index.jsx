@@ -12,6 +12,7 @@ function Ideas() {
 	const renderIdeasSection = () => {
 		if (loading) return <Typography>Loading...</Typography>;
 		if (error) return <Typography>{error}</Typography>;
+		if (!data.ideas) return <Typography>Error getting the ideas</Typography>;
 		return <IdeasList ideasList={data.ideas || []} />;
 	};
 

@@ -24,7 +24,7 @@ function CommentCard({
 	const dispatch = useDispatch();
 	return (
 		<Stack direction="row" spacing={2}>
-			<Avatar sx={{ mt: 1 }}>
+			<Avatar sx={{ mt: 1, bgcolor: '#767676' }}>
 				{comment.owner.username.charAt(0).toUpperCase()}
 			</Avatar>
 			<Card raised sx={{ width: '100%', m: 2, borderRadius: 3 }}>
@@ -36,13 +36,11 @@ function CommentCard({
 						},
 					}}
 				>
-					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<Link
-							to={`/users/${comment.owner.username}`}
-							style={{ textDecoration: 'none' }}
-							relative="path"
-						>
-							<Typography variant="h6">{comment.owner.username}</Typography>
+					<div className="commentCard__content__container">
+						<Link to={`/users/${comment.owner.username}`} relative="path">
+							<Typography variant="h6" component="p">
+								{comment.owner.username}
+							</Typography>
 						</Link>
 						{isOwner && (
 							<Tooltip title="Delete Comment" arrow>
@@ -62,7 +60,7 @@ function CommentCard({
 									}}
 									color="error"
 								>
-									<DeleteIcon sx={{ width: 20, height: 20 }} />
+									<DeleteIcon className="comment-card__delete-btn" />
 								</IconButton>
 							</Tooltip>
 						)}

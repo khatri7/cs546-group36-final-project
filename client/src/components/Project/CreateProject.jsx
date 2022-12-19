@@ -14,8 +14,18 @@ const schema = Yup.object().shape({
 		.matches('^[a-zA-Z0-9 ]*$', 'Invalid Project name')
 		.min(3, 'Project name should be atleast 3 cahracters'),
 	description: Yup.string().nullable(),
-	github: Yup.string().url('Invalid GitHub link').nullable(),
-	deploymentLink: Yup.string().url('Invalid deployment link').nullable(),
+	github: Yup.string()
+		.matches(
+			'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
+			'Invalid GitHub link'
+		)
+		.nullable(),
+	deploymentLink: Yup.string()
+		.matches(
+			'^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$',
+			'Invalid Deployment link'
+		)
+		.nullable(),
 });
 
 function CreateProject({
@@ -59,7 +69,9 @@ function CreateProject({
 						errors.name = 'Project name should be at least 3 characters';
 					if (!values.technologies || values.technologies.length < 1)
 						errors.technologies =
-							'Need to mention at least one technology used';
+							'Need to mention at least one technology going to be used';
+					else if (values.technologies.length > 10)
+						errors.technologies = 'You can only add upto 10 technologies';
 					if (!isValidSkills(values.technologies))
 						errors.skills = 'Invalid Technologies';
 					return errors;
@@ -137,7 +149,7 @@ function CreateProject({
 							<Field
 								name="technologies"
 								component={TechnologiesAutocomplete}
-								label="Technologies"
+								label="Technologies (upto 10)"
 								required
 								id="select-technologies-autocomplete"
 							/>

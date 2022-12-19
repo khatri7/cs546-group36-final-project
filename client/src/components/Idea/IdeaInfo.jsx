@@ -107,82 +107,80 @@ function IdeaInfo({ idea: ideaProp }) {
 
 	return (
 		<Box>
-			<Stack direction="row" spacing={2}>
-				<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
-					{ideaOwner.username.charAt(0).toUpperCase()}
-				</Avatar>
-				<Box>
-					<Link
-						to={`/users/${ideaOwner.username}`}
-						style={{
-							all: 'unset',
-							cursor: 'pointer',
-						}}
-					>
-						<Typography variant="h5">{ideaOwner.username}</Typography>
-					</Link>
-					<Typography variant="body2">{getSubHeader()}</Typography>
-				</Box>
-			</Stack>
-			<Divider variant="middle" sx={{ my: 2 }} />
-			<Stack
-				direction="row"
-				justifyContent="space-between"
-				alignItems="flex-start"
-				sx={{
-					mb: 2,
-				}}
-			>
-				<Box>
-					<Stack
-						direction="row"
-						spacing={2}
-						alignItems="center"
-						sx={{
-							mb: 1,
-						}}
-					>
-						<Typography variant="h4" component="h1">
-							{ideaName}
-						</Typography>
-						<Chip
-							label={status}
-							color={status === 'active' ? 'success' : 'default'}
-						/>
-					</Stack>
-					{technologiesUsed.map((tech) => (
-						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
-					))}
-				</Box>
-				<Box
-					display="flex"
-					justifyContent="flex-end"
+			<Stack direction="column-reverse">
+				<Stack
+					direction="row"
+					justifyContent="space-between"
+					alignItems="flex-start"
 					sx={{
-						gap: 1,
+						mb: 2,
 					}}
 				>
-					{isCurrentUsersIdea && (
-						<Stack direction="row" spacing={2}>
-							<Button
-								variant="outlined"
-								onClick={() => {
-									setIsEditing(!isEditing);
-								}}
-								startIcon={<EditRoundedIcon />}
-							>
-								Edit
-							</Button>
-							<Button
-								variant="contained"
-								color="error"
-								onClick={handleDeleteIdea}
-								startIcon={<DeleteIcon />}
-							>
-								Delete
-							</Button>
+					<Box>
+						<Stack
+							direction="row"
+							spacing={2}
+							alignItems="center"
+							sx={{
+								mb: 1,
+							}}
+						>
+							<Typography variant="h4" component="h1">
+								{ideaName}
+							</Typography>
+							<Chip
+								label={status}
+								color={status === 'active' ? 'success' : 'default'}
+							/>
 						</Stack>
-					)}
-				</Box>
+						{technologiesUsed.map((tech) => (
+							<Chip label={tech} key={tech} sx={{ mr: 1 }} />
+						))}
+					</Box>
+					<Box
+						display="flex"
+						justifyContent="flex-end"
+						sx={{
+							gap: 1,
+						}}
+					>
+						{isCurrentUsersIdea && (
+							<Stack direction="row" spacing={2}>
+								<Button
+									variant="outlined"
+									onClick={() => {
+										setIsEditing(!isEditing);
+									}}
+									startIcon={<EditRoundedIcon />}
+								>
+									Edit
+								</Button>
+								<Button
+									variant="contained"
+									color="error"
+									onClick={handleDeleteIdea}
+									startIcon={<DeleteIcon />}
+								>
+									Delete
+								</Button>
+							</Stack>
+						)}
+					</Box>
+				</Stack>
+				<Divider variant="middle" sx={{ my: 2 }} />
+				<Stack direction="row" spacing={2}>
+					<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
+						{ideaOwner.username.charAt(0).toUpperCase()}
+					</Avatar>
+					<Box>
+						<Link to={`/users/${ideaOwner.username}`}>
+							<Typography variant="h5" component="h2">
+								{ideaOwner.username}
+							</Typography>
+						</Link>
+						<Typography variant="body2">{getSubHeader()}</Typography>
+					</Box>
+				</Stack>
 			</Stack>
 			{isEditing ? (
 				<CreateIdea
@@ -212,14 +210,15 @@ function IdeaInfo({ idea: ideaProp }) {
 				<>
 					<Stack direction="row" spacing={1} alignItems="center">
 						<PeopleAltRoundedIcon />
-						<Typography variant="h6">Looking For: {lookingFor}</Typography>
+						<Typography variant="h6" component="p">
+							Looking For: {lookingFor}
+						</Typography>
 					</Stack>
 					<Box sx={{ py: 2 }}>
 						<Typography>{description}</Typography>
 					</Box>
 				</>
 			)}
-
 			<Box sx={{ p: 1 }}>
 				<FormControlLabel
 					control={
