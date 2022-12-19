@@ -79,8 +79,20 @@ function Navbar() {
 							display: { xs: 'none', md: 'flex' },
 						}}
 					>
-						<Link to="/projects">
-							<img src={FavIcon} alt="Open Glass" className="navbar__icon" />
+						<Link
+							style={{
+								textDecoration: 'none',
+								lineHeight: 0,
+							}}
+							to="/projects"
+						>
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
 						</Link>
 					</Box>
 					{/* Mobile Hamburger Icon */}
@@ -88,12 +100,14 @@ function Navbar() {
 						<IconButton
 							size="large"
 							aria-label="account of current user"
+							aria-controls="menu-appbar"
 							aria-haspopup="true"
 							onClick={handleOpenNavMenu}
 						>
 							<MenuIcon />
 						</IconButton>
 						<Menu
+							id="menu-appbar"
 							anchorEl={anchorElNav}
 							anchorOrigin={{
 								vertical: 'bottom',
@@ -125,8 +139,20 @@ function Navbar() {
 							justifyContent: 'center',
 						}}
 					>
-						<Link to="/projects">
-							<img src={FavIcon} alt="Open Glass" className="navbar__icon" />
+						<Link
+							style={{
+								textDecoration: 'none',
+								lineHeight: 0,
+							}}
+							to="/projects"
+						>
+							<img
+								src={FavIcon}
+								alt="Open Glass"
+								style={{
+									height: '3rem',
+								}}
+							/>
 						</Link>
 					</Box>
 					{/* Desktop Menu */}
@@ -187,11 +213,7 @@ function Navbar() {
 								>
 									Create Project
 								</Button>
-								<IconButton
-									component="div"
-									onClick={handleOpenUserMenu}
-									sx={{ p: 0 }}
-								>
+								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
 									<Avatar
 										alt={`${user.firstName} ${user.lastName}`}
 										src={user.avatar}
@@ -199,6 +221,7 @@ function Navbar() {
 								</IconButton>
 								<Menu
 									sx={{ mt: '45px' }}
+									id="menu-appbar"
 									anchorEl={anchorElUser}
 									anchorOrigin={{
 										vertical: 'top',

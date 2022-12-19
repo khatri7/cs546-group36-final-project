@@ -1,9 +1,8 @@
 const express = require('express');
-const xss = require('xss');
 const projectsData = require('../data/projects');
 const commentsData = require('../data/comments');
 const bookmarksData = require('../data/bookmarks');
-const { successStatusCodes, isValidUrl } = require('../utils');
+const { successStatusCodes } = require('../utils');
 
 const { sendErrResp, isValidStr, isValidObjectId } = require('../utils');
 const {
@@ -24,17 +23,16 @@ router
 		const { user } = req;
 		let { name, description, github, technologies, deploymentLink } = req.body;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			name = isValidProjectName(xss(name));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			name = isValidProjectName(name);
 			description = req.body.description
-				? isValidStr(xss(req.body.description), 'project description', 'min', 3)
+				? isValidStr(req.body.description, 'project description')
 				: null;
-			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
-			// xss validation done in isValidTechnologies()
+			github = req.body.github ? isValidGithub(req.body.github) : null;
 			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
-				? isValidUrl(xss(req.body.deploymentLink), 'project deployment link')
+				? isValidStr(req.body.deploymentLink, 'project deployment link')
 				: null;
 			const projectObject = {
 				name,
@@ -54,9 +52,8 @@ router
 	.get(async (req, res) => {
 		try {
 			let { technologies, name } = req.query;
-			// xss validation done in isValidQueryParamTechnologies()
-			technologies = xss(technologies?.trim() ?? '');
-			name = xss(name?.trim() ?? '');
+			technologies = technologies?.trim() ?? '';
+			name = name?.trim() ?? '';
 			if (technologies && technologies.length > 0)
 				technologies = isValidQueryParamTechnologies(technologies);
 			if (name && name.length > 0)
@@ -80,7 +77,7 @@ router.route('/technologies').get(async (req, res) => {
 
 router.route('/:projectId').get(async (req, res) => {
 	try {
-		const projectId = isValidObjectId(xss(req.params.projectId));
+		const projectId = isValidObjectId(req.params.projectId);
 		const project = await projectsData.getProjectById(projectId);
 		res.json({ project });
 	} catch (e) {
@@ -94,19 +91,18 @@ router
 		const { user } = req;
 		let { name, description, github, technologies, deploymentLink } = req.body;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.project_id));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.project_id);
 			await projectsData.getProjectById(projectId);
-			name = isValidProjectName(xss(name));
+			name = isValidProjectName(name);
 			description = req.body.description
-				? isValidStr(xss(req.body.description), 'project description', 'min', 3)
+				? isValidStr(req.body.description, 'project description')
 				: null;
-			github = req.body.github ? isValidGithub(xss(req.body.github)) : null;
-			// xss validation done in isValidTechnologies()
+			github = req.body.github ? isValidGithub(req.body.github) : null;
 			technologies = isValidTechnologies(technologies);
 			deploymentLink = req.body.deploymentLink
-				? isValidUrl(xss(req.body.deploymentLink), 'project deployment link')
+				? isValidStr(req.body.deploymentLink, 'project deployment link')
 				: null;
 			const projectObject = {
 				name,
@@ -128,9 +124,9 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		try {
 			const { user } = req;
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.project_id));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.project_id);
 			await projectsData.getProjectById(projectId);
 			const status = await projectsData.removeProject(projectId, user);
 			res.status(successStatusCodes.DELETED).json({
@@ -147,11 +143,11 @@ router
 		const { user } = req;
 		let { comment } = req.body;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.projectId));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
-			comment = isValidStr(xss(req.body.comment), 'Comment');
+			comment = isValidStr(req.body.comment, 'Comment');
 			const commentObject = {
 				comment,
 				projectId,
@@ -170,9 +166,9 @@ router
 router.route('/:projectId/likes').post(authenticateToken, async (req, res) => {
 	const { user } = req;
 	try {
-		user._id = isValidObjectId(xss(user._id));
-		user.username = isValidUsername(xss(user.username));
-		const projectId = isValidObjectId(xss(req.params.projectId));
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
+		const projectId = isValidObjectId(req.params.projectId);
 		const likeProjectInfo = await projectsData.likeProject(user, projectId);
 		res.status(successStatusCodes.CREATED).json({
 			likes: likeProjectInfo,
@@ -186,9 +182,9 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.projectId));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
 			const unlikeProjectInfo = await projectsData.unlikeProject(
 				user,
 				projectId
@@ -206,10 +202,10 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.projectId));
-			const commentId = isValidObjectId(xss(req.params.commentId));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
+			const commentId = isValidObjectId(req.params.commentId);
 			await projectsData.getProjectById(projectId);
 			await commentsData.getCommentById(commentId);
 			const commentObject = {
@@ -230,9 +226,9 @@ router
 	.post(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.projectId));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
 			const bookmarkedUsers = await bookmarksData.addBookmark(projectId, user);
 			res.status(successStatusCodes.CREATED).json({
@@ -245,9 +241,9 @@ router
 	.delete(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			user._id = isValidObjectId(xss(user._id));
-			user.username = isValidUsername(xss(user.username));
-			const projectId = isValidObjectId(xss(req.params.projectId));
+			user._id = isValidObjectId(user._id);
+			user.username = isValidUsername(user.username);
+			const projectId = isValidObjectId(req.params.projectId);
 			await projectsData.getProjectById(projectId);
 			const bookmarkedUsers = await bookmarksData.removeBookmark(
 				projectId,

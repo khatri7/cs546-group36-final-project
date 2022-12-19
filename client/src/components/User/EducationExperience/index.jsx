@@ -25,7 +25,6 @@ import {
 
 function EducationExperiece({
 	username,
-	dob,
 	cardTitle,
 	titleKey,
 	subtitleKey,
@@ -67,7 +66,6 @@ function EducationExperiece({
 					<Box sx={{ py: 2 }}>
 						<Form
 							username={username}
-							dob={dob}
 							cancel={() => {
 								setShowEducationExperienceForm(false);
 							}}
@@ -82,7 +80,6 @@ function EducationExperiece({
 								{showEditForm === item._id ? (
 									<Form
 										username={username}
-										dob={dob}
 										handleUpdateUser={handleUpdateUser}
 										cancel={() => {
 											setShowEditForm(null);
@@ -159,7 +156,6 @@ function EducationExperiece({
 
 export function Education({
 	username,
-	dob,
 	education = [],
 	isCurrentUserProfile = false,
 	handleUpdateUser = () => {},
@@ -172,7 +168,6 @@ export function Education({
 	return (
 		<EducationExperiece
 			username={username}
-			dob={dob}
 			cardTitle="Education"
 			titleKey="school"
 			subtitleKey="course"
@@ -187,7 +182,6 @@ export function Education({
 
 export function Experience({
 	username,
-	dob,
 	experiece = [],
 	isCurrentUserProfile = false,
 	handleUpdateUser = () => {},
@@ -200,7 +194,6 @@ export function Experience({
 	return (
 		<EducationExperiece
 			username={username}
-			dob={dob}
 			cardTitle="Experience"
 			titleKey="company"
 			subtitleKey="title"

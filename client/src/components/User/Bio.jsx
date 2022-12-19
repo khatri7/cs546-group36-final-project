@@ -44,12 +44,6 @@ function Bio({ username, bio, handleUpdateUser, isCurrentUserProfile }) {
 							initialValues={{
 								bio,
 							}}
-							validate={(values) => {
-								const errors = {};
-								if (values.bio && values.bio.trim().length < 3)
-									errors.bio = 'Bio needs to be at least 3 characters';
-								return errors;
-							}}
 							enableReinitialize
 							onSubmit={async (values, { setSubmitting }) => {
 								try {
@@ -110,9 +104,7 @@ function Bio({ username, bio, handleUpdateUser, isCurrentUserProfile }) {
 										<Button
 											type="submit"
 											variant="contained"
-											disabled={Boolean(
-												isSubmitting || values.bio?.trim() === bio || errors.bio
-											)}
+											disabled={isSubmitting}
 										>
 											{isSubmitting ? <CircularProgress /> : 'Save'}
 										</Button>

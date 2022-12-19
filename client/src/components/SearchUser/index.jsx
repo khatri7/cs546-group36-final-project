@@ -78,32 +78,24 @@ function SearchUser({ setEndpoint }) {
 						value={skills}
 						onChange={handleSkillsChange}
 						renderInput={(params) => {
-							return <TextField {...params} label="Skills" />;
+							// eslint-disable-next-line react/jsx-props-no-spreading
+							return <TextField {...params} placeholder="Skills" />;
 						}}
 						renderTags={() => {}}
 						clearIcon={null}
 					/>
 					<FormControl fullWidth>
-						<InputLabel
-							id="select-label"
-							sx={{ padding: '0 5px', background: 'white' }}
-						>
-							Availability
-						</InputLabel>
+						<InputLabel id="demo-simple-select-label">Availability</InputLabel>
 						<Select
-							labelId="select-label"
+							labelId="demo-simple-select-label"
+							id="demo-simple-select"
 							value={availability}
 							label="Availability"
 							onChange={handleAvailabilityChange}
-							sx={{
-								'& legend': { display: 'none' },
-								'& fieldset': { top: 0 },
-							}}
 							endAdornment={
 								<IconButton
 									sx={{ display: availability ? '' : 'none' }}
 									onClick={handleAvailabilityClear}
-									component="label"
 								>
 									<ClearIcon />
 								</IconButton>

@@ -1,5 +1,4 @@
 const moment = require('moment/moment');
-const xss = require('xss');
 const bcrypt = require('bcrypt');
 const {
 	isValidStr,
@@ -10,9 +9,8 @@ const {
 	internalServerErr,
 	isValidArray,
 	isBoolean,
-	rLinkedIn,
 } = require('./index');
-const { isValidTechnologies, isValidGithub } = require('./projects');
+const { isValidTechnologies } = require('./projects');
 
 const saltRounds = 16;
 
@@ -38,7 +36,6 @@ const AVAILABILITY = [
  */
 const isValidName = (nameParam, varName, allowPunctuations = false) => {
 	const name = isValidStr(nameParam, varName, 'min', 3);
-	isValidStr(name, varName, 'max', 40);
 	name
 		.toLowerCase()
 		.split('')
@@ -95,7 +92,7 @@ const isValidDob = (dateParam) => {
 	return momentDate.format('MM-DD-YYYY');
 };
 
-const isValidFromAndToDate = (fromDate, toDate = null, userDob = undefined) => {
+const isValidFromAndToDate = (fromDate, toDate = null) => {
 	const fromMomentDate = isValidDateStr(fromDate, 'From Date');
 	const toMomentDate = toDate ? isValidDateStr(toDate, 'To Date') : null;
 	if (!fromMomentDate.isValid()) throw badRequestErr('Invalid From Date');
@@ -103,16 +100,7 @@ const isValidFromAndToDate = (fromDate, toDate = null, userDob = undefined) => {
 		throw badRequestErr('Invalid To Date');
 	if (moment().diff(fromMomentDate, 'days') < 0)
 		throw badRequestErr('From Date cannot be in the future');
-	if (userDob) {
-		const userDobMoment = moment(userDob);
-		if (fromMomentDate.diff(userDobMoment, 'days') < 1)
-			throw badRequestErr('From date cannot be before or same as your DOB');
-	}
 	if (toMomentDate) {
-		if (moment().diff(toMomentDate, 'days') < 0)
-			throw badRequestErr(
-				'To Date cannot be in the future, set it as null if it is current'
-			);
 		const difference = toMomentDate.diff(fromMomentDate, 'days');
 		if (difference < 1)
 			throw badRequestErr('To Date cannot be same as or before From Date');
@@ -130,7 +118,6 @@ const isValidFromAndToDate = (fromDate, toDate = null, userDob = undefined) => {
  */
 const isValidUsername = (usernameParam) => {
 	const username = isValidStr(usernameParam, 'Username', 'min', 3);
-	isValidStr(username, 'Username', 'max', 20);
 	if (!isLetterChar(username.charAt(0)))
 		throw badRequestErr('Invalid username: Should start with a letter');
 	username.split('').forEach((char) => {
@@ -149,13 +136,9 @@ const isValidAvailability = (availabilityArr) => {
 		'min',
 		1
 	);
-	const availabilitiesSet = new Set(availability);
-	const availabilitiesArr = Array.from(availabilitiesSet);
-	return availabilitiesArr.map((item) => {
+	return availability.map((item, index) => {
 		if (!AVAILABILITY.includes(item.trim().toLowerCase()))
-			throw badRequestErr(
-				`Invalid availabliity at index ${availability.indexOf(item)}`
-			);
+			throw badRequestErr(`Invalid availabliity at index ${index}`);
 		return item.trim().toLowerCase();
 	});
 };
@@ -212,12 +195,8 @@ const isValidPassword = (passwordParam) => {
 	return password;
 };
 
-const isValidLinkedin = (inputLinkParam) => {
-	const inputLink = isValidStr(inputLinkParam);
-	if (!rLinkedIn.test(inputLink)) throw badRequestErr('Invalid LinkedIn url');
-	return inputLink;
-};
-
+// TODO - validate bio
+// TODO - check email specs on wiki and create validation (HTML input validation breaks when there is missing TLD after .)
 /**
  *
  * @param {object} userObj
@@ -226,32 +205,23 @@ const isValidLinkedin = (inputLinkParam) => {
 const isValidUserObj = (userObjParam) => {
 	isValidObj(userObjParam);
 	return {
-		firstName: isValidName(xss(userObjParam.firstName), 'First Name', false),
-		lastName: isValidName(xss(userObjParam.lastName), 'Last Name', false),
-		username: isValidUsername(xss(userObjParam.username)),
-		dob: isValidDob(xss(userObjParam.dob)),
-		bio: userObjParam.bio
-			? isValidStr(xss(userObjParam.bio), 'Bio', 'min', 3)
-			: null,
-		email: isValidEmail(xss(userObjParam.email)),
-		password: isValidPassword(xss(userObjParam.password)),
+		firstName: isValidName(userObjParam.firstName, 'First Name', false),
+		lastName: isValidName(userObjParam.lastName, 'Last Name', false),
+		username: isValidUsername(userObjParam.username),
+		dob: isValidDob(userObjParam.dob),
+		bio: userObjParam.bio ? isValidStr(userObjParam.bio) : null,
+		email: isValidEmail(userObjParam.email),
+		password: isValidPassword(userObjParam.password),
 		education: [],
 		experience: [],
-		resumeUrl: null,
-		avatar: null,
-		// xss validations for skills done in isValidTechnologies()
+		resumeUrl: '',
+		avatar: '',
 		skills: isValidTechnologies(userObjParam.skills),
 		isAvailable: false,
 		availability: [],
 		socials: {
-			github:
-				userObjParam.socials && userObjParam.socials.github
-					? isValidGithub(xss(userObjParam.socials.github))
-					: null,
-			linkedin:
-				userObjParam.socials && userObjParam.socials.linkedin
-					? isValidLinkedin(xss(userObjParam.socials.linkedin))
-					: null,
+			github: null,
+			linkedin: null,
 		},
 	};
 };
@@ -270,23 +240,19 @@ const isValidUpdateUserObj = (userObjParam) => {
 	} = userObjParam;
 	const updateUserObj = {};
 	if (firstName)
-		updateUserObj.firstName = isValidName(xss(firstName), 'First Name', false);
+		updateUserObj.firstName = isValidName(firstName, 'First Name', false);
 	if (lastName)
-		updateUserObj.lastName = isValidName(xss(lastName), 'Last Name', false);
-	if (dob) updateUserObj.dob = isValidDob(xss(dob));
+		updateUserObj.lastName = isValidName(lastName, 'Last Name', false);
+	if (dob) updateUserObj.dob = isValidDob(dob);
 	if (Object.keys(userObjParam).includes('bio'))
 		updateUserObj.bio =
-			bio === null || bio.trim().length === 0
-				? null
-				: isValidStr(xss(bio), 'Bio', 'min', 3);
-	// xss validations for skills done in isValidTechnologies()
+			bio === null || bio.trim().length === 0 ? null : isValidStr(bio, 'Bio');
 	if (skills) updateUserObj.skills = isValidTechnologies(skills);
+	if (skills.length > 10) throw badRequestErr('You can add up to 10 skills.');
 	if (socials) {
 		updateUserObj.socials = {
-			github: socials.github ? isValidGithub(xss(socials.github)) : null,
-			linkedin: socials.linkedin
-				? isValidLinkedin(xss(socials.linkedin))
-				: null,
+			github: socials.github || null,
+			linkedin: socials.linkedin || null,
 		};
 	}
 	if (Object.keys(userObjParam).includes('isAvailable')) {
@@ -306,64 +272,34 @@ const isValidUpdateUserObj = (userObjParam) => {
 const isValidUserLoginObj = (userLoginObjParam) => {
 	isValidObj(userLoginObjParam);
 	return {
-		username: isValidUsername(xss(userLoginObjParam.username)),
-		password: isValidPassword(xss(userLoginObjParam.password)),
+		username: isValidUsername(userLoginObjParam.username),
+		password: isValidPassword(userLoginObjParam.password),
 	};
 };
 
-// checks if a string has letters only from the english alphabet. spaces are allowed.
-const isValidSchoolName = (nameParam, varName) => {
-	const name = isValidStr(nameParam, varName, 'min', 3);
-	isValidStr(name, varName, 'max', 60);
-	name.split('').forEach((char) => {
-		if (!isLetterChar(char) && char !== '' && char !== ' ')
-			throw badRequestErr(`Invalid ${varName}`);
-	});
-	return name;
-};
-
-// checks if a string is alpha numeric. spaces are allowed
-const isValidCourseName = (nameParam, varName) => {
-	const name = isValidStr(nameParam, varName, 'min', 3);
-	isValidStr(name, varName, 'max', 60);
-	name.split('').forEach((char) => {
-		if (
-			!isLetterChar(char) &&
-			!isNumberChar(char) &&
-			char !== '' &&
-			char !== ' '
-		)
-			throw badRequestErr(`Invalid ${varName}`);
-	});
-	return name;
-};
-
-const isValidEducationObj = (educationObjParam, userDob = undefined) => {
+const isValidEducationObj = (educationObjParam) => {
 	isValidObj(educationObjParam);
 	const { from, to } = isValidFromAndToDate(
 		educationObjParam.from,
-		educationObjParam.to,
-		userDob
+		educationObjParam.to
 	);
 	return {
-		school: isValidSchoolName(educationObjParam.school, 'School Name'),
-		course: isValidCourseName(educationObjParam.course, 'Course Name'),
+		school: isValidStr(educationObjParam.school, 'School Name', 'min', 3),
+		course: isValidStr(educationObjParam.course, 'Course Name', 'min', 3),
 		from,
 		to,
 	};
 };
 
-const isValidExperienceObj = (experienceObjParam, userDob = undefined) => {
+const isValidExperienceObj = (experienceObjParam) => {
 	isValidObj(experienceObjParam);
 	const { from, to } = isValidFromAndToDate(
 		experienceObjParam.from,
-		experienceObjParam.to,
-		userDob
+		experienceObjParam.to
 	);
 	return {
-		// is valid course name is an alpha numeric check which is what we need for company name
-		company: isValidCourseName(experienceObjParam.company, 'Company Name'),
-		title: isValidCourseName(experienceObjParam.title, 'Title'),
+		company: isValidStr(experienceObjParam.company, 'Company Name', 'min', 3),
+		title: isValidStr(experienceObjParam.title, 'Title', 'min', 3),
 		from,
 		to,
 	};
@@ -371,7 +307,7 @@ const isValidExperienceObj = (experienceObjParam, userDob = undefined) => {
 const isValidAvailabilityQueryParams = (availabilityParam) => {
 	if (!AVAILABILITY.includes(availabilityParam.trim().toLowerCase()))
 		throw badRequestErr('Not a valid availability param');
-	return xss(availabilityParam.trim().toLowerCase());
+	return availabilityParam.trim().toLowerCase();
 };
 
 module.exports = {

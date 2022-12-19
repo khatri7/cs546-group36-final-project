@@ -17,7 +17,6 @@ import Hiring from 'pages/Hiring';
 import { useDispatch, useSelector } from 'react-redux';
 import { infoAlert } from 'store/alert';
 import CreateIdea from 'pages/CreateIdea';
-import NotFound from 'pages/404';
 
 const protectedRoutes = ['/projects/create', '/ideas/create'];
 
@@ -54,7 +53,6 @@ function Routes() {
 			<Route path="/hiring">
 				<Route index element={<Hiring />} />
 			</Route>
-			<Route path="*" element={<NotFound />} />
 		</RRDRoutes>
 	);
 }

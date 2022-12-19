@@ -1,5 +1,4 @@
 const express = require('express');
-const xss = require('xss');
 const { usersData } = require('../data');
 const {
 	getProjectsByOwnerUsername,
@@ -40,7 +39,7 @@ const router = express.Router();
 
 router.route('/username').post(async (req, res) => {
 	try {
-		const username = isValidUsername(xss(req.body.username));
+		const username = isValidUsername(req.body.username);
 		const isAvailable = await checkUsernameAvailable(username);
 		if (!isAvailable)
 			throw badRequestErr('The username provided has already been taken');
@@ -54,22 +53,21 @@ router
 	.route('/:username')
 	.get(async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
+			const username = isValidUsername(req.params.username);
 			const user = await usersData.getUserByUsername(username);
 			res.json({ user });
 		} catch (e) {
 			sendErrResp(res, e);
 		}
 	})
-	.patch(authenticateToken, async (req, res) => {
+	.put(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
+			const username = isValidUsername(req.params.username);
 			await getUserByUsername(username);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
-			// xss validation done in the isValidUpdateUserObj()
 			const updateUserObj = isValidUpdateUserObj(req.body);
 			const updatedUser = await updateUser(
 				username,
@@ -84,7 +82,7 @@ router
 
 router.route('/:username/projects').get(async (req, res) => {
 	try {
-		const username = isValidUsername(xss(req.params.username));
+		const username = isValidUsername(req.params.username);
 		await getUserByUsername(username);
 		const projects = await getProjectsByOwnerUsername(username);
 		res.json({ projects });
@@ -98,8 +96,8 @@ router
 	.get(authenticateToken, async (req, res) => {
 		const { user } = req;
 		try {
-			const username = isValidUsername(xss(req.params.username));
-			const loggedinId = isValidObjectId(xss(user._id));
+			const username = isValidUsername(req.params.username);
+			const loggedinId = isValidObjectId(user._id);
 			await getUserByUsername(username);
 			const projects = await getSavedProjects(username, loggedinId);
 			res.json({ projects });
@@ -116,18 +114,13 @@ router
 	.route('/:username/education')
 	.post(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
+			const username = isValidUsername(req.params.username);
 			await getUserByUsername(username);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
-			const ed = req.body;
-			ed.from = xss(ed.from);
-			ed.to = ed.to ? xss(ed.to) : null;
-			ed.school = xss(ed.school);
-			ed.course = xss(ed.course);
-			const educationObj = isValidEducationObj(ed);
+			const educationObj = isValidEducationObj(req.body);
 			const user = await createEducation(username, currentUser, educationObj);
 			res.status(successStatusCodes.CREATED).json({ user });
 		} catch (e) {
@@ -139,20 +132,15 @@ router
 	.route('/:username/education/:educationId')
 	.put(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
-			const educationId = isValidObjectId(xss(req.params.educationId));
+			const username = isValidUsername(req.params.username);
+			const educationId = isValidObjectId(req.params.educationId);
 			await getUserByUsername(username);
 			await getEducationById(educationId);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
-			const ed = req.body;
-			ed.from = xss(ed.from);
-			ed.to = ed.to ? xss(ed.to) : null;
-			ed.school = xss(ed.school);
-			ed.course = xss(ed.course);
-			const educationObj = isValidEducationObj(ed);
+			const educationObj = isValidEducationObj(req.body);
 			const user = await updateEducation(
 				username,
 				educationId,
@@ -166,13 +154,13 @@ router
 	})
 	.delete(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
-			const educationId = isValidObjectId(xss(req.params.educationId));
+			const username = isValidUsername(req.params.username);
+			const educationId = isValidObjectId(req.params.educationId);
 			await getUserByUsername(username);
 			await getEducationById(educationId);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
 			const user = await removeEducation(username, educationId, currentUser);
 			res.json({ user });
@@ -189,18 +177,13 @@ router
 	.route('/:username/experience')
 	.post(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
+			const username = isValidUsername(req.params.username);
 			await getUserByUsername(username);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
-			const ex = req.body;
-			ex.company = xss(ex.company);
-			ex.title = xss(ex.title);
-			ex.from = xss(ex.from);
-			ex.to = ex.to ? xss(ex.to) : null;
-			const experienceObj = isValidExperienceObj(ex);
+			const experienceObj = isValidExperienceObj(req.body);
 			const user = await createExperience(username, currentUser, experienceObj);
 			res.status(successStatusCodes.CREATED).json({ user });
 		} catch (e) {
@@ -212,20 +195,15 @@ router
 	.route('/:username/experience/:experienceId')
 	.put(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
-			const experienceId = isValidObjectId(xss(req.params.experienceId));
+			const username = isValidUsername(req.params.username);
+			const experienceId = isValidObjectId(req.params.experienceId);
 			await getUserByUsername(username);
 			await getExperienceById(experienceId);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
-			const ex = req.body;
-			ex.company = xss(ex.company);
-			ex.title = xss(ex.title);
-			ex.from = xss(ex.from);
-			ex.to = ex.to ? xss(ex.to) : null;
-			const experienceObj = isValidExperienceObj(ex);
+			const experienceObj = isValidExperienceObj(req.body);
 			const user = await updateExperience(
 				username,
 				experienceId,
@@ -239,13 +217,13 @@ router
 	})
 	.delete(authenticateToken, async (req, res) => {
 		try {
-			const username = isValidUsername(xss(req.params.username));
-			const experienceId = isValidObjectId(xss(req.params.experienceId));
+			const username = isValidUsername(req.params.username);
+			const experienceId = isValidObjectId(req.params.experienceId);
 			await getUserByUsername(username);
 			await getExperienceById(experienceId);
 			const currentUser = {
-				_id: isValidObjectId(xss(req.user._id)),
-				username: isValidUsername(xss(req.user.username)),
+				_id: isValidObjectId(req.user._id),
+				username: isValidUsername(req.user.username),
 			};
 			const user = await removeExperience(username, experienceId, currentUser);
 			res.json({ user });

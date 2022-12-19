@@ -36,9 +36,7 @@ const createExperience = async (
 		user.username.toLowerCase() !== currentUser.username.toLowerCase()
 	)
 		throw forbiddenErr('You cannot add an experience for another user');
-	// Here we also pass in the user's DOB to make sure the from date is not before the user's DOB, which is an extra step from routes.
-	// In routes, we haven't validated if the current logged in user is same as user being modified so we cannot reveal that information (if it does cause a bad request)
-	const experienceObj = isValidExperienceObj(experienceObjParam, user.dob);
+	const experienceObj = isValidExperienceObj(experienceObjParam);
 	experienceObj._id = ObjectId();
 	const usersCollection = await users();
 	const acknowledgement = await usersCollection.updateOne(
@@ -72,9 +70,7 @@ const updateExperience = async (
 		user.username.toLowerCase() !== currentUser.username.toLowerCase()
 	)
 		throw forbiddenErr('You cannot edit an experience of another user');
-	// Here we also pass in the user's DOB to make sure the from date is not before the user's DOB, which is an extra step from routes.
-	// In routes, we haven't validated if the current logged in user is same as user being modified so we cannot reveal that information (if it does cause a bad request)
-	const experienceObj = isValidExperienceObj(experienceObjParam, user.dob);
+	const experienceObj = isValidExperienceObj(experienceObjParam);
 	experienceObj._id = ObjectId(experienceId);
 	const usersCollection = await users();
 	const result = await usersCollection.updateOne(

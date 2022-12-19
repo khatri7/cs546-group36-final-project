@@ -11,7 +11,6 @@ function Hiring() {
 	const renderHiringSection = () => {
 		if (loading) return <Typography>Loading...</Typography>;
 		if (error) return <Typography>{error}</Typography>;
-		if (!data.users) return <Typography>Error getting the users</Typography>;
 		return <UsersList usersList={data.users || []} />;
 	};
 	return (
