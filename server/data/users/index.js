@@ -7,10 +7,8 @@ const {
 	internalServerErr,
 	badRequestErr,
 	forbiddenErr,
-	isValidFile,
-	unauthorizedErr,
+	isValidStr,
 } = require('../../utils');
-const { deleteFile, upload } = require('../../utils/aws');
 const { isValidQueryParamTechnologies } = require('../../utils/projects');
 const {
 	isValidUsername,
@@ -96,38 +94,28 @@ const checkEmailTaken = async (emailParam) => {
 	return true;
 };
 
-const udpateAvatar = async (userIdParam, currentUserParam, avatar) => {
-	const userId = isValidObjectId(userIdParam);
-	const user = await getUserById(userId);
-	const currentUser = {
-		_id: isValidObjectId(currentUserParam._id),
-		username: isValidUsername(currentUserParam.username),
-	};
-	isValidFile(avatar, 'avatar');
-	if (currentUser._id !== user._id.toString())
-		throw unauthorizedErr('You cannot update avatar of another user');
-	let location = null;
+const udpateAvatar = async (url, userName, userId) => {
 	try {
-		if (user.avatar) {
-			const existingAvatarKey = user.avatar.substr(
-				user.avatar.indexOf('.com/') + 5
-			);
-			await deleteFile(existingAvatarKey);
+		const user = await getUserByUsername(userName);
+		isValidStr(url, 'avatar');
+		if (user._id.toString() !== userId) {
+			throw badRequestErr('user doesnt not have appropriate persmissions');
 		}
-		const avatarKey = `${process.env.ENVIRONMENT}/avatars/${userId}/${avatar.originalname}`;
-		location = await upload(avatarKey, avatar.buffer, avatar.mimetype);
+		const usersCollection = await users();
+		const updateInfo = await usersCollection.updateOne(
+			{ _id: ObjectId(userId) },
+			{ $set: { avatar: url } }
+		);
+
+		if (!updateInfo.acknowledged)
+			throw badRequestErr('Could not update the User. Please try again.');
+		const udpatedAvatar = await getUserByUsername(userName);
+		return udpatedAvatar;
 	} catch (e) {
-		throw internalServerErr('Error updating avatar on AWS');
+		throw badRequestErr(
+			'Invalid AWS request/ AWS unable to process your avatar right now'
+		);
 	}
-	const usersCollection = await users();
-	const updateInfo = await usersCollection.updateOne(
-		{ _id: ObjectId(userId) },
-		{ $set: { avatar: location } }
-	);
-	if (!updateInfo.acknowledged)
-		throw badRequestErr('Could not update the User. Please try again.');
-	const updatedUser = await getUserById(userId);
-	return updatedUser;
 };
 
 const updateUser = async (
@@ -168,39 +156,29 @@ const updateUser = async (
 	const updatedUser = await getUserById(user._id.toString());
 	return updatedUser;
 };
-
-const udpateResume = async (userIdParam, currentUserParam, resume) => {
-	const userId = isValidObjectId(userIdParam);
-	const user = await getUserById(userId);
-	const currentUser = {
-		_id: isValidObjectId(currentUserParam._id),
-		username: isValidUsername(currentUserParam.username),
-	};
-	isValidFile(resume, 'resume');
-	if (currentUser._id !== user._id.toString())
-		throw unauthorizedErr('You cannot update resume of another user');
-	let location = null;
+const udpateResume = async (url, userName, userId) => {
 	try {
-		if (user.resumeUrl) {
-			const existingResumeKey = user.resumeUrl.substr(
-				user.resumeUrl.indexOf('.com/') + 5
-			);
-			await deleteFile(existingResumeKey);
+		isValidStr(url, 'resume');
+		const user = await getUserByUsername(userName);
+		if (user._id.toString() !== userId) {
+			throw badRequestErr('user doesnt not have appropriate persmissions');
 		}
-		const resumeKey = `${process.env.ENVIRONMENT}/resumes/${userId}/${resume.originalname}`;
-		location = await upload(resumeKey, resume.buffer, resume.mimetype, 5485760);
+
+		const usersCollection = await users();
+		const updateInfo = await usersCollection.updateOne(
+			{ _id: ObjectId(userId) },
+			{ $set: { resumeUrl: url } }
+		);
+
+		if (!updateInfo.acknowledged)
+			throw badRequestErr('Could not update the User. Please try again.');
+		const updatedResume = await getUserByUsername(userName);
+		return updatedResume;
 	} catch (e) {
-		throw internalServerErr('Error updating resume on AWS');
+		throw badRequestErr(
+			'Invalid AWS request/ AWS unable to process your request right now'
+		);
 	}
-	const usersCollection = await users();
-	const updateInfo = await usersCollection.updateOne(
-		{ _id: ObjectId(userId) },
-		{ $set: { resumeUrl: location } }
-	);
-	if (!updateInfo.acknowledged)
-		throw badRequestErr('Could not update the User. Please try again.');
-	const updatedUser = await getUserById(userId);
-	return updatedUser;
 };
 
 const authenticateUser = async (userLoginObjParam) => {
@@ -251,51 +229,6 @@ const createUser = async (userObjParam) => {
 	return createdUser;
 };
 
-const removeUserMedia = async (userIdParam, currentUserParam, mediaType) => {
-	const userId = isValidObjectId(userIdParam);
-	const user = await getUserById(userId);
-	const currentUser = {
-		_id: isValidObjectId(currentUserParam._id),
-		username: isValidUsername(currentUserParam.username),
-	};
-	if (!['resume', 'avatar'].includes(mediaType.trim()))
-		throw badRequestErr('Unrecognized media type');
-	if (currentUser._id !== user._id.toString())
-		throw unauthorizedErr('You cannot update resume or avatar of another user');
-	if (mediaType === 'avatar' && !user.avatar)
-		throw badRequestErr('Avatar does not exist');
-	if (mediaType === 'resume' && !user.resumeUrl)
-		throw badRequestErr('Resume does not exist');
-	let objKey = 'avatar';
-	if (mediaType === 'resume') objKey = 'resumeUrl';
-	const existingMediaKey = user[objKey].substr(
-		user[objKey].indexOf('.com/') + 5
-	);
-	try {
-		await deleteFile(existingMediaKey);
-	} catch (e) {
-		throw internalServerErr(
-			'An error occurred while trying to remove media for AWS'
-		);
-	}
-	let updateObj = {
-		avatar: null,
-	};
-	if (mediaType === 'resume')
-		updateObj = {
-			resumeUrl: null,
-		};
-	const usersCollection = await users();
-	const updateInfo = await usersCollection.updateOne(
-		{ _id: ObjectId(userId) },
-		{ $set: updateObj }
-	);
-	if (!updateInfo.acknowledged)
-		throw badRequestErr('Could not update the User. Please try again.');
-	const updatedUser = await getUserById(userId);
-	return updatedUser;
-};
-
 module.exports = {
 	getUserById,
 	getUserByUsername,
@@ -306,5 +239,4 @@ module.exports = {
 	getAllUsers,
 	udpateResume,
 	udpateAvatar,
-	removeUserMedia,
 };

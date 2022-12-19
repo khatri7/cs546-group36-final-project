@@ -23,7 +23,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteIdea, handleError, likeIdea, unlikeIdea } from 'utils/api-calls';
 import { errorAlert, successAlert, warningAlert } from 'store/alert';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 
 function IdeaCard({
 	idea,
@@ -83,7 +82,13 @@ function IdeaCard({
 				<CardHeader
 					title={idea.name}
 					subheader={
-						<Link to={`/users/${idea.owner?.username}`}>
+						<Link
+							to={`/users/${idea.owner?.username}`}
+							style={{
+								all: 'unset',
+								cursor: 'pointer',
+							}}
+						>
 							@{idea.owner.username}
 						</Link>
 					}
@@ -104,7 +109,7 @@ function IdeaCard({
 									</IconButton>
 									<Menu
 										sx={{ mt: '2rem' }}
-										id="idea-menu"
+										id="menu-appbar"
 										anchorEl={anchorElIdea}
 										anchorOrigin={{
 											vertical: 'top',
@@ -144,17 +149,9 @@ function IdeaCard({
 					}}
 				>
 					<Typography variant="body2" color="text.secondary">
-						{idea.description?.substring(0, 100)}
-						{idea.description?.length > 100 && '...'}
+						{idea.description}
 					</Typography>
-					<Stack
-						direction="row"
-						gap={1}
-						mt={1}
-						sx={{
-							flexWrap: 'wrap',
-						}}
-					>
+					<Stack direction="row" gap={1} mt={1}>
 						{idea.technologies.slice(0, 4).map((tech) => (
 							<Chip label={tech} key={tech} variant="outlined" />
 						))}
@@ -178,16 +175,6 @@ function IdeaCard({
 									/>
 								}
 								label={likes.length}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										inputProps={{ 'aria-label': 'Comments' }}
-										icon={<ChatBubbleOutlineRoundedIcon />}
-										checked={false}
-									/>
-								}
-								label={idea.comments?.length ?? 0}
 							/>
 						</Stack>
 					</CardActions>

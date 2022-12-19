@@ -8,7 +8,6 @@ const {
 const isValidIdeaName = (ideaNameParam) => {
 	if (!ideaNameParam) throw badRequestErr('Invalid input for idea name');
 	const ideaName = isValidStr(ideaNameParam, 'idea name', 'min', 3);
-	isValidStr(ideaName, 'idea name', 'max', 80);
 	ideaName.split('').forEach((char) => {
 		if (
 			!isLetterChar(char) &&
@@ -39,7 +38,7 @@ const isValidLookingFor = (lookingForParam) => {
 		throw badRequestErr('Invalid input for looking for');
 	if (lookingForParam <= 0)
 		throw badRequestErr('Invalid input for looking for');
-	if (lookingForParam > 50)
+	if (lookingForParam >= 50)
 		throw badRequestErr('Invalid input for looking for: Maximum 50 allowed');
 	return lookingForParam;
 };

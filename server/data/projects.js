@@ -4,20 +4,19 @@ const {
 	internalServerErr,
 	isValidObjectId,
 	notFoundErr,
+	isValidStr,
 	forbiddenErr,
 	unauthorizedErr,
 	badRequestErr,
-	isValidFile,
 } = require('../utils');
 const { isValidUsername } = require('../utils/users');
 const {
 	isValidProjectObject,
 	isValidQueryParamTechnologies,
 	checkuseraccess,
-	isValidProjectName,
 } = require('../utils/projects');
 const { getUserByUsername } = require('./users');
-const { deleteFile, upload } = require('../utils/aws');
+const { deleteFile } = require('../utils/aws');
 
 const getProjectById = async (idParam) => {
 	const id = isValidObjectId(idParam);
@@ -36,7 +35,11 @@ const getAllProjects = async (
 	const { name, technologies } = options;
 	const projectsCollection = await projects();
 	const query = {};
-	if (name && name.trim().length > 0 && isValidProjectName(name))
+	if (
+		name &&
+		name.trim().length > 0 &&
+		isValidStr(name, 'project name query param', 'min', 1)
+	)
 		query.name = { $regex: name.trim(), $options: 'i' };
 	if (technologies && technologies.trim().length > 0) {
 		const technologiesArr =
@@ -195,7 +198,6 @@ const getSavedProjects = async (usernameParam, ownerParam) => {
 		);
 	return savedProjects;
 };
-
 const unlikeProject = async (user, project) => {
 	const userId = isValidObjectId(user._id);
 	const projectId = isValidObjectId(project);
@@ -219,49 +221,31 @@ const unlikeProject = async (user, project) => {
 	return getUpdatedProject.likes;
 };
 
-const updateProjectImages = async (
-	projectIdParam,
-	currentUserParam,
-	image,
-	pos
-) => {
-	const projectId = isValidObjectId(projectIdParam);
-	const project = await getProjectById(projectId);
-	const currentUser = {
-		_id: isValidObjectId(currentUserParam._id),
-		username: isValidUsername(currentUserParam.username),
-	};
-	if (!['0', '1', '2', '3', '4'].includes(pos))
-		throw badRequestErr('Invalid image position');
-	isValidFile(image, 'image');
-	if (!checkuseraccess(currentUser, project.owner))
-		throw forbiddenErr(
-			`Not Authorised to update this project. Not Project Owner`
-		);
-	const imageArray = project.media;
-	let location = null;
+const updateProjectImages = async (url, pos, projectId) => {
 	try {
+		const project = await getProjectById(projectId);
+		const imageArray = project.media;
 		if (imageArray[pos]) {
 			const existingPhotoKey = imageArray[pos].substr(
 				imageArray[pos].indexOf('.com/') + 5
 			);
 			await deleteFile(existingPhotoKey);
 		}
-		const imageKey = `${process.env.ENVIRONMENT}/projects/${projectId}/image/${pos}/${image.originalname}`;
-		location = await upload(imageKey, image.buffer, image.mimetype);
+		imageArray[pos] = url;
+		const projectCollection = await projects();
+		const updateInfo = await projectCollection.updateOne(
+			{ _id: ObjectId(projectId) },
+			{ $set: { media: imageArray } }
+		);
+		if (!updateInfo.acknowledged)
+			throw badRequestErr('Could not update the project. Please try again.');
+		const updatedProject = await getProjectById(projectId);
+		return updatedProject;
 	} catch (e) {
-		throw internalServerErr('Error updating media on AWS');
+		throw badRequestErr(
+			'Invalid AWS request/AWS unable to process your request right now'
+		);
 	}
-	imageArray[pos] = location;
-	const projectCollection = await projects();
-	const updateInfo = await projectCollection.updateOne(
-		{ _id: ObjectId(projectId) },
-		{ $set: { media: imageArray } }
-	);
-	if (!updateInfo.acknowledged)
-		throw badRequestErr('Could not update the project. Please try again.');
-	const updatedProject = await getProjectById(projectId);
-	return updatedProject;
 };
 
 const removeProjectMedia = async (
@@ -287,13 +271,7 @@ const removeProjectMedia = async (
 	const existingPhotoKey = project.media[imagePos].substr(
 		project.media[imagePos].indexOf('.com/') + 5
 	);
-	try {
-		await deleteFile(existingPhotoKey);
-	} catch (e) {
-		throw internalServerErr(
-			'An error occurred while trying to remove media for AWS'
-		);
-	}
+	await deleteFile(existingPhotoKey);
 	const updatedProjectMedia = project.media;
 	updatedProjectMedia[imagePos] = null;
 	const projectCollection = await projects();

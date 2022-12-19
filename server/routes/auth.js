@@ -1,5 +1,4 @@
 const express = require('express');
-const xss = require('xss');
 const jwt = require('jsonwebtoken');
 const { authenticateUser, createUser, getUserById } = require('../data/users');
 const { authenticateToken } = require('../middleware/auth');
@@ -20,8 +19,8 @@ router.route('/').post(async (req, res) => {
 	try {
 		if (!req.cookies.token) throw new Error();
 		const { user } = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-		user._id = isValidObjectId(xss(user._id));
-		user.username = isValidUsername(xss(user.username));
+		user._id = isValidObjectId(user._id);
+		user.username = isValidUsername(user.username);
 		const dbUser = await getUserById(user._id);
 		if (dbUser.username !== user.username) throw new Error();
 		return res.json({
@@ -40,7 +39,6 @@ router.route('/').post(async (req, res) => {
 
 router.route('/login').post(async (req, res) => {
 	try {
-		// XSS validation done in isValidUserLoginObj()
 		const userLoginObj = isValidUserLoginObj(req.body);
 		const { user, token } = await authenticateUser(userLoginObj);
 		res
@@ -58,7 +56,6 @@ router.route('/login').post(async (req, res) => {
 
 router.route('/signup').post(async (req, res) => {
 	try {
-		// xss validation done in isValidUserObj()
 		const userObj = await isValidUserObj(req.body);
 		const { user, token } = await createUser(userObj);
 		res

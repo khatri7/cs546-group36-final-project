@@ -31,7 +31,11 @@ const getAllIdeas = async (
 	const { name, technologies, status } = options;
 	const ideasCollection = await ideas();
 	const query = {};
-	if (name && name.trim().length > 0 && isValidIdeaName(name))
+	if (
+		name &&
+		name.trim().length > 0 &&
+		isValidIdeaName(name, 'idea name query param', 'min', 1)
+	)
 		query.name = { $regex: name.trim(), $options: 'i' };
 	if (technologies && technologies.trim().length > 0) {
 		const technologiesArr =
