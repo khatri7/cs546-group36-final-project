@@ -11,7 +11,6 @@ import {
 	Avatar,
 	Tooltip,
 	Divider,
-	Link,
 	Stack,
 	FormControlLabel,
 	Checkbox,
@@ -148,93 +147,97 @@ export default function Project() {
 
 	return (
 		<Box>
-			<Stack direction="row" spacing={2}>
-				<Avatar sx={{ width: 56, height: 56, bgcolor: '#1976d2' }}>
-					{projectOwner.username.charAt(0).toUpperCase()}
-				</Avatar>
-				<Box>
-					<RRDLink
-						to={`/users/${projectOwner.username}`}
-						style={{
-							all: 'unset',
-							cursor: 'pointer',
-						}}
-					>
-						<Typography variant="h5">{projectOwner.username}</Typography>
-					</RRDLink>
-					<Typography variant="body2">{getSubHeader()}</Typography>
-				</Box>
-			</Stack>
-			<Divider variant="middle" sx={{ my: 2 }} />
-			<Stack
-				direction="row"
-				justifyContent="space-between"
-				alignItems="flex-start"
-				sx={{
-					mb: 2,
-				}}
-			>
-				<Box>
-					<Typography
-						variant="h4"
-						component="h1"
-						sx={{
-							mb: 1,
-						}}
-					>
-						{projectName}
-					</Typography>
-					{projectTechnologies.map((tech) => (
-						<Chip label={tech} key={tech} sx={{ mr: 1 }} />
-					))}
-				</Box>
-				<Box
-					display="flex"
-					justifyContent="flex-end"
+			<Stack direction="column-reverse">
+				<Stack
+					direction="row"
+					justifyContent="space-between"
+					alignItems="flex-start"
 					sx={{
-						gap: 1,
+						mb: 2,
 					}}
 				>
-					{projectDeploymentLink && (
-						<Tooltip title="Deployment Link" arrow>
-							<Link href={projectDeploymentLink} target="_blank">
-								<IconButton>
+					<Box>
+						<Typography
+							variant="h4"
+							component="h1"
+							sx={{
+								mb: 1,
+							}}
+						>
+							{projectName}
+						</Typography>
+						{projectTechnologies.map((tech) => (
+							<Chip label={tech} key={tech} sx={{ mr: 1 }} />
+						))}
+					</Box>
+					<Box
+						display="flex"
+						justifyContent="flex-end"
+						sx={{
+							gap: 1,
+						}}
+					>
+						{projectDeploymentLink && (
+							<Tooltip title="Deployment Link" arrow>
+								<IconButton
+									onClick={() => {
+										window.open(projectDeploymentLink, '_blank');
+									}}
+								>
 									<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
+									<span style={{ display: 'none' }}>Deployment Link</span>
 								</IconButton>
-							</Link>
-						</Tooltip>
-					)}
-					{projectGithub && (
-						<Tooltip title="GitHub" arrow>
-							<Link href={projectGithub} target="_blank">
-								<IconButton>
+							</Tooltip>
+						)}
+						{projectGithub && (
+							<Tooltip title="GitHub" arrow>
+								<IconButton
+									onClick={() => {
+										window.open(projectGithub, '_blank');
+									}}
+								>
 									<GitHubIcon sx={{ width: 35, height: 35 }} />
+									<span style={{ display: 'none' }}>Github</span>
 								</IconButton>
-							</Link>
-						</Tooltip>
-					)}
-					{isCurrentUsersProject && (
-						<Stack direction="row" spacing={2}>
-							<Button
-								variant="outlined"
-								onClick={() => {
-									setIsEditing(!isEditing);
-								}}
-								startIcon={<EditRoundedIcon />}
-							>
-								Edit
-							</Button>
-							<Button
-								variant="contained"
-								color="error"
-								onClick={handleDeleteProject}
-								startIcon={<DeleteIcon />}
-							>
-								Delete
-							</Button>
-						</Stack>
-					)}
-				</Box>
+							</Tooltip>
+						)}
+						{isCurrentUsersProject && (
+							<Stack direction="row" spacing={2}>
+								<Button
+									variant="outlined"
+									onClick={() => {
+										setIsEditing(!isEditing);
+									}}
+									startIcon={<EditRoundedIcon />}
+								>
+									Edit
+								</Button>
+								<Button
+									variant="contained"
+									color="error"
+									onClick={handleDeleteProject}
+									startIcon={<DeleteIcon />}
+								>
+									Delete
+								</Button>
+							</Stack>
+						)}
+					</Box>
+				</Stack>
+				<Divider variant="middle" sx={{ my: 2 }} />
+				<div className="project-page__owner-container">
+					<Avatar className="project-page__owner-avatar">
+						{projectOwner.username.charAt(0).toUpperCase()}
+					</Avatar>
+					<Box>
+						<RRDLink to={`/users/${projectOwner.username}`}>
+							<Typography variant="h5" component="h2">
+								{projectOwner.username}
+							</Typography>
+						</RRDLink>
+						<Typography variant="body2">{getSubHeader()}</Typography>
+					</Box>
+				</div>
 			</Stack>
 			{isEditing ? (
 				<CreateProject
@@ -260,7 +263,7 @@ export default function Project() {
 					}
 				/>
 			) : (
-				<Grid container spacing={3} sx={{ mt: 2 }}>
+				<div className="project-page__content-container">
 					<Grid item xs={6}>
 						{showUpdateMediaForm ? (
 							<UploadProjectMedia
@@ -297,9 +300,9 @@ export default function Project() {
 					<Grid item xs={6}>
 						<Typography variant="body2">{projectDescription}</Typography>
 					</Grid>
-				</Grid>
+				</div>
 			)}
-			<Box sx={{ mt: 2, p: 1 }}>
+			<div className="project-page__interactions-container">
 				<Stack
 					direction="row"
 					gap={1}
@@ -332,7 +335,7 @@ export default function Project() {
 						label={projectSavedBy.length}
 					/>
 				</Stack>
-			</Box>
+			</div>
 			<CommentsSection
 				createCommentReqFn={async (comment) =>
 					createProjectComment(comment, projectId)

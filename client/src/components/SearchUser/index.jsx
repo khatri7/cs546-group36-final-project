@@ -98,6 +98,7 @@ function SearchUser({ setEndpoint }) {
 									onClick={handleAvailabilityClear}
 								>
 									<ClearIcon />
+									<span style={{ display: 'none' }}>clear selection</span>
 								</IconButton>
 							}
 						>
