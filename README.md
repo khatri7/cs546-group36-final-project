@@ -17,7 +17,7 @@
 - [x] 9. Edit/Delete project: Authenticated users can modify/delete their project(s).
 - [x] 10. Interaction: Authenticated users can Like, Comment on any project or Save/Bookmark them
 - [x] 11. Hiring Section: Shows all the users available for hire and can be filtered based on skills and availability
-- [x] 12. Upload media to S3 and store it's endpoint in the database
+- [x] 12. Upload media to S3 and store its endpoint in the database
 
 ## TECHNOLOGY STACK
 
@@ -63,7 +63,7 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 		}
 	],
 	"socials": {
-		"github": "https://github.com/199nik/test.git",
+		"github": "https://github.com/199nik/test",
 		"linkedin": null
 	}
 }
@@ -76,7 +76,7 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 	"_id": "639181477a14df2ee3ee937a",
 	"name": "Aftersell Casestudy 3D illustration",
 	"description": "Description here",
-	"github": "https://github.com/199nik/test.git",
+	"github": "https://github.com/199nik/test",
 	"media": [],
 	"deploymentLink": "https://www.github.com",
 	"createdAt": "2022-12-08T06:16:39.174Z",
@@ -133,23 +133,23 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 }
 ```
 
-## REST API(s)
+> Note: The allowed ranges and types for the input fields have been put in a separate file (collections__type-and-range.pdf) which is in the parent directory in the zip.
+- - - -
+# Setup
 
-## Setup
+## Step I. Clone URL (optional)
 
-### Clone from git repository
+> https://github.com/khatri7/cs546-group36-final-project.git
 
-```
-URL: https://github.com/khatri7/cs546-group36-final-project.git
-```
+## Step II. Installing dependencies
 
-### Installing dependencies
-
-Install npm dependencies in both the `client` and `server` subdirectories and also the root directory using `npm install`.
+Install npm dependencies in both the `client` and `server` sub-directories and also the root directory.
 
 ```shell
 > npm install
+# go to the 'server' directory and execute the below
 > cd server && npm install
+# go to the 'client' directory and execute the below
 > cd client && npm install
 ```
 
@@ -159,17 +159,14 @@ Set up a MongoDB database either locally or online via <a href='https://www.mong
 
 Create a `.env` file in both the `client` and `server` subdirectories as shown in the `.env.example` files
 
-Set up the following environment variables
-
-> In `client/.env`:
+## Step III: Setting up environment variables:
+> Note: the zipped file will already contain the .env files with the below entries  
 
 ```ini
+In `client/.env`:
 REACT_APP_SERVER_URL="http://localhost:3005" //endpoint on which server will start
-```
 
-> In `server/.env`:
-
-```ini
+In `server/.env`:
 MONGO_URL= //MongoDB database endpoint
 MONGO_DATABASE= //name of the database
 JWT_SECRET= //string used for JWT secret
@@ -180,16 +177,9 @@ AWS_S3_REGION= //S3 region
 ENVIRONMENT="local" //environment currently working on - used for storing media according to environment
 ```
 
-### Run
+## Step IV: Running the application
 
-Finally, to run the code, from the root directory you can start the application in development mode (with server hot reloading) using:
-
-```shell
-$ npm run dev
-```
-
-Or, use the start script:
-
+To run the code, from the root directory you can start the application in development mode using:
 ```shell
 $ npm start
 ```
