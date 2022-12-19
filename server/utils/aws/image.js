@@ -2,7 +2,7 @@ const projectData = require('../../data/projects');
 const { badRequestErr } = require('..');
 const { upload } = require('.');
 
-const images = async (image, project, imagePos, projectId) => {
+const images = async (image, project, imagePos, projectId, user) => {
 	if (!image) {
 		throw badRequestErr('Please Pass a file');
 	}
@@ -13,7 +13,7 @@ const images = async (image, project, imagePos, projectId) => {
 		throw badRequestErr('the file size of Image uploaded has exceeded 5 mb');
 	const photoKey = `${process.env.ENVIRONMENT}/projects/${project._id}/image/${imagePos}/${image.originalname}`;
 	const location = await upload(photoKey, image.buffer, image.mimetype);
-	await projectData.updateProjectImages(location, imagePos, projectId);
+	await projectData.updateProjectImages(location, imagePos, projectId, user);
 	const updatedProject = await projectData.getProjectById(projectId);
 	return updatedProject;
 };

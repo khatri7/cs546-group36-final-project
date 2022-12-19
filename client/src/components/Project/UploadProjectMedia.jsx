@@ -107,11 +107,7 @@ function UploadProjectMedia({
 								<img
 									src={projectMedia[position]}
 									alt="project media"
-									style={{
-										width: '100%',
-										height: '100%',
-										objectFit: 'cover',
-									}}
+									className="project__media__image"
 								/>
 								<IconButton
 									aria-label="delete image"

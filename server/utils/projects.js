@@ -1,10 +1,11 @@
-// Projects Validations
+const xss = require('xss');
 const topics = require('./data/technologies');
 const {
 	badRequestErr,
 	isLetterChar,
 	isNumberChar,
 	isValidUrl,
+	rGitHub,
 } = require('./index');
 const { isValidStr, isValidObj, isValidArray } = require('./index');
 
@@ -17,6 +18,7 @@ const checkuseraccess = (user, owner) => {
 
 const isValidProjectName = (projectNameParam) => {
 	const projectName = isValidStr(projectNameParam, 'project name', 'min', 3);
+	isValidStr(projectName, 'project name', 'max', 80);
 	projectName.split('').forEach((char) => {
 		if (
 			!isLetterChar(char) &&
@@ -29,29 +31,10 @@ const isValidProjectName = (projectNameParam) => {
 	return projectName;
 };
 
-// taken from https://github.com/jonschlinkert/is-git-url.git check it out for more info
-// const githubUrlValidation = (inputLink) => {
-// 	const regex =
-// 		// eslint-disable-next-line no-useless-escape
-// 		/(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-// 	const output = regex.test(inputLink);
-// 	if (output === false) throw badRequestErr('Github URL invalid');
-// };
-
 const isValidGithub = (inputLinkParam) => {
 	const inputLink = isValidStr(inputLinkParam);
-	// githubUrlValidation(inputLink);
+	if (!rGitHub.test(inputLink)) throw badRequestErr('Invalid GitHub url');
 	return inputLink;
-};
-
-const isValidQueryParamTechnologies = (technologiesParam) => {
-	isValidStr(technologiesParam, 'technologies query param');
-	return technologiesParam
-		.trim()
-		.split(',')
-		.map((topic) => topic.toLowerCase().trim())
-		.filter((topic) => topic !== '')
-		.join(',');
 };
 
 const isValidTechnologies = (technologiesParam) => {
@@ -65,17 +48,30 @@ const isValidTechnologies = (technologiesParam) => {
 	const technologiesArr = Array.from(technologiesSet);
 	if (technologiesArr.length > 10)
 		throw badRequestErr('You can add up to 10 technologies.');
-	technologiesArr.map((tech, index) => {
+	technologiesArr.map((tech) => {
 		if (
-			!isValidStr(tech, `Technology at index ${index}`) ||
+			!isValidStr(tech, `Technology at index ${technologies.indexOf(tech)}`) ||
 			!topics.includes(tech.trim().toLowerCase())
 		)
 			throw badRequestErr(
-				`Invalid technology at index ${index}. Please check /projects/technologies to see valid technologies`
+				`Invalid technology at index ${technologies.indexOf(
+					tech
+				)}. Please check /projects/technologies to see valid technologies`
 			);
 		return tech.trim().toLowerCase();
 	});
 	return technologies;
+};
+
+const isValidQueryParamTechnologies = (technologiesParam) => {
+	isValidStr(xss(technologiesParam), 'technologies query param');
+	return isValidTechnologies(
+		technologiesParam
+			.trim()
+			.split(',')
+			.map((topic) => topic.toLowerCase().trim())
+			.filter((topic) => topic !== '')
+	).join(',');
 };
 
 const isValidProjectObject = (projectObject) => {
@@ -83,7 +79,7 @@ const isValidProjectObject = (projectObject) => {
 	return {
 		name: isValidProjectName(projectObject.name, 'Project name', 'min', 3),
 		description: projectObject.description
-			? isValidStr(projectObject.description, 'project description')
+			? isValidStr(projectObject.description, 'project description', 'min', 3)
 			: null,
 		github: projectObject.github ? isValidGithub(projectObject.github) : null,
 		technologies: isValidTechnologies(projectObject.technologies),
@@ -92,6 +88,7 @@ const isValidProjectObject = (projectObject) => {
 			: null,
 	};
 };
+
 module.exports = {
 	checkuseraccess,
 	isValidProjectName,

@@ -4,13 +4,53 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Layout from 'components/Layout';
+import { createTheme, ThemeProvider } from '@mui/material';
 import Routes from './routes';
+
+const theme = createTheme({
+	components: {
+		MuiButton: {
+			styleOverrides: {
+				root: {
+					'&.Mui-disabled': {
+						':disabled': {
+							color: '#5c5c5c',
+						},
+					},
+				},
+			},
+		},
+		MuiTextField: {
+			styleOverrides: {
+				root: {
+					'& legend': { display: 'none' },
+					'& fieldset': { top: 0 },
+					'& label': {
+						padding: '0 5px',
+						background: 'white',
+					},
+				},
+			},
+		},
+		MuiInputLabel: {
+			styleOverrides: {
+				root: {
+					'&.Mui-disabled': {
+						color: '#747474',
+					},
+				},
+			},
+		},
+	},
+});
 
 function App() {
 	return (
-		<Layout>
-			<Routes />
-		</Layout>
+		<ThemeProvider theme={theme}>
+			<Layout>
+				<Routes />
+			</Layout>
+		</ThemeProvider>
 	);
 }
 

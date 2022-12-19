@@ -8,10 +8,18 @@ const successStatusCodes = {
 };
 Object.freeze(successStatusCodes);
 
-// Taken from Yup: https://github.com/jquense/yup/blob/master/src/string.ts
+// Taken from https://uibakery.io/regex-library/url
 const rUrl =
 	// eslint-disable-next-line
-	/^((https?|ftp):)?\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
+	/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g;
+
+const rGitHub =
+	// eslint-disable-next-line no-useless-escape
+	/^(http(s?):\/\/)?(www\.)?github\.com\/(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]{1,})\/?$/g;
+
+const rLinkedIn =
+	// eslint-disable-next-line no-useless-escape
+	/^(http(s?):\/\/)?(www\.)?linkedin\.com\/(pub|in|profile)\/(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]{1,})\/?$/g;
 
 const error = {
 	BAD_REQUEST: {
@@ -187,6 +195,24 @@ const isValidUrl = (urlParam, varName) => {
 	return url;
 };
 
+const isValidFile = (file, type) => {
+	if (!file) {
+		throw badRequestErr('No file provided');
+	}
+	const fileSize = file.size;
+	if (fileSize > 5253365.76) throw badRequestErr('File exceeds the 5MB limit');
+	if (type === 'resume') {
+		if (file.mimetype !== 'application/pdf')
+			throw badRequestErr('Please upload file type of PDF only');
+	} else if (['image', 'avatar'].includes(type)) {
+		if (!(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'))
+			throw badRequestErr('Please upload file type of JPEG/JPG/PNG only');
+	} else
+		throw badRequestErr(
+			'Invalid mediaType, needs to be one of resume, avatar, or image'
+		);
+};
+
 module.exports = {
 	successStatusCodes,
 	unauthorizedErr,
@@ -204,4 +230,7 @@ module.exports = {
 	isValidObjectId,
 	isValidJwtString,
 	isValidUrl,
+	isValidFile,
+	rGitHub,
+	rLinkedIn,
 };
