@@ -21,7 +21,6 @@ import { handleError, updateUser } from 'utils/api-calls';
 import { errorAlert, successAlert } from 'store/alert';
 import { useDispatch } from 'react-redux';
 import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
-import moment from 'moment';
 
 const AVAILABILITY = [
 	'full-time',
@@ -32,25 +31,15 @@ const AVAILABILITY = [
 ];
 
 const schema = Yup.object().shape({
-	firstName: Yup.string()
-		.required('First name is required')
+	firstName: Yup.string('First Name should be a string')
+		.required('First Name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid First name')
-		.min(3, 'First name must be atleast 3 cahracters')
-		.max(40, 'First name cannot be greater than 40 cahracters'),
-	lastName: Yup.string()
-		.required('Last name is required')
+		.min(3, 'First Name should be at least 3 characters long'),
+	lastName: Yup.string('Last Name should be a string')
+		.required('Last Name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid Last name')
-		.min(3, 'Last name must be atleast 3 characters')
-		.max(40, 'Last name cannot be greater than 40 cahracters'),
-	dob: Yup.string('Invalid DOB').required('DOB is required'),
-	github: Yup.string().matches(
-		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
-		'Invalid GitHub URL'
-	),
-	linkedin: Yup.string().matches(
-		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
-		'Invalid LinkedIn URL'
-	),
+		.min(3, 'Last Name should be at least 3 characters long'),
+	dob: Yup.string('Invalid DOB').required('DOB is required').min(4),
 });
 
 function EditUserDetails({
@@ -76,8 +65,8 @@ function EditUserDetails({
 				skills,
 				isAvailable,
 				availability,
-				github: github || '',
-				linkedin: linkedin || '',
+				github,
+				linkedin,
 			}}
 			validationSchema={schema}
 			validate={(values) => {
@@ -106,12 +95,8 @@ function EditUserDetails({
 						isAvailable: values.isAvailable,
 						availability: values.isAvailable ? values.availability : [],
 						socials: {
-							github:
-								values.github.trim().length === 0 ? null : values.github.trim(),
-							linkedin:
-								values.linkedin.trim().length === 0
-									? null
-									: values.linkedin.trim(),
+							github: values.github,
+							linkedin: values.linkedin,
 						},
 					});
 					if (!resp.user) throw new Error();
@@ -137,7 +122,11 @@ function EditUserDetails({
 				setFieldValue,
 			}) => {
 				return (
-					<Form className="edituser__form">
+					<Form
+						style={{
+							width: '100%',
+						}}
+					>
 						<Box
 							sx={{
 								display: 'flex',
@@ -175,7 +164,6 @@ function EditUserDetails({
 								name="dob"
 								component={DatePickerInput}
 								label="Date of Birth"
-								maxDate={moment().subtract(12, 'y')}
 								required
 							/>
 							<Field

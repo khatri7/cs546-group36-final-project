@@ -69,7 +69,7 @@ function SearchProject({ setEndpoint }) {
 						value={technologies}
 						onChange={handleChange}
 						renderInput={(params) => {
-							return <TextField {...params} label="Technologies" />;
+							return <TextField {...params} placeholder="Technologies" />;
 						}}
 						renderTags={() => {}}
 						clearIcon={null}
@@ -88,7 +88,7 @@ function SearchProject({ setEndpoint }) {
 							),
 						}}
 						name="name"
-						label="Project Name"
+						placeholder="Project Name"
 					/>
 					<Button
 						type="submit"

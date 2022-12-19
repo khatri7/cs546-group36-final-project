@@ -28,7 +28,7 @@ function CommentsSection({
 			<Divider variant="middle" />
 			<Stack direction="row" alignItems="center">
 				<ChatIcon sx={{ mr: 1, width: 30, height: 30 }} />
-				<Typography variant="h5" component="h3" sx={{ mb: 2, mt: 2 }}>
+				<Typography variant="h5" sx={{ mb: 2, mt: 2 }}>
 					Comments ({commentsList.length})
 				</Typography>
 			</Stack>

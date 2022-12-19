@@ -33,7 +33,6 @@ import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 
 /**
  * @typedef {Object} Project
@@ -135,7 +134,13 @@ function ProjectCard({
 				<CardHeader
 					title={project.name}
 					subheader={
-						<Link to={`/users/${project.owner?.username}`}>
+						<Link
+							to={`/users/${project.owner?.username}`}
+							style={{
+								all: 'unset',
+								cursor: 'pointer',
+							}}
+						>
 							@{project.owner.username}
 						</Link>
 					}
@@ -159,6 +164,7 @@ function ProjectCard({
 									</IconButton>
 									<Menu
 										sx={{ mt: '2rem' }}
+										id="menu-appbar"
 										anchorEl={anchorElProject}
 										anchorOrigin={{
 											vertical: 'top',
@@ -210,14 +216,7 @@ function ProjectCard({
 						{project.description?.substring(0, 100)}
 						{project.description?.length > 100 && '...'}
 					</Typography>
-					<Stack
-						direction="row"
-						gap={1}
-						mt={1}
-						sx={{
-							flexWrap: 'wrap',
-						}}
-					>
+					<Stack direction="row" gap={1} mt={1}>
 						{project.technologies.slice(0, 4).map((tech) => (
 							<Chip label={tech} key={tech} variant="outlined" />
 						))}
@@ -253,16 +252,6 @@ function ProjectCard({
 									/>
 								}
 								label={savedBy.length}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										inputProps={{ 'aria-label': 'Comments' }}
-										icon={<ChatBubbleOutlineRoundedIcon />}
-										checked={false}
-									/>
-								}
-								label={project.comments?.length ?? 0}
 							/>
 						</Stack>
 					</CardActions>
