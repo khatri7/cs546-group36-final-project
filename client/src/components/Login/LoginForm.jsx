@@ -14,7 +14,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { handleError, login } from 'utils/api-calls';
 import { useDispatch } from 'react-redux';
 import { errorAlert } from 'store/alert';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setUser } from 'store/user';
 
 const schema = Yup.object().shape({
@@ -164,7 +164,15 @@ function LoginForm() {
 				)}
 			</Formik>
 			<Typography>
-				New here? <Link to="/signup">Sign Up</Link>
+				New here?{' '}
+				<Button
+					type="button"
+					onClick={() => {
+						navigate('/signup');
+					}}
+				>
+					Sign Up
+				</Button>
 			</Typography>
 		</Box>
 	);

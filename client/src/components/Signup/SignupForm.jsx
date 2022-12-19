@@ -15,7 +15,7 @@ import TechnologiesAutocomplete from 'components/TechnologiesAutocomplete';
 import { Formik, Form, Field } from 'formik';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { errorAlert, successAlert } from 'store/alert';
 import { setUser } from 'store/user';
 import {
@@ -318,7 +318,15 @@ function SignupForm() {
 				)}
 			</Formik>
 			<Typography>
-				Already a user? <Link to="/login">Log In</Link>
+				Already a user?{' '}
+				<Button
+					type="button"
+					onClick={() => {
+						navigate('/login');
+					}}
+				>
+					Log In
+				</Button>
 			</Typography>
 		</Box>
 	);
