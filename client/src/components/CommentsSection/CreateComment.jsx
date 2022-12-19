@@ -66,11 +66,7 @@ function CreateComment({ reqFn, handleNewComment = () => {} }) {
 					handleBlur,
 					isSubmitting,
 				}) => (
-					<Form
-						style={{
-							width: '100%',
-						}}
-					>
+					<Form className="createComment__form">
 						<Box
 							sx={{
 								display: 'flex',
