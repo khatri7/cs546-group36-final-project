@@ -17,7 +17,7 @@
 - [x] 9. Edit/Delete project: Authenticated users can modify/delete their project(s).
 - [x] 10. Interaction: Authenticated users can Like, Comment on any project or Save/Bookmark them
 - [x] 11. Hiring Section: Shows all the users available for hire and can be filtered based on skills and availability
-- [x] 12. Upload media to S3 and store its endpoint in the database
+- [x] 12. Upload media to S3 and store it's endpoint in the database
 
 ## TECHNOLOGY STACK
 
@@ -133,26 +133,24 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 }
 ```
 
-> Note: The allowed ranges and types for the input fields have been put in a separate file (collections\_\_type-and-range.pdf) which is in the parent directory in the zip.
+## REST API(s)
 
----
+## Setup
 
-# Setup
+### Clone from git repository
 
-## Step I. Clone URL (optional)
+```
+URL: https://github.com/khatri7/cs546-group36-final-project.git
+```
 
-> https://github.com/khatri7/cs546-group36-final-project.git
+### Installing dependencies
 
-## Step II. Installing dependencies
-
-Install npm dependencies in both the `client` and `server` sub-directories and also the root directory.
+Install npm dependencies in both the `client` and `server` subdirectories and also the root directory using `npm install`.
 
 ```shell
 > npm install
-# go to the 'server' directory and execute the below
-> npm install
-# go to the 'client' directory and execute the below
-> npm install
+> cd server && npm install
+> cd client && npm install
 ```
 
 The root directory has been initialized as an npm project and installs [`concurrently`](https://www.npmjs.com/package/concurrently) as a dev dependency to start both the client and the server with a single command
@@ -161,15 +159,17 @@ Set up a MongoDB database either locally or online via <a href='https://www.mong
 
 Create a `.env` file in both the `client` and `server` subdirectories as shown in the `.env.example` files
 
-## Step III: Setting up environment variables:
+Set up the following environment variables
 
-> Note: the zipped file will already contain the .env files with the below entries
+> In `client/.env`:
 
 ```ini
-In `client/.env`:
 REACT_APP_SERVER_URL="http://localhost:3005" //endpoint on which server will start
+```
 
-In `server/.env`:
+> In `server/.env`:
+
+```ini
 MONGO_URL= //MongoDB database endpoint
 MONGO_DATABASE= //name of the database
 JWT_SECRET= //string used for JWT secret
@@ -180,9 +180,15 @@ AWS_S3_REGION= //S3 region
 ENVIRONMENT="local" //environment currently working on - used for storing media according to environment
 ```
 
-## Step IV: Running the application
+### Run
 
-To run the code, from the root directory you can start the application in development mode using:
+Finally, to run the code, from the root directory you can start the application in development mode (with server hot reloading) using:
+
+```shell
+$ npm run dev
+```
+
+Or, use the start script:
 
 ```shell
 $ npm start
