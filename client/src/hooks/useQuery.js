@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GET, handleError } from 'utils/api-calls';
 
 /**
@@ -9,6 +10,7 @@ function useQuery(endpoint) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 	const [data, setData] = useState(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const makeReq = async () => {
@@ -22,9 +24,14 @@ function useQuery(endpoint) {
 				setLoading(false);
 				if (typeof handleError(e) === 'string') setError(handleError(e));
 				else setError('Unkown error occured');
+				if (e.response?.status === 404)
+					navigate('/404', {
+						state: { message: handleError(e) },
+					});
 			}
 		};
 		makeReq();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [endpoint]);
 
 	return {

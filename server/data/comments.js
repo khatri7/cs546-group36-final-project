@@ -19,6 +19,7 @@ const getCommentById = async (commentId) => {
 	return comment;
 };
 
+// checks if the user is either project owner or comment owner
 const iscommentOwner = async (projectParam, commentParam, userParam) => {
 	let isOwner = false;
 	const projectId = isValidObjectId(projectParam);

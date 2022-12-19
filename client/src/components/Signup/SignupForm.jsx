@@ -30,22 +30,31 @@ const schema = Yup.object().shape({
 	firstName: Yup.string()
 		.required('First name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid First name')
-		.min(3, 'First name must be atleast 3 cahracters'),
+		.min(3, 'First name must be atleast 3 cahracters')
+		.max(40, 'First name cannot be greater than 40 cahracters'),
 	lastName: Yup.string()
 		.required('Last name is required')
 		.matches('^[a-zA-Z]*$', 'Invalid Last name')
-		.min(3, 'Last name must be atleast 3 characters'),
+		.min(3, 'Last name must be atleast 3 characters')
+		.max(40, 'Last name cannot be greater than 40 cahracters'),
 	username: Yup.string()
 		.required('Username is required')
 		.matches('^[a-zA-Z][a-zA-Z0-9]*$', 'Invalid username')
-		.min(3, 'Username must be at least 3 characters'),
-	dob: Yup.string(),
+		.min(3, 'Username must be at least 3 characters')
+		.max(20, 'Username cannot be greater than 20 cahracters'),
+	dob: Yup.string('Invalid DOB').required('DOB is required'),
 	email: Yup.string().required('Email is required').email('Invalid email'),
 	password: Yup.string()
 		.required('Password is required')
 		.min(8, 'Password must be at least 8 characters'),
-	github: Yup.string(),
-	linkedin: Yup.string(),
+	github: Yup.string().matches(
+		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'Invalid GitHub URL'
+	),
+	linkedin: Yup.string().matches(
+		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'Invalid LinkedIn URL'
+	),
 });
 
 function SignupForm() {
@@ -97,6 +106,8 @@ function SignupForm() {
 						errors.dob = 'Invalid DOB: Should be between 12-100 years in age';
 					if (!values.skills || values.skills.length < 1)
 						errors.skills = 'Need to mention at least one skill';
+					else if (values.skills.length > 10)
+						errors.skills = 'You can only add upto 10 skills';
 					if (!isValidSkills(values.skills)) errors.skills = 'Invalid skills';
 					if (values.skills.length > 10)
 						errors.skills = 'You can add up to 10 skills';
@@ -149,7 +160,11 @@ function SignupForm() {
 								minWidth: '500px',
 							}}
 						>
-							<Typography variant="h3" sx={{ textTransform: 'uppercase' }}>
+							<Typography
+								variant="h3"
+								component="h1"
+								sx={{ textTransform: 'uppercase' }}
+							>
 								Sign Up
 							</Typography>
 							<Stack
@@ -244,12 +259,14 @@ function SignupForm() {
 							<Field
 								name="skills"
 								component={TechnologiesAutocomplete}
-								label="Skills"
+								label="Skills (upto 10)"
 								required
 								id="select-skills-autocomplete"
 							/>
 							<Divider sx={{ width: '100%' }}>
-								<Typography variant="h5">SOCIALS</Typography>
+								<Typography variant="h5" component="span">
+									SOCIALS
+								</Typography>
 							</Divider>
 							<TextField
 								variant="outlined"
