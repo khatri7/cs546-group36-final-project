@@ -11,7 +11,6 @@ import {
 	Avatar,
 	Tooltip,
 	Divider,
-	Link,
 	Stack,
 	FormControlLabel,
 	Checkbox,
@@ -180,20 +179,26 @@ export default function Project() {
 					>
 						{projectDeploymentLink && (
 							<Tooltip title="Deployment Link" arrow>
-								<Link href={projectDeploymentLink} target="_blank">
-									<IconButton>
-										<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
-									</IconButton>
-								</Link>
+								<IconButton
+									onClick={() => {
+										window.open(projectDeploymentLink, '_blank');
+									}}
+								>
+									<InsertLinkRoundedIcon sx={{ width: 35, height: 35 }} />
+									<span style={{ display: 'none' }}>Deployment Link</span>
+								</IconButton>
 							</Tooltip>
 						)}
 						{projectGithub && (
 							<Tooltip title="GitHub" arrow>
-								<Link href={projectGithub} target="_blank">
-									<IconButton>
-										<GitHubIcon sx={{ width: 35, height: 35 }} />
-									</IconButton>
-								</Link>
+								<IconButton
+									onClick={() => {
+										window.open(projectGithub, '_blank');
+									}}
+								>
+									<GitHubIcon sx={{ width: 35, height: 35 }} />
+									<span style={{ display: 'none' }}>Github</span>
+								</IconButton>
 							</Tooltip>
 						)}
 						{isCurrentUsersProject && (

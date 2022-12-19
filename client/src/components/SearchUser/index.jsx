@@ -103,9 +103,9 @@ function SearchUser({ setEndpoint }) {
 								<IconButton
 									sx={{ display: availability ? '' : 'none' }}
 									onClick={handleAvailabilityClear}
-									component="label"
 								>
 									<ClearIcon />
+									<span style={{ display: 'none' }}>clear selection</span>
 								</IconButton>
 							}
 						>

@@ -121,6 +121,12 @@ function UserCard({
 			setLoading(false);
 		}
 	};
+	const openAvatarInput = () => {
+		if (avatarRef.current) avatarRef.current.click();
+	};
+	const openResumeInput = () => {
+		if (resumeRef.current) resumeRef.current.click();
+	};
 	useEffect(() => {
 		if (resumeRef.current)
 			resumeRef.current.addEventListener('change', handleResumeUpload);
@@ -152,27 +158,27 @@ function UserCard({
 						/>
 						{isCurrentUserProfile && !showEditProfile && (
 							<Stack>
+								<input
+									ref={avatarRef}
+									hidden
+									accept="image/jpeg, image/png"
+									type="file"
+								/>
 								<Button
 									sx={{
 										mt: -1,
 									}}
 									variant="text"
 									size="small"
-									component="label"
 									aria-label="upload avatar"
 									disabled={submittingAvatar}
+									onClick={openAvatarInput}
 								>
 									{submittingAvatar ? (
 										<CircularProgress size={16} />
 									) : (
 										'Upload/Update Avatar'
 									)}
-									<input
-										ref={avatarRef}
-										hidden
-										accept="image/jpeg, image/png"
-										type="file"
-									/>
 								</Button>
 								{avatar && !submittingAvatar && (
 									<Button
@@ -279,9 +285,9 @@ function UserCard({
 											window.open(socials.github, '_blank');
 										}}
 										color="inherit"
-										component="label"
 									>
 										<GitHubIcon fontSize="large" />
+										<span style={{ display: 'none' }}>Github</span>
 									</IconButton>
 								)}
 								{socials.linkedin && (
@@ -290,33 +296,33 @@ function UserCard({
 											window.open(socials.linkedin, '_blank');
 										}}
 										color="inherit"
-										component="label"
 									>
 										<LinkedInIcon fontSize="large" />
+										<span style={{ display: 'none' }}>LinkedIn</span>
 									</IconButton>
 								)}
 							</Stack>
 
 							{isCurrentUserProfile && (
 								<Stack direction="row" spacing={1}>
+									<input
+										ref={resumeRef}
+										hidden
+										accept="application/pdf"
+										type="file"
+									/>
 									<Button
 										variant="outlined"
-										component="label"
 										aria-label="upload resume"
 										startIcon={<UploadRoundedIcon />}
 										disabled={submittingResume}
+										onClick={openResumeInput}
 									>
 										{submittingResume ? (
 											<CircularProgress size={16} />
 										) : (
 											`${resume ? 'Update' : 'Upload'} Resume`
 										)}
-										<input
-											ref={resumeRef}
-											hidden
-											accept="application/pdf"
-											type="file"
-										/>
 									</Button>
 									{resume && !submittingResume && (
 										<Button
