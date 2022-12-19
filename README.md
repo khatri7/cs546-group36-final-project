@@ -121,7 +121,7 @@ THis application is built using [`MERN`](https://www.mongodb.com/mern-stack) sta
 		{
 			"_id": "639182237a14df2ee3ee937b",
 			"comment": "Nice! This is awesome",
-			"timestamp": "2022-12-08T06:20:19.508Z",
+			"createdAt": "2022-12-08T06:20:19.508Z",
 			"owner": {
 				"_id": "638a922d97cd9732b83106a8",
 				"username": "nik"
