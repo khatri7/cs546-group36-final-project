@@ -44,11 +44,11 @@ const schema = Yup.object().shape({
 		.max(40, 'Last name cannot be greater than 40 cahracters'),
 	dob: Yup.string('Invalid DOB').required('DOB is required'),
 	github: Yup.string().matches(
-		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
 		'Invalid GitHub URL'
 	),
 	linkedin: Yup.string().matches(
-		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
 		'Invalid LinkedIn URL'
 	),
 });

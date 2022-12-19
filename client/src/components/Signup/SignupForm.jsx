@@ -48,11 +48,11 @@ const schema = Yup.object().shape({
 		.required('Password is required')
 		.min(8, 'Password must be at least 8 characters'),
 	github: Yup.string().matches(
-		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'^(http(s?)://)?(www.)?github.com/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
 		'Invalid GitHub URL'
 	),
 	linkedin: Yup.string().matches(
-		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$/g',
+		'^(http(s?)://)?(www.)?linkedin.com/(pub|in|profile)/(?:[-a-zA-Z0-9()@:%_+.~#?&/=]{1,})/?$',
 		'Invalid LinkedIn URL'
 	),
 });
